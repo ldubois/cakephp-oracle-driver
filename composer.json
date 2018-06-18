@@ -1,5 +1,5 @@
 {
-    "name": "cakedc/cakephp-oracle-driver",
+    "name": "ldubois/cakephp-oracle-driver",
     "description": "CakePHP 3 Driver for Oracle Database",
     "type": "cakephp-plugin",
     "keywords": [
@@ -8,7 +8,7 @@
         "database",
         "driver"
     ],
-    "homepage": "https://github.com/cakedc/cakephp-oracle-driver",
+    "homepage": "https://github.com/ldubois/cakephp-oracle-driver",
     "license": "MIT",
     "authors": [
         {
