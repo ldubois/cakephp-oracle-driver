@@ -157,7 +157,7 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
                     AND utc.column_name = ucc.column_name
                 " . ($useOwner ? 'AND utc.OWNER = ucc.OWNER' : '') . "
                 )
-                WHERE UPPER(utc.table_name) = :tableParam
+                WHERE utc.table_name = :tableParam
                 " . ($useOwner ? 'AND utc.OWNER = :ownerParam' : '') . "
                 ORDER BY utc.column_id";
 
@@ -561,7 +561,7 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
                         c.delete_rule
                     FROM user_cons_columns cc
                     JOIN user_constraints c ON c.constraint_name = cc.constraint_name and c.constraint_type = 'R'
-                    WHERE  upper(cc.table_name) = :tableParam
+                    WHERE  cc.table_name = :tableParam
                     ";
             return [
                 $sql,
@@ -580,7 +580,7 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
             JOIN all_constraints c ON (c.constraint_name = cc.constraint_name AND c.owner = cc.owner) and c.constraint_type = 'R'
             WHERE 
             cc.owner = :ownerParam
-            AND upper(cc.table_name) = :tableParam";
+            AND cc.table_name = :tableParam";
 
         return [
             $sql,
