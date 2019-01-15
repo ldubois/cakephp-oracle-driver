@@ -473,7 +473,7 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
                 WHERE  c.constraint_name = ic.index_name" . ($useOwner ? ' AND c.owner = ic.index_owner' : '') . "
              ) AS is_primary
              FROM $indexColumnsTable ic
-             WHERE upper(ic.table_name) = :tableParam" . ($useOwner ? ' AND ic.table_owner = :ownerParam' : '') . "
+             WHERE ic.table_name = :tableParam" . ($useOwner ? ' AND ic.table_owner = :ownerParam' : '') . "
             ORDER BY ic.column_position ASC";
 
         $params = [
