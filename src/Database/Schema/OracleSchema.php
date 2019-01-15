@@ -555,31 +555,34 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
             $sql = "SELECT
                         cc.column_name,
                         cc.constraint_name,
-                        cc.owner as referenced_owner,
-                        cc.table_name as referenced_table_name,
-                        cc.column_name as referenced_column_name,
+                        r.owner as referenced_owner,
+                        r.table_name as referenced_table_name,
+                        r.column_name as referenced_column_name,
                         c.delete_rule
                     FROM user_cons_columns cc
-                    JOIN user_constraints c ON c.constraint_name = cc.constraint_name and c.constraint_type = 'R'
-                    WHERE  upper(cc.table_name) = :tableParam
+                    JOIN user_constraints c ON c.constraint_name = cc.constraint_name
+                    JOIN user_cons_columns r ON r.constraint_name = c.r_constraint_name
+                    WHERE c.constraint_type = 'R'
+                    AND upper(cc.table_name) = :tableParam
                     ";
             return [
                 $sql,
                 [':tableParam' => $table]
             ];
         }
-       $sql = "
+        $sql = "
             SELECT
                 cc.column_name,
                 cc.constraint_name,
-                cc.owner as referenced_owner,
-                cc.table_name as referenced_table_name,
-                cc.column_name as referenced_column_name,
+                r.owner as referenced_owner,
+                r.table_name as referenced_table_name,
+                r.column_name as referenced_column_name,
                 c.delete_rule
             FROM all_cons_columns cc
-            JOIN all_constraints c ON (c.constraint_name = cc.constraint_name AND c.owner = cc.owner) and c.constraint_type = 'R'
-            WHERE 
-            cc.owner = :ownerParam
+            JOIN all_constraints c ON (c.constraint_name = cc.constraint_name AND c.owner = cc.owner)
+            JOIN all_cons_columns r ON (r.constraint_name = c.r_constraint_name AND r.owner = c.r_owner)
+            WHERE c.constraint_type = 'R'
+            AND cc.owner = :ownerParam
             AND upper(cc.table_name) = :tableParam";
 
         return [
