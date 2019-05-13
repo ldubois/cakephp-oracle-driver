@@ -545,18 +545,21 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
      */
     public function describeForeignKeySql($tableName, $config)
     {
-        list($schema, $table) = $this->tableSplit($tableName, $config);
+          list($schema, $table) = $this->tableSplit($tableName, $config);
 
         if (empty($schema)) {
             $sql = "SELECT
                         cc.column_name,
                         cc.constraint_name,
                         cc.owner as referenced_owner,
-                        cc.table_name as referenced_table_name,
-                        cc.column_name as referenced_column_name,
+                        cc.table_name as table_name,
+                        ccr.column_name as referenced_column_name,
+                        cr.table_name as referenced_table_name,
                         c.delete_rule
                     FROM user_cons_columns cc
                     JOIN user_constraints c ON c.constraint_name = cc.constraint_name and c.constraint_type = 'R'
+                    JOIN user_constraints cr ON cr.constraint_name = c.r_constraint_name 
+                    JOIN user_cons_columns ccr on ccr.constraint_name = c.r_constraint_name  and c.constraint_type = 'R' and ccr.POSITION = cc.POSITION
                     WHERE  cc.table_name = :tableParam
                     ";
             return [
@@ -569,11 +572,14 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
                 cc.column_name,
                 cc.constraint_name,
                 cc.owner as referenced_owner,
-                cc.table_name as referenced_table_name,
-                cc.column_name as referenced_column_name,
+				cc.table_name as table_name,
+				ccr.column_name as referenced_column_name,
+				cr.table_name as referenced_table_name,
                 c.delete_rule
             FROM all_cons_columns cc
             JOIN all_constraints c ON (c.constraint_name = cc.constraint_name AND c.owner = cc.owner) and c.constraint_type = 'R'
+            JOIN all_constraints cr ON cr.constraint_name = c.r_constraint_name  AND cr.owner = cc.owner
+                    JOIN all_cons_columns ccr on ccr.constraint_name = c.r_constraint_name  and c.constraint_type = 'R' and ccr.POSITION = cc.POSITION
             WHERE 
             cc.owner = :ownerParam
             AND cc.table_name = :tableParam";
@@ -593,11 +599,12 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
     public function convertForeignKeyDescription(Table $table, $row)
     {
         $row = array_change_key_case($row);
+        
         $data = [
             'type' => Table::CONSTRAINT_FOREIGN,
             'columns' => strtoupper($row['column_name']),
             'references' => [
-                $row['referenced_owner'] . '.' . $row['referenced_table_name'],
+                 $row['referenced_table_name'],
                 strtoupper($row['referenced_column_name'])
             ],
             'update' => Table::ACTION_SET_NULL,
