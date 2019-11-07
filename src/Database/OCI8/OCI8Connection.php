@@ -68,7 +68,7 @@ class OCI8Connection extends PDO
             throw OCI8Exception::fromErrorInfo(oci_error());
         }
 
-        $this->config($options);
+        $this->setConfig($options);
     }
 
     /**

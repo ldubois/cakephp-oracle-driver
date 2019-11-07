@@ -205,8 +205,9 @@ abstract class OracleBase extends Driver
             $disableBuffer = true;
         }
 
-        if ($isObject && $query->bufferResults() === false || $disableBuffer) {
-            $statement->bufferResults(false);
+        
+        if ($isObject && $query->isBufferedResultsEnabled() === false || $disableBuffer) {
+            $statement->enableBufferedResults(false);
         }
         return $statement;
     }
