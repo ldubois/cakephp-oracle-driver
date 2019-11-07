@@ -103,6 +103,18 @@ class OracleStatement extends StatementDecorator
                 }
             }
         }
+//        if ($type == 'assoc' && is_array($result) && !empty($this->_driver->autoShortenedIdentifiers)) {
+//            $translatedRow = [];
+//            foreach ($result as $key => $val) {
+//                if (array_key_exists($key, $this->_driver->autoShortenedIdentifiers)) {
+//                    $translatedRow[$this->_driver->autoShortenedIdentifiers[$key]] = $val;
+//                } else {
+//                    $translatedRow[$key] = $val;
+//                }
+//            }
+//            $result = $translatedRow;
+//        }
+
         return $result;
     }
 

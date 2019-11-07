@@ -11,6 +11,7 @@
 
 namespace CakeDC\OracleDriver\Database\Driver;
 
+use Cake\Datasource\EntityInterface;
 use CakeDC\OracleDriver\Config\ConfigTrait;
 use CakeDC\OracleDriver\Database\Dialect\OracleDialectTrait;
 use CakeDC\OracleDriver\Database\Statement\OracleStatement;
@@ -140,6 +141,53 @@ abstract class OracleBase extends Driver
     {
         $this->connect();
         $isObject = ($query instanceof \Cake\ORM\Query) || ($query instanceof \Cake\Database\Query);
+        if ($isObject) {
+//            print_r([get_class($query)]);
+        } else {
+//            print_r([$query]);
+        }
+        if ($query instanceof \Cake\ORM\Query) {
+            $query->formatResults(function ($items) use ($query) {
+                print_r(['items' => $items]);
+                return $items->map(function ($item) use ($query) {
+                    $alias = $query->repository()->alias();
+                    if (isset($item['CSID1'])) {
+                        print_r([
+                            'item' => $item,
+                            'idnt' => $this->autoShortenedIdentifiers,
+                            'alias' => $alias
+                        ]);
+                    }
+                    if (is_array($item)) {
+                        $translatedRow = [];
+                        foreach ($item as $key => $val) {
+                            if (array_key_exists($key, $this->autoShortenedIdentifiers)) {
+                                $translatedRow[$this->autoShortenedIdentifiers[$key]] = $val;
+                            } else {
+                                $translatedRow[$key] = $val;
+                            }
+                        }
+
+                        return $translatedRow;
+                    }
+
+                    if ($item instanceof EntityInterface) {
+                        foreach ($item as $key => $val) {
+                            if (array_key_exists($key, $this->autoShortenedIdentifiers)) {
+                                $item[$this->autoShortenedIdentifiers[$key]] = $val;
+                                unset($item[$key]);
+                            }
+
+                            if (array_key_exists($alias . '__' . $key, $this->autoShortenedIdentifiers)) {
+                                $item[$this->autoShortenedIdentifiers[$alias . '__' . $key]] = $val;
+                                unset($item[$key]);
+                            }
+                        }
+                    }
+                    return $item;
+                });
+            }, \Cake\ORM\Query::PREPEND);
+        }
         $queryStringRaw = $isObject ? $query->sql() : $query;
         Log::write('debug', $queryStringRaw);
         // debug($queryStringRaw);
@@ -152,7 +200,7 @@ abstract class OracleBase extends Driver
         $statement->paramMap = $paramMap;
 
         $disableBuffer = false;
-        $normalizedQuery = substr(strtolower(trim($queryString, " \t\n\r\0\x0B(")), 0, 6);
+        $normalizedQuery = substr(strtolower(trim($queryString)), 0, 6);
         if ($normalizedQuery !== 'select') {
             $disableBuffer = true;
         }

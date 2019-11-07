@@ -102,3 +102,8 @@ Cake\Datasource\ConnectionManager::config('test', [
     'url' => getenv('db_dsn'),
     'timezone' => 'UTC'
 ]);
+
+Cake\Datasource\ConnectionManager::config('default', [
+    'url' => getenv('db_dsn'),
+    'timezone' => 'UTC'
+]);

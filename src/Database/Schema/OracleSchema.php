@@ -157,7 +157,7 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
                     AND utc.column_name = ucc.column_name
                 " . ($useOwner ? 'AND utc.OWNER = ucc.OWNER' : '') . "
                 )
-                WHERE utc.table_name = :tableParam
+                WHERE UPPER(utc.table_name) = :tableParam
                 " . ($useOwner ? 'AND utc.OWNER = :ownerParam' : '') . "
                 ORDER BY utc.column_id";
 
@@ -192,7 +192,12 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
             case 'INTEGER':
             case 'PLS_INTEGER':
             case 'BINARY_INTEGER':
-                if ($row['data_scale'] > 0) {
+                if ($row['data_precision'] == 1) {
+                    $field = [
+                        'type' => 'boolean',
+                        'length' => null
+                    ];
+                } elseif ($row['data_scale'] > 0) {
                     $field = [
                         'type' => 'decimal',
                         'length' => $row['data_precision'],
@@ -353,7 +358,12 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
             case 'INTEGER':
             case 'PLS_INTEGER':
             case 'BINARY_INTEGER':
-                if ($row['data_scale'] > 0) {
+                if ($row['data_precision'] == 1) {
+                    $field = [
+                        'type' => 'boolean',
+                        'length' => null
+                    ];
+                } elseif ($row['data_scale'] > 0) {
                     $field = [
                         'type' => 'decimal',
                         'length' => $row['data_precision'],
@@ -451,11 +461,16 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
 
         $sql = "SELECT
             ic.index_name AS name,
-            i.index_type AS type,
+            (
+                SELECT i.index_type
+                FROM   $indexesTable i
+                WHERE  i.index_name = ic.index_name" . ($useOwner ? ' AND ic.table_owner = i.table_owner' : '') . "
+            ) AS type,
             decode(
                 (
-                      i.uniqueness
-                     
+                     SELECT i.uniqueness
+                     FROM   $indexesTable i
+                     WHERE  i.index_name = ic.index_name" . ($useOwner ? ' AND ic.table_owner = i.table_owner' : '') . "
                 ),
                 'NONUNIQUE', 0,
                 'UNIQUE', 1
@@ -463,13 +478,12 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
             ic.column_name AS column_name,
             ic.column_position AS column_pos,
             (
-                c.constraint_type
-               
+                SELECT c.constraint_type
+                FROM   $constraintsTable c
+                WHERE  c.constraint_name = ic.index_name" . ($useOwner ? ' AND c.owner = ic.index_owner' : '') . "
              ) AS is_primary
              FROM $indexColumnsTable ic
-			 join $indexesTable i on  i.index_name = ic.index_name" . ($useOwner ? ' AND ic.table_owner = i.table_owner' : '') . "
-			 join  $constraintsTable c on c.constraint_name = ic.index_name" . ($useOwner ? ' AND c.owner = ic.index_owner' : '') . "
-             WHERE ic.table_name = :tableParam" . ($useOwner ? ' AND ic.table_owner = :ownerParam' : '') . "
+             WHERE upper(ic.table_name) = :tableParam" . ($useOwner ? ' AND ic.table_owner = :ownerParam' : '') . "
             ORDER BY ic.column_position ASC";
 
         $params = [
@@ -545,44 +559,41 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
      */
     public function describeForeignKeySql($tableName, $config)
     {
-          list($schema, $table) = $this->tableSplit($tableName, $config);
+        list($schema, $table) = $this->tableSplit($tableName, $config);
 
         if (empty($schema)) {
             $sql = "SELECT
                         cc.column_name,
                         cc.constraint_name,
-                        cc.owner as referenced_owner,
-                        cc.table_name as table_name,
-                        ccr.column_name as referenced_column_name,
-                        cr.table_name as referenced_table_name,
+                        r.owner as referenced_owner,
+                        r.table_name as referenced_table_name,
+                        r.column_name as referenced_column_name,
                         c.delete_rule
                     FROM user_cons_columns cc
-                    JOIN user_constraints c ON c.constraint_name = cc.constraint_name and c.constraint_type = 'R'
-                    JOIN user_constraints cr ON cr.constraint_name = c.r_constraint_name 
-                    JOIN user_cons_columns ccr on ccr.constraint_name = c.r_constraint_name  and c.constraint_type = 'R' and ccr.POSITION = cc.POSITION
-                    WHERE  cc.table_name = :tableParam
+                    JOIN user_constraints c ON c.constraint_name = cc.constraint_name
+                    JOIN user_cons_columns r ON r.constraint_name = c.r_constraint_name
+                    WHERE c.constraint_type = 'R'
+                    AND upper(cc.table_name) = :tableParam
                     ";
             return [
                 $sql,
                 [':tableParam' => $table]
             ];
         }
-       $sql = "
+        $sql = "
             SELECT
                 cc.column_name,
                 cc.constraint_name,
-                cc.owner as referenced_owner,
-				cc.table_name as table_name,
-				ccr.column_name as referenced_column_name,
-				cr.table_name as referenced_table_name,
+                r.owner as referenced_owner,
+                r.table_name as referenced_table_name,
+                r.column_name as referenced_column_name,
                 c.delete_rule
             FROM all_cons_columns cc
-            JOIN all_constraints c ON (c.constraint_name = cc.constraint_name AND c.owner = cc.owner) and c.constraint_type = 'R'
-            JOIN all_constraints cr ON cr.constraint_name = c.r_constraint_name  AND cr.owner = cc.owner
-                    JOIN all_cons_columns ccr on ccr.constraint_name = c.r_constraint_name  and c.constraint_type = 'R' and ccr.POSITION = cc.POSITION
-            WHERE 
-            cc.owner = :ownerParam
-            AND cc.table_name = :tableParam";
+            JOIN all_constraints c ON (c.constraint_name = cc.constraint_name AND c.owner = cc.owner)
+            JOIN all_cons_columns r ON (r.constraint_name = c.r_constraint_name AND r.owner = c.r_owner)
+            WHERE c.constraint_type = 'R'
+            AND cc.owner = :ownerParam
+            AND upper(cc.table_name) = :tableParam";
 
         return [
             $sql,
@@ -599,13 +610,12 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
     public function convertForeignKeyDescription(Table $table, $row)
     {
         $row = array_change_key_case($row);
-        
         $data = [
             'type' => Table::CONSTRAINT_FOREIGN,
-            'columns' => strtoupper($row['column_name']),
+            'columns' => strtolower($row['column_name']),
             'references' => [
-                 $row['referenced_table_name'],
-                strtoupper($row['referenced_column_name'])
+                $row['referenced_owner'] . '.' . $row['referenced_table_name'],
+                strtolower($row['referenced_column_name'])
             ],
             'update' => Table::ACTION_SET_NULL,
             'delete' => $this->_convertOnClause($row['delete_rule']),

@@ -25,7 +25,11 @@ use Cake\Database\SqlDialectTrait;
 trait OracleDialectTrait
 {
 
-    use SqlDialectTrait;
+    use SqlDialectTrait {
+        quoteIdentifier as origQuoteIdentifier;
+    }
+
+    public $autoShortenedIdentifiers = [];
 
     /**
      *  String used to start a database identifier quoting to make it safe
@@ -47,6 +51,35 @@ trait OracleDialectTrait
      * @var \CakeDC\OracleDriver\Database\Schema\OracleSchema
      */
     protected $_schemaDialect;
+
+    /**
+     * To avoid Oracle's "No identifiers > 30 characters"
+     * restriction, at this very low level we'll auto-replace Cake automagic
+     * aliases like 'SomeLongTableName__some_really_long_field_name' with
+     * 'CAKE_SHORTENED_ID[n]' where [n] is a simple incrementing integer.
+     * Then in OracleStatement's "fetch" function, we'll undo these
+     * auto-replacements
+     *
+     * {@inheritDoc}
+     */
+    public function quoteIdentifier($identifier)
+    {
+        if (preg_match('/^[\w-]+$/', $identifier) && strlen($identifier) > 30) {
+            $key = array_search($identifier, $this->autoShortenedIdentifiers);
+            if ($key === false) {
+                list($table, $field) = explode('__', $identifier, 2);
+                $index = count($this->autoShortenedIdentifiers) + 1;
+                if ($table != '' && $field != '') {
+                    $key = $table . '__CSID' . $index;
+                } else {
+                    $key = 'CAKE_SHORTENED_ID' . $index;
+                }
+                $this->autoShortenedIdentifiers[$key] = $identifier;
+            }
+            $identifier = $key;
+        }
+        return $this->origQuoteIdentifier($identifier);
+    }
 
     /**
      * Distinct clause needs no transformation

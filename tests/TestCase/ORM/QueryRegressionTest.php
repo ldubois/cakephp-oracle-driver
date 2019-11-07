@@ -164,4 +164,21 @@ class QueryRegressionTest extends CakeQueryRegressionTest
         $this->assertEquals(2, $query->count());
     }
 
+    /**
+     * Test that offset/limit are elided from subquery loads.
+     *
+     * @return void
+     */
+    public function testAssociationSubQueryNoOffset()
+    {
+        $table = TableRegistry::get('Articles');
+        $table->addBehavior('Translate', ['fields' => ['title', 'body']]);
+        $table->locale('eng');
+        $query = $table->find('translations')
+            ->order(['Articles.id' => 'ASC'])
+            ->limit(10)
+            ->offset(1);
+        $result = $query->toArray();
+        $this->assertCount(2, $result);
+    }
 }
