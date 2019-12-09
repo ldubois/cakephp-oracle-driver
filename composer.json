@@ -29,7 +29,7 @@
         "preferred-install": "src"
     },
     "require": {
-        "php": ">=5.4.16",
+        "php": ">=7.0",
         "cakephp/chronos": "*"
     },
     "require-dev": {
