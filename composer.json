@@ -49,7 +49,7 @@
                     "reference": "54fa6f3a9ae6f8dea120c2a7dd76406b35879f3a"
                 },
                 "require": {
-                    "php": ">=5.5.9",
+                    "php": ">=7.0",
                     "ext-intl": "*",
                     "ext-mbstring": "*",
                     "cakephp/chronos": "*",
