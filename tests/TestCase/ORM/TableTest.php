@@ -50,10 +50,10 @@ class TableTest extends CakeTableTest
             'table' => 'users',
             'connection' => $this->connection,
         ]);
-        $table->displayField('username');
+        $table->setDisplayField('username');
         $query = $table
             ->find('list')
-            ->hydrate(false)
+            ->enableHydration(false)
             ->order('id');
         $expected = [
             1 => 'mariano',
@@ -64,7 +64,7 @@ class TableTest extends CakeTableTest
         $this->assertSame($expected, $query->toArray());
 
         $query = $table->find('list', ['fields' => ['id', 'username']])
-                       ->hydrate(false)
+                       ->enableHydration(false)
                        ->order('id');
         $expected = [
             1 => 'mariano',
@@ -80,7 +80,7 @@ class TableTest extends CakeTableTest
                'username',
                'odd' => new FunctionExpression('MOD', [new IdentifierExpression('id'), 2])
            ])
-           ->hydrate(false)
+           ->enableHydration(false)
            ->order('id');
         $expected = [
             1 => [
@@ -106,7 +106,7 @@ class TableTest extends CakeTableTest
             'table' => 'users',
             'connection' => $this->connection,
         ]);
-        $table->displayField('username');
+        $table->setDisplayField('username');
         $query = $table->find('list', ['fields' => ['id', 'username']])
                        ->order('id');
         $expected = [
@@ -123,7 +123,7 @@ class TableTest extends CakeTableTest
                'username',
                'odd' => new FunctionExpression('MOD', [new IdentifierExpression('id'), 2])
            ])
-           ->hydrate(true)
+           ->enableHydration(true)
            ->order('id');
         $expected = [
             1 => [
@@ -185,7 +185,7 @@ class TableTest extends CakeTableTest
             'comment' => 'new comment'
         ]);
 
-        $article->dirty('comments', true);
+        $article->setDirty('comments', true);
         $article = $articles->save($article, ['associated' => ['Comments']]);
 
         $this->assertEquals($sizeComments, $articles->Comments->find('all')

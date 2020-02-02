@@ -156,8 +156,10 @@ abstract class OracleBase extends Driver
             $disableBuffer = true;
         }
 
-        if ($isObject && $query->isBufferedResultsEnabled() === false || $disableBuffer) {
-            $statement->enableBufferedResults(false);
+        if ($isObject
+            && $query->isBufferedResultsEnabled() === false
+            || $disableBuffer) {
+                $statement->bufferResults(false);
         }
         return $statement;
     }
@@ -255,7 +257,7 @@ abstract class OracleBase extends Driver
      */
     public function quoteIfAutoQuote($identifier)
     {
-        if ($this->autoQuoting()) {
+        if ($this->isAutoQuotingEnabled()) {
             return $this->quoteIdentifier($identifier);
         }
         return $identifier;

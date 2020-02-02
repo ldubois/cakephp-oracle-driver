@@ -424,7 +424,7 @@ class MethodLocatorTest extends TestCase
      */
     public function testSet()
     {
-        $mock = $this->getMock('CakeDC\OracleDriver\ORM\Method');
+        $mock = $this->getMockBuilder(Method::class)->getMock();
         $this->assertSame($mock, $this->_locator->set('Articles', $mock));
         $this->assertSame($mock, $this->_locator->get('Articles'));
     }

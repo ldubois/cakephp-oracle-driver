@@ -53,7 +53,7 @@ class OracleConnection extends Connection
     public static function build(Connection $connection)
     {
         $config = $connection->config();
-        $config['driver'] = $connection->driver();
+        $config['driver'] = $connection->getDriver();
         return new OracleConnection($config);
     }
 
@@ -111,7 +111,7 @@ class OracleConnection extends Connection
      */
     protected function _getMethodLogger(StatementInterface $statement)
     {
-        $log = new MethodLoggingStatement($statement, $this->driver());
+        $log = new MethodLoggingStatement($statement, $this->getDriver());
         $log->logger($this->methodLogger());
         return $log;
     }

@@ -48,8 +48,8 @@ class QueryTest extends CakeQueryTest
         $table = TableRegistry::get('Articles');
         $result = $table->find('all')
             ->select(['myField' => '(SELECT 20 FROM DUAL)'])
-            ->autoFields(true)
-            ->hydrate(false)
+            ->enableAutoFields(true)
+            ->enableHydration(false)
             ->first();
 
         $this->assertArrayHasKey('myField', $result);
@@ -69,8 +69,8 @@ class QueryTest extends CakeQueryTest
 
         $result = $table->find()
             ->select(['myField' => '(SELECT 2 + 2 FROM DUAL)'])
-            ->autoFields(true)
-            ->hydrate(false)
+            ->enableAutoFields(true)
+            ->enableHydration(false)
             ->contain('Authors')
             ->first();
 
@@ -93,12 +93,12 @@ class QueryTest extends CakeQueryTest
 
         $result = $table->find()
             ->select(['myField' => '(SELECT 2 + 2 FROM DUAL)'])
-            ->autoFields(true)
-            ->hydrate(false)
+            ->enableAutoFields(true)
+            ->enableHydration(false)
             ->contain([
                 'Authors' => function ($q) {
                     return $q->select(['compute' => '(SELECT 2 + 20 FROM DUAL)'])
-                             ->autoFields(true);
+                             ->enableAutoFields(true);
                 }
             ])
             ->first();
@@ -142,7 +142,7 @@ class QueryTest extends CakeQueryTest
         $articles->belongsToMany('tags');
 
         $results = $table->find()
-             ->hydrate(false)
+             ->enableHydration(false)
              ->matching('articles', function ($q) {
                  return $q->notMatching('tags', function ($q) {
                      return $q->where(['tags.name' => 'tag3']);
@@ -182,7 +182,7 @@ class QueryTest extends CakeQueryTest
         };
         $results = $table->find()
              ->select(['total_articles' => 'count(articles.id)'])
-             ->autoFields(true)
+             ->enableAutoFields(true)
              ->leftJoinWith('articles', $orderFn)
              ->group(['authors.id', 'authors.name']);
 

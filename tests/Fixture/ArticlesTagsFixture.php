@@ -29,13 +29,13 @@ class ArticlesTagsFixture extends TestFixture
         'tag_id' => ['type' => 'integer', 'null' => false],
         '_constraints' => [
             'unique_tag' => ['type' => 'primary', 'columns' => ['article_id', 'tag_id']],
-            'tag_idx' => [
-                'type' => 'foreign',
-                'columns' => ['tag_id'],
-                'references' => ['tags', 'id'],
-//                'update' => 'cascade',
-                'delete' => 'cascade',
-            ],
+            // 'tag_idx' => [
+                // 'type' => 'foreign',
+                // 'columns' => ['tag_id'],
+                // 'references' => ['tags', 'id'],
+               // 'update' => 'cascade',
+                // 'delete' => 'cascade',
+            // ],
         ],
     ];
 

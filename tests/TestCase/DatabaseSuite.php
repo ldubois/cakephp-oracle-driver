@@ -27,7 +27,7 @@ namespace Cake\Test\TestCase;
 use Cake\Datasource\ConnectionManager;
 use Cake\TestSuite\TestPermutationDecorator;
 use Cake\TestSuite\TestSuite;
-use \PHPUnit_Framework_TestResult;
+use PHPUnit\Framework\TestResult;
 
 /**
  * All tests related to database
@@ -59,11 +59,11 @@ class DatabaseSuite extends TestSuite
     /**
      * Runs the tests and collects their result in a TestResult.
      *
-     * @param \PHPUnit_Framework_TestResult $result
-     * @return \PHPUnit_Framework_TestResult
+     * @param \PHPUnit\Framework\TestResult $result
+     * @return \PHPUnit\Framework\TestResult
      */
     public function run(
-        PHPUnit_Framework_TestResult $result = null,
+        TestResult $result = null,
         $filter = false,
         array $groups = [],
         array $excludeGroups = [],
@@ -71,13 +71,11 @@ class DatabaseSuite extends TestSuite
     ) {
         $permutations = [
             'Identifier Quoting' => function () {
-                ConnectionManager::get('test')
-                                 ->driver()
-                                 ->autoQuoting(true);
-//             },
-//             'No identifier quoting' => function () {
-//                 ConnectionManager::get('test')->driver()->autoQuoting(false);
-            }
+                ConnectionManager::get('test')->getDriver()->enableAutoQuoting(true);
+            },
+            // 'No identifier quoting' => function () {
+                // ConnectionManager::get('test')->getDriver()->enableAutoQuoting(false);
+            // }
         ];
 
         foreach ($permutations as $permutation) {

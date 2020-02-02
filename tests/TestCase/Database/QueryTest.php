@@ -86,7 +86,7 @@ class QueryTest extends CakeQueryTest
         $this->assertEquals(['id' => 2], $result->fetch('assoc'));
         $this->assertEquals(['id' => 3], $result->fetch('assoc'));
 
-        $driver = $query->connection()->driver();
+        $driver = $query->getConnection()->getDriver();
         $idField = $driver->quoteIfAutoQuote('id');
         $expression = $query->newExpr(["MOD(($idField + :offset), 2)"]);
         $result = $query
@@ -332,34 +332,56 @@ class QueryTest extends CakeQueryTest
     /**
      * Tests that Query::orHaving() can be used to concatenate conditions with OR
      * in the having clause
+     * disabled as orHaving is deprecated
      *
      * @return void
      */
     public function testSelectOrHaving()
     {
-        $query = new Query($this->connection);
-        $result = $query
-            ->select(['total' => 'count(author_id)', 'author_id'])
-            ->from('articles')
-            ->join(['table' => 'authors', 'alias' => 'a', 'conditions' => $query->newExpr()->equalFields('author_id', 'a.id')])
-            ->group('author_id')
-            ->having(['count(author_id) >' => 2], ['count(author_id)' => 'integer'])
-            ->orHaving(['count(author_id) <' => 2], ['count(author_id)' => 'integer'])
-            ->execute();
-        $expected = [['total' => 1, 'author_id' => 3]];
-        $this->assertEquals($expected, $result->fetchAll('assoc'));
+        $this->deprecated(function () {
+            $this->loadFixtures('Authors', 'Articles');
+            $query = new Query($this->connection);
+            $result = $query
+                ->select(['total' => 'count(author_id)', 'author_id'])
+                ->from('articles')
+                ->join(['table' => 'authors', 'alias' => 'a', 'conditions' => $query->newExpr()->equalFields('author_id', 'a.id')])
+                ->group('author_id')
+                ->having(['count(author_id) >' => 2], ['count(author_id)' => 'integer'])
+                ->orHaving(['count(author_id) <' => 2], ['count(author_id)' => 'integer'])
+                ->execute();
+            $expected = [['total' => 1, 'author_id' => 3]];
+            $this->assertEquals($expected, $result->fetchAll('assoc'));
 
-        $query = new Query($this->connection);
-        $result = $query
-            ->select(['total' => 'count(author_id)', 'author_id'])
-            ->from('articles')
-            ->join(['table' => 'authors', 'alias' => 'a', 'conditions' => $query->newExpr()->equalFields('author_id', 'a.id')])
-            ->group('author_id')
-            ->having(['count(author_id) >' => 2], ['count(author_id)' => 'integer'])
-            ->orHaving(['count(author_id) <=' => 2], ['count(author_id)' => 'integer'])
-            ->execute();
-        $expected = [['total' => 2, 'author_id' => 1], ['total' => 1, 'author_id' => 3]];
-        $this->assertEquals($expected, $result->fetchAll('assoc'));
+            $query = new Query($this->connection);
+            $subquery = clone $query;
+            $result = $query
+                ->select(['total' => 'count(author_id)', 'author_id'])
+                ->from('articles')
+                ->join(['table' => 'authors', 'alias' => 'a', 'conditions' => $query->newExpr()->equalFields('author_id', 'a.id')])
+                ->group('author_id')
+                ->having(['count(author_id) >' => 2], ['count(author_id)' => 'integer'])
+                ->orHaving(['count(author_id) <=' => 2], ['count(author_id)' => 'integer'])
+                ->execute();
+            $expected = [['total' => 2, 'author_id' => 1], ['total' => 1, 'author_id' => 3]];
+            $this->assertEquals($expected, $result->fetchAll('assoc'));
+
+            $query = new Query($this->connection);
+            $driver = $query->getConnection()->getDriver();
+            $authorIdField = $driver->quoteIfAutoQuote('author_id');
+            $result = $query
+                ->select(['total' => 'count(author_id)', 'author_id'])
+                ->from('articles')
+                ->join(['table' => 'authors', 'alias' => 'a', 'conditions' => $query->newExpr()->equalFields('author_id', 'a.id')])
+                ->group('author_id')
+                ->having(['count(author_id) >' => 2], ['count(author_id)' => 'integer'])
+                ->orHaving(function ($e) use ($authorIdField) {
+                    return $e->add("count($authorIdField) = 1 + 1");
+                })
+                ->execute();
+
+            $expected = [['total' => 2, 'author_id' => 1]];
+            $this->assertEquals($expected, $result->fetchAll('assoc'));
+        });
     }
 
     /**
@@ -402,7 +424,7 @@ class QueryTest extends CakeQueryTest
     public function testBind()
     {
         $query = new Query($this->connection);
-        $driver = $query->connection()->driver();
+        $driver = $query->getConnection()->getDriver();
         $createdField = $driver->quoteIfAutoQuote('created');
         $results = $query->select(['id', 'comment'])
             ->from('comments')
@@ -439,7 +461,7 @@ class QueryTest extends CakeQueryTest
         $result->closeCursor();
 
         //PDO_SQLSRV returns -1 for successful inserts when using INSERT ... OUTPUT
-        if (!$this->connection->driver() instanceof \Cake\Database\Driver\Sqlserver) {
+        if (!$this->connection->getDriver() instanceof \Cake\Database\Driver\Sqlserver) {
             $this->assertCount(1, $result);
         }
 
@@ -469,7 +491,7 @@ class QueryTest extends CakeQueryTest
         $result = $query->execute();
         $result->closeCursor();
         //PDO_SQLSRV returns -1 for successful inserts when using INSERT ... OUTPUT
-        if (!$this->connection->driver() instanceof \Cake\Database\Driver\Sqlserver) {
+        if (!$this->connection->getDriver() instanceof \Cake\Database\Driver\Sqlserver) {
             $this->assertCount(1, $result);
         }
 
@@ -546,7 +568,7 @@ class QueryTest extends CakeQueryTest
     public function testUnionOrderBy()
     {
         $this->skipIf(
-            ($this->connection->driver() instanceof \CakeDC\OracleDriver\Database\Driver\OracleBase),
+            ($this->connection->getDriver() instanceof \CakeDC\OracleDriver\Database\Driver\OracleBase),
             'Driver does not support ORDER BY in UNIONed queries.'
         );
         parent::testUnionOrderBy();
@@ -579,6 +601,141 @@ class QueryTest extends CakeQueryTest
         $rows2 = $result->fetchAll();
         $this->assertCount(1 + self::COMMENT_COUNT + self::ARTICLE_COUNT, $rows2);
         $this->assertNotEquals($rows, $rows2);
+    }
+
+
+    /**
+     * Tests that joins can be aliased using array keys
+     *
+     * @return void
+     */
+    public function testSelectAliasedJoins()
+    {
+        $this->loadFixtures('Authors', 'Articles', 'Comments');
+        $query = new Query($this->connection);
+        $result = $query
+            ->select(['title', 'name'])
+            ->from('articles')
+            ->join(['a' => 'authors'])
+            ->order(['name' => 'desc', 'articles.id' => 'asc'])
+            ->execute();
+        $this->assertEquals(['title' => 'First Article', 'name' => 'nate'], $result->fetch('assoc'));
+        $this->assertEquals(['title' => 'Second Article', 'name' => 'nate'], $result->fetch('assoc'));
+        $result->closeCursor();
+
+        $query = new Query($this->connection);
+        $conditions = $query->newExpr()->equalFields('author_id', 'a.id');
+        $result = $query
+            ->select(['title', 'name'])
+            ->from('articles')
+            ->join(['a' => ['table' => 'authors', 'conditions' => $conditions]])
+            ->order(['title' => 'asc'])
+            ->execute();
+        $this->assertEquals(['title' => 'First Article', 'name' => 'mariano'], $result->fetch('assoc'));
+        $this->assertEquals(['title' => 'Second Article', 'name' => 'larry'], $result->fetch('assoc'));
+        $result->closeCursor();
+
+        $query = new Query($this->connection);
+        $time = new \DateTime('2007-03-18 10:45:23');
+        $types = ['created' => 'datetime'];
+        $result = $query
+            ->select(['title', 'name' => 'c.comment'])
+            ->from('articles')
+            ->join(['c' => ['table' => 'comments', 'conditions' => ['created' => $time]]], $types)
+            ->execute();
+        $this->assertEquals(['title' => 'First Article', 'name' => 'First Comment for First Article'], $result->fetch('assoc'));
+        $result->closeCursor();
+    }
+
+    /**
+     * Test selecting rows using the page() method and ordering the results
+     * by a calculated column.
+     *
+     * @return void
+     */
+    public function testSelectPageWithOrder()
+    {
+        $this->loadFixtures('Comments');
+        $query = new Query($this->connection);
+
+        $driver = $query->getConnection()->getDriver();
+        $userIdField = $driver->quoteIfAutoQuote('user_id');
+        $articleIdField = $driver->quoteIfAutoQuote('article_id');
+        $addExpression = $query->newExpr(["$userIdField + $articleIdField"]);
+        $result = $query
+            ->select([
+                'id',
+                'ids_added' => $query->newExpr()->add($addExpression)
+            ])
+            ->from('comments')
+            ->order(['ids_added' => 'asc'])
+            ->limit(2)
+            ->page(3)
+            ->execute();
+        $this->assertCount(2, $result);
+        $this->assertEquals(
+            [
+                ['id' => '6', 'ids_added' => '4'],
+                ['id' => '2', 'ids_added' => '5']
+            ],
+            $result->fetchAll('assoc')
+        );
+    }
+
+    /**
+     * Tests Query::whereNull()
+     *
+     * @return void
+     */
+    public function testSelectWhereNull()
+    {
+        $this->loadFixtures('MenuLinkTrees');
+
+        $query = new Query($this->connection);
+        $result = $query
+            ->select(['id', 'parent_id'])
+            ->from('menu_link_trees')
+            ->whereNull(['parent_id'])
+            ->execute();
+        $this->assertCount(5, $result);
+        $result->closeCursor();
+
+        $query = new Query($this->connection);
+        $result = $query
+            ->select(['id'])
+            ->from('menu_link_trees')
+            ->whereNull('parent_id')
+            ->execute();
+        $this->assertCount(5, $result);
+        $result->closeCursor();
+    }
+
+    /**
+     * Tests Query::whereNotNull()
+     *
+     * @return void
+     */
+    public function testSelectWhereNotNull()
+    {
+        $this->loadFixtures('MenuLinkTrees');
+
+        $query = new Query($this->connection);
+        $result = $query
+            ->select(['id', 'parent_id'])
+            ->from('menu_link_trees')
+            ->whereNotNull(['parent_id'])
+            ->execute();
+        $this->assertCount(13, $result);
+        $result->closeCursor();
+
+        $query = new Query($this->connection);
+        $result = $query
+            ->select(['id'])
+            ->from('menu_link_trees')
+            ->whereNotNull('parent_id')
+            ->execute();
+        $this->assertCount(13, $result);
+        $result->closeCursor();
     }
 
 }

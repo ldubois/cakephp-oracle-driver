@@ -46,7 +46,7 @@ class MethodsCollection
     public function __construct(ConnectionInterface $connection)
     {
         $this->_connection = $connection;
-        $this->_dialect = $connection->driver()->schemaDialect();
+        $this->_dialect = $connection->getDriver()->schemaDialect();
     }
 
     /**

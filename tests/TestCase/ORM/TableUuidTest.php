@@ -21,4 +21,23 @@ use Cake\Test\TestCase\ORM\TableUuidTest as CakeTableUuidTest;
 class TableUuidTest extends CakeTableUuidTest
 {
 
+    /**
+     * Fixtures
+     *
+     * @var array
+     */
+    public $fixtures = [
+        'core.uuiditems',
+    ];
+
+    /**
+     * Provider for testing that string and binary uuids work the same
+     *
+     * @return array
+     */
+    public function uuidTableProvider()
+    {
+        return [['uuiditems']];
+    }
+
 }

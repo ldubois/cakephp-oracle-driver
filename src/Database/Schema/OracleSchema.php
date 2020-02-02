@@ -645,7 +645,7 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
      */
     public function columnSql(TableSchema $table, $name)
     {
-        $data = $table->column($name);
+        $data = $table->getColumn($name);
         $out = $this->_driver->quoteIfAutoQuote($name);
         $typeMap = [
             'integer' => ' NUMBER',
@@ -691,9 +691,6 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
             $out .= '(' . (int)$data['length'] . ',' . (int)$data['precision'] . ')';
         }
 
-        if (isset($data['null']) && $data['null'] === false) {
-            $out .= ' NOT NULL';
-        }
         if (isset($data['null']) && $data['null'] === true) {
             $out .= ' DEFAULT NULL';
             unset($data['default']);
@@ -704,6 +701,9 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
                 $defaultValue = (int)$defaultValue;
             }
             $out .= ' DEFAULT ' . $this->_driver->schemaValue($defaultValue);
+        }
+        if (isset($data['null']) && $data['null'] === false) {
+            $out .= ' NOT NULL';
         }
         return $out;
     }
@@ -717,7 +717,7 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
         $sql = [];
 
         foreach ($table->constraints() as $name) {
-            $constraint = $table->constraint($name);
+            $constraint = $table->getConstraint($name);
             if ($constraint['type'] === TableSchema::CONSTRAINT_FOREIGN) {
                 $tableName = $this->_driver->quoteIfAutoQuote($table->name());
                 $sql[] = sprintf($sqlPattern, $tableName, $this->constraintSql($table, $name));
@@ -736,7 +736,7 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
         $sql = [];
 
         foreach ($table->constraints() as $name) {
-            $constraint = $table->constraint($name);
+            $constraint = $table->getConstraint($name);
             if ($constraint['type'] === TableSchema::CONSTRAINT_FOREIGN) {
                 $tableName = $this->_driver->quoteIfAutoQuote($table->name());
                 $constraintName = $this->_driver->quoteIfAutoQuote($name);
@@ -752,7 +752,7 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
      */
     public function indexSql(TableSchema $table, $name)
     {
-        $data = $table->index($name);
+        $data = $table->getIndex($name);
         $columns = array_map([
             $this->_driver,
             'quoteIfAutoQuote'
@@ -766,7 +766,7 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
      */
     public function constraintSql(TableSchema $table, $name)
     {
-        $data = $table->constraint($name);
+        $data = $table->getConstraint($name);
         $out = 'CONSTRAINT ' . $this->_driver->quoteIfAutoQuote($name);
         if ($data['type'] === TableSchema::CONSTRAINT_PRIMARY) {
             $out = 'PRIMARY KEY';
@@ -807,14 +807,14 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
         $content = array_merge($columns, $constraints);
         $content = implode(",\n", array_filter($content));
         $tableName = $this->_driver->quoteIfAutoQuote($table->name());
-        $temporary = $table->temporary() ? ' TEMPORARY ' : ' ';
+        $temporary = $table->isTemporary() ? ' TEMPORARY ' : ' ';
         $out = [];
         $out[] = sprintf("CREATE%sTABLE %s (\n%s\n)", $temporary, $tableName, $content);
         foreach ($indexes as $index) {
             $out[] = $index;
         }
         foreach ($table->columns() as $column) {
-            $columnData = $table->column($column);
+            $columnData = $table->getColumn($column);
             if (isset($columnData['comment'])) {
                 $out[] = sprintf('COMMENT ON COLUMN %s.%s IS %s', $tableName, $this->_driver->quoteIfAutoQuote($column),
                     $this->_driver->schemaValue($columnData['comment']));
@@ -889,7 +889,7 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
     {
         $constraints = $table->constraints();
         foreach ($constraints as $name) {
-            $constraint = $table->constraint($name);
+            $constraint = $table->getConstraint($name);
             if ($this->_isSingleKey($table, [$constraint])) {
                 return $constraint;
             }
@@ -914,7 +914,7 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
         if (count($columns) !== 1) {
             return false;
         }
-        $column = $table->column($columns[0]);
+        $column = $table->getColumn($columns[0]);
         return ($column['type'] === 'integer' && $constraint['type'] === TableSchema::CONSTRAINT_PRIMARY);
     }
 

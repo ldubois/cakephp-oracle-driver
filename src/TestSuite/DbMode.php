@@ -1,16 +1,7 @@
 <?php
-/**
- * Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
- *
- * Licensed under The MIT License
- * Redistributions of files must retain the above copyright notice.
- *
- * @copyright Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
- * @license MIT License (http://www.opensource.org/licenses/mit-license.php)
- */
+namespace CakeDC\OracleDriver\TestSuite;
 
-namespace CakeDC\OracleDriver\TestSuite\Fixture;
-
+use Cake\Datasource\ConnectionManager;
 use Cake\TestSuite\TestCase;
 use Exception;
 use PHPUnit\Framework\AssertionFailedError;
@@ -19,19 +10,8 @@ use PHPUnit\Framework\TestListener;
 use PHPUnit\Framework\TestSuite;
 use PHPUnit\Framework\Warning;
 
-/**
- * Test listener used to inject a fixture manager in all tests that
- * are composed inside a Test Suite
- */
-class OracleFixtureInjector implements TestListener
+class DbMode implements TestListener
 {
-
-    /**
-     * The instance of the fixture manager to use
-     *
-     * @var \CakeDC\OracleDriver\TestSuite\Fixture\OracleFixtureManager
-     */
-    protected $_fixtureManager;
 
     /**
      * Holds a reference to the container test suite
@@ -45,13 +25,8 @@ class OracleFixtureInjector implements TestListener
      *
      * @param \CakeDC\OracleDriver\TestSuite\Fixture\OracleFixtureManager $manager The fixture manager
      */
-    public function __construct(OracleFixtureManager $manager)
+    public function __construct()
     {
-        if (isset($_SERVER['argv'])) {
-            $manager->setDebug(in_array('--debug', $_SERVER['argv']));
-        }
-        $this->_fixtureManager = $manager;
-        $this->_fixtureManager->shutDown();
     }
 
     /**
@@ -66,6 +41,7 @@ class OracleFixtureInjector implements TestListener
         if (empty($this->_first)) {
             $this->_first = $suite;
         }
+        ConnectionManager::get('test')->getDriver()->enableAutoQuoting(true);
     }
 
     /**
@@ -77,9 +53,6 @@ class OracleFixtureInjector implements TestListener
      */
     public function endTestSuite(TestSuite $suite)
     {
-        if ($this->_first === $suite) {
-            $this->_fixtureManager->shutDown();
-        }
     }
 
     /**
@@ -150,11 +123,7 @@ class OracleFixtureInjector implements TestListener
      */
     public function startTest(Test $test)
     {
-        $test->fixtureCodeManager = $this->_fixtureManager;
-        if ($test instanceof TestCase) {
-            $this->_fixtureManager->fixturize($test);
-            $this->_fixtureManager->load($test);
-        }
+        ConnectionManager::get('test')->getDriver()->enableAutoQuoting(true);
     }
 
     /**
@@ -166,9 +135,6 @@ class OracleFixtureInjector implements TestListener
      */
     public function endTest(Test $test, $time)
     {
-        if ($test instanceof TestCase) {
-            $this->_fixtureManager->unload($test);
-        }
     }
 
     /**

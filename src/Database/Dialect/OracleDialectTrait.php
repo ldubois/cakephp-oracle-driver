@@ -11,6 +11,7 @@
 
 namespace CakeDC\OracleDriver\Database\Dialect;
 
+use Cake\Database\ExpressionInterface;
 use CakeDC\OracleDriver\Database\Expression\SimpleExpression;
 use CakeDC\OracleDriver\Database\OracleCompiler;
 use CakeDC\OracleDriver\Database\Schema\OracleSchema;
@@ -96,7 +97,7 @@ trait OracleDialectTrait
         $query->limit(null)
             ->offset(null);
 
-        $outer = new Query($query->connection());
+        $outer = new Query($query->getConnection());
         $outer
             ->select([
                 'cake_paging.*',
@@ -104,7 +105,7 @@ trait OracleDialectTrait
             ])
             ->from(['cake_paging' => $query]);
 
-        $outer2 = new Query($query->connection());
+        $outer2 = new Query($query->getConnection());
         $outer2->select('*')
             ->from(['cake_paging_out' => $outer]);
 
@@ -117,7 +118,9 @@ trait OracleDialectTrait
         }
 
         $original->decorateResults(function ($row) {
-            if (isset($row['_cake_page_rownum_'])) {
+            if (is_object($row) && property_exists($row, '_cake_page_rownum_')) {
+                unset($row->_cake_page_rownum_);
+            } elseif (isset($row['_cake_page_rownum_'])) {
                 unset($row['_cake_page_rownum_']);
             }
             return $row;
@@ -148,14 +151,14 @@ trait OracleDialectTrait
      */
     protected function _transformFunctionExpression(FunctionExpression $expression)
     {
-        switch ($expression->name()) {
+        switch ($expression->getName()) {
             case 'CONCAT':
-                $expression->name('')->type(' ||');
+                $expression->setName('')->setConjunction(' ||');
                 break;
             case 'DATEDIFF':
                 $expression
-                    ->name('')
-                    ->type('-')
+                    ->setName('')
+                    ->setConjunction('-')
                     ->iterateParts(function ($p) {
                         if (is_string($p)) {
                             $p = ['value' => [$p => 'literal'], 'type' => null];
@@ -168,19 +171,19 @@ trait OracleDialectTrait
                 break;
             case 'CURRENT_DATE':
                 $time = new FunctionExpression('LOCALTIMESTAMP', [' 0 ' => 'literal']);
-                $expression->name('TO_CHAR')->add([$time, 'YYYY-MM-DD']);
+                $expression->setName('TO_CHAR')->add([$time, 'YYYY-MM-DD']);
                 break;
             case 'CURRENT_TIME':
                 $time = new FunctionExpression('LOCALTIMESTAMP', [' 0 ' => 'literal']);
-                $expression->name('TO_CHAR')->add([$time, 'YYYY-MM-DD HH24:MI:SS']);
+                $expression->setName('TO_CHAR')->add([$time, 'YYYY-MM-DD HH24:MI:SS']);
                 break;
             case 'NOW':
-                $expression->name('LOCALTIMESTAMP')->add([' 0 ' => 'literal']);
+                $expression->setName('LOCALTIMESTAMP')->add([' 0 ' => 'literal']);
                 break;
             case 'DATE_ADD':
                 $expression
-                    ->name('TO_CHAR')
-                    ->type(' + INTERVAL')
+                    ->setName('TO_CHAR')
+                    ->setConjunction(' + INTERVAL')
                     ->iterateParts(function ($p, $key) {
                         if ($key === 1) {
                             $keys = explode(' ', $p);
@@ -194,7 +197,7 @@ trait OracleDialectTrait
                 break;
             case 'DAYOFWEEK':
                 $expression
-                    ->name('TO_CHAR')
+                    ->setName('TO_CHAR')
                     ->add(['d']);
                 break;
         }
@@ -289,16 +292,16 @@ trait OracleDialectTrait
     protected function _insertQueryTranslator($query)
     {
         $v = $query->clause('values');
-        if (count($v->values()) === 1 || $v->query()) {
+        if (count($v->getValues()) === 1 || $v->getQuery()) {
             return $query;
         }
 
-        $newQuery = $query->connection()->newQuery();
-        $cols = $v->columns();
+        $newQuery = $query->getConnection()->newQuery();
+        $cols = $v->getColumns();
         $placeholder = 0;
         $replaceQuery = false;
 
-        foreach ($v->values() as $k => $val) {
+        foreach ($v->getValues() as $k => $val) {
             $fillLength = count($cols) - count($val);
             if ($fillLength > 0) {
                 $val = array_merge($val, array_fill(0, $fillLength, null));
@@ -318,12 +321,12 @@ trait OracleDialectTrait
                 continue;
             }
 
-            $q = $newQuery->connection()->newQuery();
+            $q = $newQuery->getConnection()->newQuery();
             $newQuery->unionAll($q->select($select)->from('DUAL'));
         }
 
         if ($replaceQuery) {
-            $v->query($newQuery);
+            $v->setQuery($newQuery);
         }
 
         return $query;

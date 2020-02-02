@@ -41,12 +41,16 @@ _define('CACHE', TMP . 'cache' . DS);
 _define('CAKE_CORE_INCLUDE_PATH', ROOT . '/vendor/cakephp/cakephp');
 _define('CORE_PATH', CAKE_CORE_INCLUDE_PATH . DS);
 _define('CAKE', CORE_PATH . 'src' . DS);
+_define('CORE_TESTS', CORE_PATH . 'tests' . DS);
+_define('CORE_TEST_CASES', CORE_TESTS . 'TestCase');
+_define('TEST_APP', CORE_TESTS . 'test_app' . DS);
 
-//require_once ROOT . '/vendor/cakephp/cakephp/src/basics.php';
+require_once ROOT . '/vendor/cakephp/cakephp/src/basics.php';
 require_once ROOT . '/vendor/autoload.php';
 
 Cake\Core\Configure::write('App', ['namespace' => 'CakeDC\\OracleDriver\\Test\\App']);
 Cake\Core\Configure::write('debug', true);
+Cake\Core\Configure::write('Error.errorLevel', E_ALL & ~E_USER_DEPRECATED);
 
 $TMP = new \Cake\Filesystem\Folder(TMP);
 $TMP->create(TMP . 'cache/models', 0777);
@@ -80,7 +84,7 @@ $cache = [
     ],
 ];
 
-Cake\Cache\Cache::config($cache);
+Cake\Cache\Cache::setConfig($cache);
 Cake\Core\Configure::write('Session', [
     'defaults' => 'php'
 ]);
@@ -98,7 +102,11 @@ if (!getenv('db_dsn')) {
     putenv('db_dsn=sqlite:///:memory:');
 }
 
-Cake\Datasource\ConnectionManager::config('test', [
+Cake\Datasource\ConnectionManager::setConfig('test', [
     'url' => getenv('db_dsn'),
     'timezone' => 'UTC'
+]);
+
+Cake\Core\Configure::write('App.paths.plugins', [
+    TEST_APP . 'Plugin' . DS,
 ]);
