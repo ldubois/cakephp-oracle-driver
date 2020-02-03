@@ -14,6 +14,7 @@ namespace CakeDC\OracleDriver\Database\Dialect;
 use Cake\Database\ExpressionInterface;
 use CakeDC\OracleDriver\Database\Expression\SimpleExpression;
 use CakeDC\OracleDriver\Database\OracleCompiler;
+use CakeDC\OracleDriver\Database\Oracle12Compiler;
 use CakeDC\OracleDriver\Database\Schema\OracleSchema;
 use Cake\Database\Expression\FunctionExpression;
 use Cake\Database\Query;
@@ -71,8 +72,15 @@ trait OracleDialectTrait
         $limit = $query->clause('limit');
         $offset = $query->clause('offset');
 
+        $config = $query->getConnection()->config();
+        $serverVersion = $config['server_version'] ?? null;
+
         if ($offset !== null || $limit !== null) {
-            return $this->_pagingSubquery($query, $limit, $offset);
+            if ($serverVersion !== null && $serverVersion >= 12) {
+                return $this->_pagingSubqueryNew($query, $limit, $offset);
+            } else {
+                return $this->_pagingSubquery($query, $limit, $offset);
+            }
         }
 
         return $this->_transformDistinct($query);
@@ -129,6 +137,32 @@ trait OracleDialectTrait
     }
 
     /**
+     * Generate a paging subquery for older versions of Oracle Server.
+     *
+     * Prior to Oracle 12 there was no equivalent to LIMIT OFFSET,
+     * so a subquery must be used.
+     *
+     * @param \Cake\Database\Query $original The query to wrap in a subquery.
+     * @param int $limit The number of rows to fetch.
+     * @param int $offset The number of rows to offset.
+     * @return \Cake\Database\Query Modified query object.
+     */
+    protected function _pagingSubqueryNew($original, $limit, $offset)
+    {
+
+        // @todo add hints support for selects
+
+          //  $components['columns'] = str_replace('select', "select /*+ FIRST_ROWS({$query->limit}) */",
+        // $components['columns']);
+
+          //  $offset = $query->offset ?: 0;
+          //  $limit = $query->limit;
+          //  $components['limit'] = "offset $offset rows fetch next $limit rows only";
+
+            return $original;
+    }
+
+    /**
      * Returns a dictionary of expressions to be transformed when compiling a Query
      * to SQL. Array keys are method names to be called in this class
      *
@@ -152,6 +186,9 @@ trait OracleDialectTrait
     protected function _transformFunctionExpression(FunctionExpression $expression)
     {
         switch ($expression->getName()) {
+            case 'RAND':
+                $expression->setName('DBMS_RANDOM.VALUE');
+                break;
             case 'CONCAT':
                 $expression->setName('')->setConjunction(' ||');
                 break;

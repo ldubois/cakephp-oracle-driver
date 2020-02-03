@@ -26,12 +26,12 @@ class TableSchemaTest extends TestCase
 
     public $autoFixtures = true;
     public $fixtures = [
-        'core.articles',
-        'core.tags',
-        //'core.articles_tags',
-        'plugin.CakeDC/OracleDriver.articles_tags',
-        'core.orders',
-        'core.products'
+        'core.Articles',
+        'core.Tags',
+        // 'core.ArticlesTags',
+        'plugin.CakeDC/OracleDriver.ArticlesTags',
+        // 'core.Orders',
+        // 'core.Products'
     ];
 
     protected $_map;

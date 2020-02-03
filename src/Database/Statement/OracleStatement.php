@@ -85,7 +85,7 @@ class OracleStatement extends StatementDecorator
     {
         $column = isset($this->paramMap[$column]) ? $this->paramMap[$column] : $column;
 
-        $type = $type == 'boolean' ? 'integer' : $type;
+        // $type = $type == 'boolean' ? 'integer' : $type;
 
         $this->_statement->bindValue($column, $value, $type);
     }

@@ -145,10 +145,19 @@ class QueryTest extends CakeQueryTest
              ->enableHydration(false)
              ->matching('articles', function ($q) {
                  return $q->notMatching('tags', function ($q) {
-                     return $q->where(['tags.name' => 'tag3']);
+                    return $q->where(function ($exp) {
+                        $e = new QueryExpression();
+                        // debug(new IdentifierExpression('tags.name'));
+                        return $exp->add($e->eq(new IdentifierExpression('tags.id'), 1));
+                    });
+
+                    // return $q->where(['tags.name' => 'tag3']);
                  });
              })
              ->order(['authors.id' => 'ASC', 'articles.id' => 'ASC']);
+
+        debug($results->sql());
+        // exit;
 
         $expected = [
             'id' => 1,

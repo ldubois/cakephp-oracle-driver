@@ -176,7 +176,7 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
         switch ($row['type']) {
             case 'DATE':
                 $field = [
-                    'type' => 'datetime',
+                    'type' => TableSchema::TYPE_DATETIME,
                     'length' => null
                 ];
                 break;
@@ -184,7 +184,7 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
             case 'TIMESTAMP(6)':
             case 'TIMESTAMP(9)':
                 $field = [
-                    'type' => 'timestamp',
+                    'type' => TableSchema::TYPE_TIMESTAMP,
                     'length' => null
                 ];
                 break;
@@ -194,18 +194,18 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
             case 'BINARY_INTEGER':
                 if ($row['data_precision'] == 1) {
                     $field = [
-                        'type' => 'boolean',
+                        'type' => TableSchema::TYPE_BOOLEAN,
                         'length' => null
                     ];
                 } elseif ($row['data_scale'] > 0) {
                     $field = [
-                        'type' => 'decimal',
+                        'type' => TableSchema::TYPE_DECIMAL,
                         'length' => $row['data_precision'],
                         'precision' => $row['data_scale']
                     ];
                 } else {
                     $field = [
-                        'type' => 'integer',
+                        'type' => TableSchema::TYPE_INTEGER,
                         'length' => $row['data_precision']
                     ];
                 }
@@ -214,7 +214,7 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
             case 'BINARY_FLOAT':
             case 'BINARY_DOUBLE':
                 $field = [
-                    'type' => 'float',
+                    'type' => TableSchema::TYPE_FLOAT,
                     'length' => $row['data_precision']
                 ];
                 break;
@@ -228,12 +228,12 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
                 $length = $row['char_length'];
                 if ($length == 36) {
                     $field = [
-                        'type' => 'uuid',
+                        'type' => TableSchema::TYPE_UUID,
                         'length' => null
                     ];
                 } else {
                     $field = [
-                        'type' => 'string',
+                        'type' => TableSchema::TYPE_STRING,
                         'length' => $length
                     ];
                 }
@@ -241,7 +241,7 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
             case 'NCLOB':
             case 'CLOB':
                 $field = [
-                    'type' => 'text',
+                    'type' => TableSchema::TYPE_TEXT,
                     'length' => $row['char_length']
                 ];
                 break;
@@ -249,7 +249,7 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
             case 'LONG RAW':
             case 'BLOB':
                 $field = [
-                    'type' => 'binary',
+                    'type' => TableSchema::TYPE_BINARY,
                     'length' => $row['char_length']
                 ];
                 break;
@@ -342,7 +342,7 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
         switch ($row['type']) {
             case 'DATE':
                 $field = [
-                    'type' => 'datetime',
+                    'type' => TableSchema::TYPE_DATETIME,
                     'length' => null
                 ];
                 break;
@@ -350,7 +350,7 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
             case 'TIMESTAMP(6)':
             case 'TIMESTAMP(9)':
                 $field = [
-                    'type' => 'timestamp',
+                    'type' => TableSchema::TYPE_TIMESTAMP,
                     'length' => null
                 ];
                 break;
@@ -360,18 +360,18 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
             case 'BINARY_INTEGER':
                 if ($row['data_precision'] == 1) {
                     $field = [
-                        'type' => 'boolean',
+                        'type' => TableSchema::TYPE_BOOLEAN,
                         'length' => null
                     ];
                 } elseif ($row['data_scale'] > 0) {
                     $field = [
-                        'type' => 'decimal',
+                        'type' => TableSchema::TYPE_DECIMAL,
                         'length' => $row['data_precision'],
                         'precision' => $row['data_scale']
                     ];
                 } else {
                     $field = [
-                        'type' => 'integer',
+                        'type' => TableSchema::TYPE_INTEGER,
                         'length' => $row['data_precision']
                     ];
                 }
@@ -380,7 +380,7 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
             case 'BINARY_FLOAT':
             case 'BINARY_DOUBLE':
                 $field = [
-                    'type' => 'float',
+                    'type' => TableSchema::TYPE_FLOAT,
                     'length' => $row['data_precision']
                 ];
                 break;
@@ -394,12 +394,12 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
                 $length = $row['data_length'];
                 if ($length == 36) {
                     $field = [
-                        'type' => 'uuid',
+                        'type' => TableSchema::TYPE_UUID,
                         'length' => null
                     ];
                 } else {
                     $field = [
-                        'type' => 'string',
+                        'type' => TableSchema::TYPE_STRING,
                         'length' => $length
                     ];
                 }
@@ -407,7 +407,7 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
             case 'NCLOB':
             case 'CLOB':
                 $field = [
-                    'type' => 'text',
+                    'type' => TableSchema::TYPE_TEXT,
                     'length' => $row['data_length']
                 ];
                 break;
@@ -415,7 +415,7 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
             case 'LONG RAW':
             case 'BLOB':
                 $field = [
-                    'type' => 'binary',
+                    'type' => TableSchema::TYPE_BINARY,
                     'length' => $row['data_length']
                 ];
                 break;
@@ -648,21 +648,21 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
         $data = $table->getColumn($name);
         $out = $this->_driver->quoteIfAutoQuote($name);
         $typeMap = [
-            'integer' => ' NUMBER',
-            'biginteger' => ' NUMBER',
-            'boolean' => ' NUMBER(1)',
-            'binary' => ' BLOB',
-            'float' => ' FLOAT',
-            'decimal' => ' NUMBER',
-            'text' => ' CLOB',
-            'date' => ' TIMESTAMP',
-            'time' => ' TIMESTAMP',
-            'datetime' => ' TIMESTAMP',
-            'timestamp' => ' TIMESTAMP',
-            'uuid' => ' VARCHAR2(36)',
+            TableSchema::TYPE_INTEGER => ' NUMBER',
+            TableSchema::TYPE_BIGINTEGER => ' NUMBER',
+            TableSchema::TYPE_BOOLEAN => ' NUMBER(1)',
+            TableSchema::TYPE_BINARY => ' BLOB',
+            TableSchema::TYPE_FLOAT => ' FLOAT',
+            TableSchema::TYPE_DECIMAL => ' NUMBER',
+            TableSchema::TYPE_TEXT => ' CLOB',
+            TableSchema::TYPE_DATE => ' TIMESTAMP',
+            TableSchema::TYPE_TIME => ' TIMESTAMP',
+            TableSchema::TYPE_DATETIME => ' TIMESTAMP',
+            TableSchema::TYPE_TIMESTAMP => ' TIMESTAMP',
+            TableSchema::TYPE_UUID => ' VARCHAR2(36)',
         ];
 
-        if (!isset($typeMap[$data['type']]) && $data['type'] != 'string') {
+        if (!isset($typeMap[$data['type']]) && $data['type'] != TableSchema::TYPE_STRING) {
             throw new UnallowedDataTypeException(['type' => $data['type']]);
         }
 
@@ -670,7 +670,7 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
             $out .= $typeMap[$data['type']];
         }
 
-        if ($data['type'] === 'string') {
+        if ($data['type'] === TableSchema::TYPE_STRING) {
             $isFixed = !empty($data['fixed']);
             $type = ' VARCHAR2';
             if ($isFixed) {
@@ -683,11 +683,11 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
             $out .= '(' . (int)$data['length'] . ')';
         }
 
-        if ($data['type'] === 'integer' && isset($data['length'])) {
+        if ($data['type'] === TableSchema::TYPE_INTEGER && isset($data['length'])) {
             $out .= '(' . (int)$data['length'] . ')';
         }
 
-        if (($data['type'] === 'float' || $data['type'] === 'decimal') && (isset($data['length']) || isset($data['precision']))) {
+        if (($data['type'] === TableSchema::TYPE_FLOAT || $data['type'] === TableSchema::TYPE_DECIMAL) && (isset($data['length']) || isset($data['precision']))) {
             $out .= '(' . (int)$data['length'] . ',' . (int)$data['precision'] . ')';
         }
 
@@ -695,9 +695,9 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
             $out .= ' DEFAULT NULL';
             unset($data['default']);
         }
-        if (isset($data['default']) && $data['type'] !== 'timestamp') {
+        if (isset($data['default']) && $data['type'] !== TableSchema::TYPE_TIMESTAMP) {
             $defaultValue = $data['default'];
-            if ($data['type'] === 'boolean') {
+            if ($data['type'] === TableSchema::TYPE_BOOLEAN) {
                 $defaultValue = (int)$defaultValue;
             }
             $out .= ' DEFAULT ' . $this->_driver->schemaValue($defaultValue);

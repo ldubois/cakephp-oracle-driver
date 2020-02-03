@@ -13,10 +13,14 @@ namespace CakeDC\OracleDriver\Database\Driver;
 
 use CakeDC\OracleDriver\Config\ConfigTrait;
 use CakeDC\OracleDriver\Database\Dialect\OracleDialectTrait;
+use CakeDC\OracleDriver\Database\Oracle12Compiler;
+use CakeDC\OracleDriver\Database\OracleCompiler;
 use CakeDC\OracleDriver\Database\Statement\OracleStatement;
 use Cake\Database\Driver;
 use Cake\Database\Driver\PDODriverTrait;
+use Cake\Database\Query;
 use Cake\Database\Statement\PDOStatement;
+use Cake\Database\ValueBinder;
 use Cake\Database\Type;
 use Cake\Log\Log;
 use Cake\Network\Exception\NotImplementedException;
@@ -164,6 +168,25 @@ abstract class OracleBase extends Driver
         return $statement;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public function compileQuery(Query $query, ValueBinder $generator)
+    {
+        $config = $query->getConnection()->config();
+        $serverVersion = $config['server_version'] ?? null;
+
+        if ($serverVersion !== null && $serverVersion >= 12) {
+            $processor = new Oracle12Compiler();
+        } else {
+            $processor = new OracleCompiler();
+        }
+
+        $translator = $this->queryTranslator($query->type());
+        $query = $translator($query);
+
+        return [$query, $processor->compile($query, $generator)];
+    }
     /**
      * Add "FROM DUAL" to SQL statements that are SELECT statements
      * with no FROM clause specified
