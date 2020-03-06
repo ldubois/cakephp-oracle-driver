@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 /**
  * Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
  *
@@ -11,10 +13,8 @@
 
 namespace CakeDC\OracleDriver\Test\TestCase\ORM;
 
-use CakeDC\OracleDriver\ORM\Method;
 use CakeDC\OracleDriver\ORM\MethodRegistry;
 use CakeDC\OracleDriver\TestSuite\TestCase;
-
 
 /**
  * Tests Method class
@@ -22,7 +22,6 @@ use CakeDC\OracleDriver\TestSuite\TestCase;
  */
 class MethodTest extends TestCase
 {
-
     public $codeFixtures = ['plugin.CakeDC/OracleDriver.Calc'];
 
     /**

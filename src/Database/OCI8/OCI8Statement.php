@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 /**
  * Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
  *
@@ -8,19 +10,15 @@
  * @copyright Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
  * @license MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
-
 namespace CakeDC\OracleDriver\Database\OCI8;
 
 use PDO;
-use PDOStatement;
-use IteratorAggregate;
 
 /**
  * The OCI8 implementation of the Statement interface.
  */
 class OCI8Statement extends \PDOStatement implements \IteratorAggregate
 {
-
     /**
      * @var bool
      */
@@ -38,7 +36,7 @@ class OCI8Statement extends \PDOStatement implements \IteratorAggregate
     protected $_sth;
 
     /**
-     * @var OCI8Connection
+     * @var \CakeDC\OracleDriver\Database\OCI8\OCI8Connection
      */
     protected $_conn;
 
@@ -65,7 +63,7 @@ class OCI8Statement extends \PDOStatement implements \IteratorAggregate
     protected $_fetchColumnNumber = 0;
 
     /**
-     * @var integer
+     * @var int
      */
     protected $_defaultFetchMode = PDO::ATTR_DEFAULT_FETCH_MODE;
 
@@ -85,16 +83,16 @@ class OCI8Statement extends \PDOStatement implements \IteratorAggregate
 
     protected $_fetchIntoObject = null;
 
-    protected $_fetchArguments = array();
+    protected $_fetchArguments = [];
 
-    protected $_results = array();
+    protected $_results = [];
 
     /**
      * Creates a new OCI8Statement that uses the given connection handle and SQL statement.
      *
      * @param resource $dbh The connection handle.
      * @param string|resource $statement The SQL statement.
-     * @param OCI8Connection $conn
+     * @param \CakeDC\OracleDriver\Database\OCI8\OCI8Connection $conn OCI connection.
      */
     public function __construct($dbh, $statement, OCI8Connection $conn)
     {
@@ -102,7 +100,7 @@ class OCI8Statement extends \PDOStatement implements \IteratorAggregate
             $this->_sth = $statement;
             $paramMap = [];
         } else {
-            list($statement, $paramMap) = self::convertPositionalToNamedPlaceholders($statement);
+            [$statement, $paramMap] = self::convertPositionalToNamedPlaceholders($statement);
             $this->_sth = oci_parse($dbh, $statement);
         }
         $this->_dbh = $dbh;
@@ -126,21 +124,21 @@ class OCI8Statement extends \PDOStatement implements \IteratorAggregate
      *
      * @return string
      */
-    static public function convertPositionalToNamedPlaceholders($statement)
+    public static function convertPositionalToNamedPlaceholders($statement)
     {
         $count = 1;
         $inLiteral = false;
         $stmtLen = strlen($statement);
         $paramMap = [];
         for ($i = 0; $i < $stmtLen; $i++) {
-            if ($statement[$i] == '?' && !$inLiteral) {
+            if ($statement[$i] === '?' && !$inLiteral) {
                 $paramMap[$count] = ":param$count";
                 $len = strlen($paramMap[$count]);
                 $statement = substr_replace($statement, ":param$count", $i, 1);
                 $i += $len - 1;
                 $stmtLen = strlen($statement);
                 ++$count;
-            } elseif ($statement[$i] == "'" || $statement[$i] == '"') {
+            } elseif ($statement[$i] === "'" || $statement[$i] === '"') {
                 $inLiteral = !$inLiteral;
             }
         }
@@ -154,6 +152,7 @@ class OCI8Statement extends \PDOStatement implements \IteratorAggregate
     public function bindValue($param, $value, $type = null)
     {
         $this->_values[$param] = $value;
+
         return $this->bindParam($param, $this->_values[$param], $type, null);
     }
 
@@ -162,7 +161,7 @@ class OCI8Statement extends \PDOStatement implements \IteratorAggregate
      */
     public function bindParam($column, &$variable, $type = null, $length = null, $driverData = null)
     {
-        $column = isset($this->_paramMap[$column]) ? $this->_paramMap[$column] : $column;
+        $column = $this->_paramMap[$column] ?? $column;
 
         // @todo add additional type passing: as an option we could accept $type as array
         // where $type = ['ociType' => "REAL_OCI_TYPE", 'plsql_type' => 'VARRAY', 'php_type' => 'string']
@@ -170,8 +169,8 @@ class OCI8Statement extends \PDOStatement implements \IteratorAggregate
 
         if ($type == \PDO::PARAM_STMT) {
             $variable = oci_new_cursor($this->_dbh);
-            return oci_bind_by_name($this->_sth, $column, $variable, -1, OCI_B_CURSOR);
 
+            return oci_bind_by_name($this->_sth, $column, $variable, -1, OCI_B_CURSOR);
         } elseif ($type == \PDO::PARAM_LOB) {
             $lob = oci_new_descriptor($this->_dbh, OCI_D_LOB);
             $lob->writeTemporary($variable, OCI_TEMP_BLOB);
@@ -192,6 +191,9 @@ class OCI8Statement extends \PDOStatement implements \IteratorAggregate
         return true;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function __destruct()
     {
         if (is_resource($this->_sth)) {
@@ -386,11 +388,7 @@ class OCI8Statement extends \PDOStatement implements \IteratorAggregate
                         $rs[$field] = null;
                     }
 
-                    if ($this->_returnLobs && is_object($value)) {
-                        $object->$field = $value->load();
-                    } else {
-                        $object->$field = $value;
-                    }
+                    $object->$field = $this->_returnLobs && is_object($value) ? $value->load() : $value;
                 }
 
                 return $object;
@@ -431,11 +429,11 @@ class OCI8Statement extends \PDOStatement implements \IteratorAggregate
     {
         $row = oci_fetch_array($this->_sth, OCI_NUM | OCI_RETURN_NULLS | OCI_RETURN_LOBS);
 
-        if (false === $row) {
+        if ($row === false) {
             return false;
         }
 
-        return isset($row[$columnIndex]) ? $row[$columnIndex] : null;
+        return $row[$columnIndex] ?? null;
     }
 
     /**
@@ -449,12 +447,12 @@ class OCI8Statement extends \PDOStatement implements \IteratorAggregate
     /**
      * Retrieve a statement attribute
      *
-     * @param int $attribute
+     * @param string $attribute Attribute id.
      * @return mixed The attribute value.
      */
     public function getAttribute($attribute)
     {
-        return $this->_conn->getConfig($attribute);
+        return $this->_conn->getConfig((string)$attribute);
     }
 
     /**
@@ -463,7 +461,7 @@ class OCI8Statement extends \PDOStatement implements \IteratorAggregate
      * @param int|null $fetchMode The fetch mode must be one of the PDO::FETCH_* constants.
      * @param mixed|null $param Column number, class name or object.
      * @param array|null $arguments Constructor arguments.
-     * @throws Oci8Exception
+     * @throws \CakeDC\OracleDriver\Database\OCI8\Oci8Exception
      * @return bool TRUE on success or FALSE on failure.
      */
     public function setFetchMode($fetchMode, $param = null, $arguments = [])
@@ -511,10 +509,8 @@ class OCI8Statement extends \PDOStatement implements \IteratorAggregate
                 break;
             default:
                 throw new OCI8Exception(__('Requested fetch mode is not supported by this implementation'));
-                break;
         }
 
         return true;
     }
-
 }

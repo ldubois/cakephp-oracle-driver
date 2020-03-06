@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 /**
  * Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
  *
@@ -8,7 +10,6 @@
  * @copyright Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
  * @license MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
-
 namespace CakeDC\OracleDriver\Database\Log;
 
 /**
@@ -20,7 +21,6 @@ namespace CakeDC\OracleDriver\Database\Log;
  */
 class DebugMethodLog extends MethodLogger
 {
-
     /**
      * Logs from the current request.
      *
@@ -128,7 +128,7 @@ class DebugMethodLog extends MethodLogger
         $this->_queries[] = [
             'method' => $method->method,
             'took' => $method->took,
-            'rows' => $method->numRows
+            'rows' => $method->numRows,
         ];
     }
 }

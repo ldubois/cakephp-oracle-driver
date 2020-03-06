@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 /**
  * Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
  *
@@ -8,15 +10,14 @@
  * @copyright Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
  * @license MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
-
 namespace CakeDC\OracleDriver\Database;
 
+use Cake\Database\Query;
 use Cake\Database\QueryCompiler;
+use Cake\Database\ValueBinder;
 
 class Oracle12Compiler extends QueryCompiler
 {
-
-
     /**
      * List of sprintf templates that will be used for compiling the SQL for
      * this query. There are some clauses that can be built as just as the
@@ -32,7 +33,7 @@ class Oracle12Compiler extends QueryCompiler
         'order' => ' %s',
         'offset' => ' OFFSET %s ROWS ',
         'limit' => ' FETCH NEXT %s ROWS ONLY ',
-        'epilog' => ' %s'
+        'epilog' => ' %s',
     ];
 
     /**
@@ -62,7 +63,7 @@ class Oracle12Compiler extends QueryCompiler
      * @param \Cake\Database\ValueBinder $generator the placeholder generator to be used in expressions
      * @return string SQL fragment.
      */
-    protected function _buildInsertPart($parts, $query, $generator)
+    protected function _buildInsertPart(array $parts, Query $query, ValueBinder $generator): string
     {
         $driver = $query->getConnection()->getDriver();
         $table = $driver->quoteIfAutoQuote($parts[0]);
@@ -71,5 +72,4 @@ class Oracle12Compiler extends QueryCompiler
 
         return sprintf('INSERT%s INTO %s (%s)', $modifiers, $table, implode(', ', $columns));
     }
-
 }

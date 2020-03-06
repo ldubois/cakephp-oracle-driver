@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 /**
  * Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
  *
@@ -8,15 +10,13 @@
  * @copyright Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
  * @license MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
-
 namespace CakeDC\OracleDriver\ORM\Method;
 
 use Cake\Collection\CollectionTrait;
 use Cake\Database\Exception;
-use Cake\Database\Type;
+use Cake\Database\TypeFactory;
 use Cake\Datasource\EntityInterface;
 use Cake\Datasource\ResultSetInterface;
-use CakeDC\OracleDriver\ORM\Method;
 use SplFixedArray;
 
 /**
@@ -25,7 +25,6 @@ use SplFixedArray;
  */
 class ResultSet implements ResultSetInterface
 {
-
     use CollectionTrait;
 
     /**
@@ -112,7 +111,7 @@ class ResultSet implements ResultSetInterface
     /**
      * Constructor
      *
-     * @param Method $repository Method object instance.
+     * @param \CakeDC\OracleDriver\ORM\Method $repository Method object instance.
      * @param \Cake\Database\StatementInterface $statement The statement to fetch from
      * @param array $options Additional resultset options that setup result entity.
      * @internal param \Cake\ORM\Query $query Query from where results come
@@ -123,7 +122,7 @@ class ResultSet implements ResultSetInterface
             'entityClass' => 'Cake\ORM\Entity',
             'hydrate' => true,
             'useBuffering' => false,
-            'schema' => []
+            'schema' => [],
         ];
         $this->_statement = $statement;
         $this->_driver = $repository->connection()->getDriver();
@@ -185,7 +184,7 @@ class ResultSet implements ResultSetInterface
      */
     public function rewind()
     {
-        if ($this->_index == 0) {
+        if ($this->_index === 0) {
             return;
         }
 
@@ -210,6 +209,7 @@ class ResultSet implements ResultSetInterface
             $valid = $this->_index < $this->_count;
             if ($valid && $this->_results[$this->_index] !== null) {
                 $this->_current = $this->_results[$this->_index];
+
                 return true;
             }
             if (!$valid) {
@@ -230,7 +230,6 @@ class ResultSet implements ResultSetInterface
         return $valid;
     }
 
-
     /**
      * Helper function to fetch the next result from the statement or
      * seeded results.
@@ -247,9 +246,9 @@ class ResultSet implements ResultSetInterface
         if ($row === false) {
             return $row;
         }
+
         return $this->_groupResult($row);
     }
-
 
     /**
      * Correctly nests results keys including those coming from associations
@@ -281,6 +280,7 @@ class ResultSet implements ResultSetInterface
             if ($this->_statement && !$this->_useBuffering) {
                 $this->_statement->closeCursor();
             }
+
             return $result;
         }
     }
@@ -297,6 +297,7 @@ class ResultSet implements ResultSetInterface
         while ($this->valid()) {
             $this->next();
         }
+
         return serialize($this->_results);
     }
 
@@ -312,7 +313,7 @@ class ResultSet implements ResultSetInterface
     {
         $this->_results = unserialize($serialized);
         $this->_useBuffering = true;
-        $this->_count = count($this->_results);
+        $this->_count = is_countable($this->_results) ? count($this->_results) : 0;
     }
 
     /**
@@ -322,7 +323,7 @@ class ResultSet implements ResultSetInterface
      *
      * @return int
      */
-    public function count()
+    public function count(): int
     {
         if ($this->_count !== null) {
             return $this->_count;
@@ -330,9 +331,9 @@ class ResultSet implements ResultSetInterface
         if ($this->_statement) {
             return $this->_count = $this->_statement->rowCount();
         }
+
         return $this->_count = count($this->_results);
     }
-
 
     /**
      * Casts all values from a row brought from a table to the correct
@@ -361,14 +362,14 @@ class ResultSet implements ResultSetInterface
     {
         $types = [];
         $schema = $this->_schema;
-        $map = array_keys(Type::map() + ['string' => 1, 'text' => 1, 'boolean' => 1]);
+        $map = array_keys(\Cake\Database\TypeFactory::map() + ['string' => 1, 'text' => 1, 'boolean' => 1]);
         $typeMap = array_combine(
             $map,
             array_map(['Cake\Database\Type', 'build'], $map)
         );
 
         foreach (['string', 'text'] as $t) {
-            if (get_class($typeMap[$t]) === 'Cake\Database\Type') {
+            if ($typeMap[$t] instanceof \Cake\Database\TypeFactory) {
                 unset($typeMap[$t]);
             }
         }

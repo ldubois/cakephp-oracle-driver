@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 /**
  * Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
  *
@@ -8,7 +10,6 @@
  * @copyright Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
  * @license MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
-
 namespace CakeDC\OracleDriver\TestSuite\Fixture;
 
 use Cake\TestSuite\TestCase;
@@ -25,7 +26,6 @@ use PHPUnit\Framework\Warning;
  */
 class OracleFixtureInjector implements TestListener
 {
-
     /**
      * The instance of the fixture manager to use
      *
@@ -36,7 +36,7 @@ class OracleFixtureInjector implements TestListener
     /**
      * Holds a reference to the container test suite
      *
-     * @var TestSuite
+     * @var \PHPUnit\Framework\TestSuite
      */
     protected $_first;
 
@@ -58,10 +58,10 @@ class OracleFixtureInjector implements TestListener
      * Iterates the tests inside a test suite and creates the required fixtures as
      * they were expressed inside each test case.
      *
-     * @param TestSuite $suite The test suite
+     * @param \PHPUnit\Framework\TestSuite $suite The test suite
      * @return void
      */
-    public function startTestSuite(TestSuite $suite)
+    public function startTestSuite(TestSuite $suite): void
     {
         if (empty($this->_first)) {
             $this->_first = $suite;
@@ -72,10 +72,10 @@ class OracleFixtureInjector implements TestListener
      * Destroys the fixtures created by the fixture manager at the end of the test
      * suite run
      *
-     * @param TestSuite $suite The test suite
+     * @param \PHPUnit\Framework\TestSuite $suite The test suite
      * @return void
      */
-    public function endTestSuite(TestSuite $suite)
+    public function endTestSuite(TestSuite $suite): void
     {
         if ($this->_first === $suite) {
             $this->_fixtureManager->shutDown();
@@ -86,69 +86,69 @@ class OracleFixtureInjector implements TestListener
      * Not Implemented
      *
      * @param \Test $test The test to add errors from.
-     * @param Exception $e The exception
+     * @param \Throwable $e The exception
      * @param float $time current time
      * @return void
      */
-    public function addError(Test $test, Exception $e, $time)
+    public function addError(Test $test, \Throwable $e, $time): void
     {
     }
 
     /**
      * Not Implemented
      *
-     * @param Test $test The test to add warnings from.
-     * @param Warning $e The warning
+     * @param \PHPUnit\Framework\Test $test The test to add warnings from.
+     * @param \PHPUnit\Framework\Warning $e The warning
      * @param float $time current time
      * @return void
      */
-    public function addWarning(Test $test, Warning $e, $time)
+    public function addWarning(Test $test, Warning $e, $time): void
     {
     }
 
     /**
      * Not Implemented
      *
-     * @param Test $test The test case
-     * @param AssertionFailedError $e The failed assertion
+     * @param \PHPUnit\Framework\Test $test The test case
+     * @param \PHPUnit\Framework\AssertionFailedError $e The failed assertion
      * @param float $time current time
      * @return void
      */
-    public function addFailure(Test $test, AssertionFailedError $e, $time)
+    public function addFailure(Test $test, AssertionFailedError $e, $time): void
     {
     }
 
     /**
      * Not Implemented
      *
-     * @param Test $test The test case
-     * @param \Exception $e The incomplete test error.
+     * @param \PHPUnit\Framework\Test $test The test case
+     * @param \Throwable $e The incomplete test error.
      * @param float $time current time
      * @return void
      */
-    public function addIncompleteTest(Test $test, Exception $e, $time)
+    public function addIncompleteTest(Test $test, \Throwable $e, $time): void
     {
     }
 
     /**
      * Not Implemented
      *
-     * @param Test $test The test case
+     * @param \PHPUnit\Framework\Test $test The test case
      * @param \Exception $e Skipped test exception
      * @param float $time current time
      * @return void
      */
-    public function addSkippedTest(Test $test, Exception $e, $time)
+    public function addSkippedTest(Test $test, \Throwable $e, $time): void
     {
     }
 
     /**
      * Adds fixtures to a test case when it starts.
      *
-     * @param Test $test The test case
+     * @param \PHPUnit\Framework\Test $test The test case
      * @return void
      */
-    public function startTest(Test $test)
+    public function startTest(Test $test): void
     {
         $test->fixtureCodeManager = $this->_fixtureManager;
         if ($test instanceof TestCase) {
@@ -160,11 +160,11 @@ class OracleFixtureInjector implements TestListener
     /**
      * Unloads fixtures from the test case.
      *
-     * @param Test $test The test case
+     * @param \PHPUnit\Framework\Test $test The test case
      * @param float $time current time
      * @return void
      */
-    public function endTest(Test $test, $time)
+    public function endTest(Test $test, $time): void
     {
         if ($test instanceof TestCase) {
             $this->_fixtureManager->unload($test);
@@ -174,12 +174,12 @@ class OracleFixtureInjector implements TestListener
     /**
      * Not Implemented
      *
-     * @param Test $test The test case
-     * @param \Exception $e The exception to track
+     * @param \PHPUnit\Framework\Test $test The test case
+     * @param \Throwable $e The exception to track
      * @param float $time current time
      * @return void
      */
-    public function addRiskyTest(Test $test, Exception $e, $time)
+    public function addRiskyTest(Test $test, \Throwable $e, $time): void
     {
     }
 }

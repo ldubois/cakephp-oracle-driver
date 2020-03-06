@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 /**
  * Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
  *
@@ -8,7 +10,6 @@
  * @copyright Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
  * @license MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
-
 namespace CakeDC\OracleDriver\Database\Statement\Method;
 
 /**
@@ -17,7 +18,6 @@ namespace CakeDC\OracleDriver\Database\Statement\Method;
  */
 class OracleBufferedStatement extends MethodStatementDecorator
 {
-
     /**
      * Records count
      *
@@ -63,9 +63,10 @@ class OracleBufferedStatement extends MethodStatementDecorator
      * @param array|null $params list of values to be bound to query
      * @return bool true on success, false otherwise
      */
-    public function execute($params = null)
+    public function execute(?array $params = null): bool
     {
         $this->_reset();
+
         return parent::execute($params);
     }
 
@@ -78,9 +79,9 @@ class OracleBufferedStatement extends MethodStatementDecorator
     public function fetch($type = 'num')
     {
         if ($this->_allFetched) {
-            $row = ($this->_counter < $this->_count) ? $this->_records[$this->_counter++] : false;
-            $row = ($row && $type === 'num') ? array_values($row) : $row;
-            return $row;
+            $row = $this->_counter < $this->_count ? $this->_records[$this->_counter++] : false;
+
+            return $row && $type === 'num' ? array_values($row) : $row;
         }
 
         $this->_fetchType = $type;
@@ -90,6 +91,7 @@ class OracleBufferedStatement extends MethodStatementDecorator
             $this->_allFetched = true;
             $this->_counter = $this->_count + 1;
             $this->_statement->closeCursor();
+
             return false;
         }
 
@@ -102,6 +104,7 @@ class OracleBufferedStatement extends MethodStatementDecorator
         }
 
         $this->_count++;
+
         return $this->_records[] = $record;
     }
 
@@ -118,16 +121,17 @@ class OracleBufferedStatement extends MethodStatementDecorator
         }
 
         $this->_records = parent::fetchAll($type);
-        $this->_count = count($this->_records);
+        $this->_count = is_countable($this->_records) ? count($this->_records) : 0;
         $this->_allFetched = true;
         $this->_statement->closeCursor();
+
         return $this->_records;
     }
 
     /**
      * {@inheritDoc}
      */
-    public function rowCount()
+    public function rowCount(): int
     {
         if (!$this->_allFetched) {
             $counter = $this->_counter;
@@ -160,5 +164,4 @@ class OracleBufferedStatement extends MethodStatementDecorator
         $this->_records = [];
         $this->_allFetched = false;
     }
-
 }

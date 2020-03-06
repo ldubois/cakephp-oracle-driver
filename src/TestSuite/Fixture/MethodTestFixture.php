@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 /**
  * Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
  *
@@ -8,7 +10,6 @@
  * @copyright Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
  * @license MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
-
 namespace CakeDC\OracleDriver\TestSuite\Fixture;
 
 use Cake\Core\Exception\Exception as CakeException;
@@ -23,7 +24,6 @@ use Exception;
  */
 class MethodTestFixture
 {
-
     /**
      * Fixture Datasource
      *
@@ -98,7 +98,7 @@ class MethodTestFixture
     public function init()
     {
         if ($this->name === null) {
-            list(, $class) = namespaceSplit(get_class($this));
+            [, $class] = namespaceSplit(static::class);
             preg_match('/^(.*)MethodFixture$/', $class, $matches);
             $method = $class;
             if (isset($matches[1])) {
@@ -131,8 +131,10 @@ class MethodTestFixture
             );
             Log::error($msg);
             trigger_error($msg, E_USER_WARNING);
+
             return false;
         }
+
         return true;
     }
 
@@ -154,6 +156,7 @@ class MethodTestFixture
         } catch (Exception $e) {
             return false;
         }
+
         return true;
     }
 
@@ -181,7 +184,7 @@ class MethodTestFixture
         return true;
     }
 
-	/**
+    /**
      * {@inheritDoc}
      */
     public function truncate(ConnectionInterface $db)

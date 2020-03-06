@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 $findRoot = function () {
     $root = dirname(__DIR__);
@@ -103,7 +104,7 @@ $cache = [
 
 Cake\Cache\Cache::setConfig($cache);
 Cake\Core\Configure::write('Session', [
-    'defaults' => 'php'
+    'defaults' => 'php',
 ]);
 
 // Cake\Core\Plugin::load('CakeDC\\OracleDriver', [
@@ -121,7 +122,7 @@ if (!getenv('db_dsn')) {
 
 Cake\Datasource\ConnectionManager::setConfig('test', [
     'url' => getenv('db_dsn'),
-    'timezone' => 'UTC'
+    'timezone' => 'UTC',
 ]);
 
 // Cake\Core\Configure::write('App.paths.plugins', [
@@ -132,7 +133,7 @@ class_alias('CakeDC\OracleDriver\Test\App\Controller\AppController', 'App\Contro
 
 $isCli = PHP_SAPI === 'cli';
 if ($isCli) {
-    (new Cake\Console\ConsoleErrorHandler(Cake\Core\Configure::read('Error')))->register();
+    (new Cake\Error\ConsoleErrorHandler(Cake\Core\Configure::read('Error')))->register();
 } else {
     (new Cake\Error\ErrorHandler(Cake\Core\Configure::read('Error')))->register();
 }

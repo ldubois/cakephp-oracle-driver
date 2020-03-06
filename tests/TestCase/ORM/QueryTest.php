@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 /**
  * Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
  *
@@ -16,26 +18,24 @@ use Cake\Database\Expression\QueryExpression;
 use Cake\ORM\TableRegistry;
 use Cake\Test\TestCase\ORM\QueryTest as CakeQueryTest;
 
-
 /**
  * Tests Query class
  *
  */
 class QueryTest extends CakeQueryTest
 {
-
     /**
      * Fixture to be used
      *
      * @var array
      */
     public $fixtures = [
-        'core.articles',
-        'core.tags',
-        'core.articles_tags',
-        'core.authors',
-        'core.comments',
-        'core.posts',
+        'core.Articles',
+        'core.Tags',
+        'core.ArticlesTags',
+        'core.Authors',
+        'core.Comments',
+        'core.Posts',
     ];
 
     /**
@@ -99,7 +99,7 @@ class QueryTest extends CakeQueryTest
                 'Authors' => function ($q) {
                     return $q->select(['compute' => '(SELECT 2 + 20 FROM DUAL)'])
                              ->enableAutoFields(true);
-                }
+                },
             ])
             ->first();
 
@@ -122,7 +122,7 @@ class QueryTest extends CakeQueryTest
         $query = $table->find('all');
         $query
             ->select(['author_id',
-                's' => $query->func()->sum(new IdentifierExpression('id'))
+                's' => $query->func()->sum(new IdentifierExpression('id')),
            ])
           ->group(['author_id']);
         $result = $query->count();
@@ -168,9 +168,9 @@ class QueryTest extends CakeQueryTest
                     'author_id' => 1,
                     'title' => 'First Article',
                     'body' => 'First Article Body',
-                    'published' => 'Y'
-                ]
-            ]
+                    'published' => 'Y',
+                ],
+            ],
         ];
         $this->assertEquals($expected, $results->first());
     }
@@ -199,7 +199,7 @@ class QueryTest extends CakeQueryTest
             1 => 2,
             2 => 0,
             3 => 1,
-            4 => 0
+            4 => 0,
         ];
         $this->assertEquals($expected, $results->combine('id', 'total_articles')
                                                ->toArray());
@@ -239,6 +239,7 @@ class QueryTest extends CakeQueryTest
         $query = $table->find()->where(['id >' => 1]);
         $query->where(function ($exp) {
             $e = new QueryExpression();
+
             return $exp->add($e->eq(new IdentifierExpression('author_id'), new IdentifierExpression(':author')));
         });
         $query->bind(':author', 1, 'integer');
@@ -265,5 +266,4 @@ class QueryTest extends CakeQueryTest
         // stub as "DISTINCT ON" not supported in oracle
         // @todo implement Expression class for analytic functions
     }
-
 }

@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 /**
  * Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
  *
@@ -8,14 +10,13 @@
  * @copyright Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
  * @license MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
-
 namespace CakeDC\OracleDriver\ORM\Locator;
 
-use CakeDC\OracleDriver\Database\OracleConnection;
-use CakeDC\OracleDriver\ORM\Method;
 use Cake\Core\App;
 use Cake\Datasource\ConnectionManager;
 use Cake\Utility\Inflector;
+use CakeDC\OracleDriver\Database\OracleConnection;
+use CakeDC\OracleDriver\ORM\Method;
 use RuntimeException;
 
 /**
@@ -23,7 +24,6 @@ use RuntimeException;
  */
 class MethodLocator implements LocatorInterface
 {
-
     /**
      * Configuration for aliases.
      *
@@ -67,7 +67,7 @@ class MethodLocator implements LocatorInterface
      * @param string|null $alias Name of the alias
      * @param array|null $options list of options for the alias
      * @return array The config data.
-     * @throws RuntimeException When you attempt to configure an existing method instance.
+     * @throws \RuntimeException When you attempt to configure an existing method instance.
      */
     public function config($alias = null, $options = null)
     {
@@ -78,7 +78,7 @@ class MethodLocator implements LocatorInterface
             return $this->_config = $alias;
         }
         if ($options === null) {
-            return isset($this->_config[$alias]) ? $this->_config[$alias] : [];
+            return $this->_config[$alias] ?? [];
         }
         if (isset($this->_instances[$alias])) {
             throw new RuntimeException(sprintf(
@@ -86,6 +86,7 @@ class MethodLocator implements LocatorInterface
                 $alias
             ));
         }
+
         return $this->_config[$alias] = $options;
     }
 
@@ -117,7 +118,7 @@ class MethodLocator implements LocatorInterface
      * will be called to get the default connection name to use.
      *
      * @param string $alias The alias name you want to get.
-     * @param array $options The options you want to build the method with.
+     * @param array $options The options you want to build the method with.
      *   If a method has already been loaded the options will be ignored.
      * @return \CakeDC\OracleDriver\ORM\Method
      * @throws \RuntimeException When you try to configure an alias that already exists.
@@ -131,11 +132,12 @@ class MethodLocator implements LocatorInterface
                     $alias
                 ));
             }
+
             return $this->_instances[$alias];
         }
 
         $this->_options[$alias] = $options;
-        list(, $classAlias) = pluginSplit($alias);
+        [, $classAlias] = pluginSplit($alias);
         $options = ['alias' => $classAlias] + $options;
 
         if (isset($this->_config[$alias])) {
@@ -147,12 +149,12 @@ class MethodLocator implements LocatorInterface
         }
 
         $className = $this->_getClassName($alias, $options);
-        if ($className) {
+        if ($className !== '') {
             $options['className'] = $className;
             $options['method'] = Inflector::underscore($alias);
         } else {
             if (!isset($options['method']) && strpos($options['className'], '\\') === false) {
-                list(, $method) = pluginSplit($options['className']);
+                [, $method] = pluginSplit($options['className']);
                 $options['method'] = Inflector::underscore($method);
             }
             $options['className'] = 'CakeDC\OracleDriver\ORM\Method';
@@ -188,6 +190,7 @@ class MethodLocator implements LocatorInterface
         if (empty($options['className'])) {
             $options['className'] = Inflector::camelize($alias);
         }
+
         return App::className($options['className'], 'Model/Method', 'Method');
     }
 

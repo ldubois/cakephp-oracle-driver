@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 /**
  * Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
  *
@@ -8,17 +10,17 @@
  * @copyright Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
  * @license MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
-
 namespace CakeDC\OracleDriver\Database\Dialect;
 
+use Cake\Database\Expression\FunctionExpression;
 use Cake\Database\ExpressionInterface;
+use Cake\Database\Query;
+use Cake\Database\QueryCompiler;
+use Cake\Database\Schema\BaseSchema;
+use Cake\Database\SqlDialectTrait;
 use CakeDC\OracleDriver\Database\Expression\SimpleExpression;
 use CakeDC\OracleDriver\Database\OracleCompiler;
-use CakeDC\OracleDriver\Database\Oracle12Compiler;
 use CakeDC\OracleDriver\Database\Schema\OracleSchema;
-use Cake\Database\Expression\FunctionExpression;
-use Cake\Database\Query;
-use Cake\Database\SqlDialectTrait;
 
 /**
  * Contains functions that encapsulates the SQL dialect used by Oracle,
@@ -26,7 +28,6 @@ use Cake\Database\SqlDialectTrait;
  */
 trait OracleDialectTrait
 {
-
     use SqlDialectTrait;
 
     /**
@@ -56,7 +57,7 @@ trait OracleDialectTrait
      * @param \Cake\Database\Query $query The query to be transformed
      * @return \Cake\Database\Query
      */
-    protected function _transformDistinct($query)
+    protected function _transformDistinct(Query $query): Query
     {
         return $query;
     }
@@ -67,7 +68,7 @@ trait OracleDialectTrait
      * @param \Cake\Database\Query $query The query to translate
      * @return \Cake\Database\Query The modified query
      */
-    protected function _selectQueryTranslator($query)
+    protected function _selectQueryTranslator(Query $query): Query
     {
         $limit = $query->clause('limit');
         $offset = $query->clause('offset');
@@ -77,7 +78,7 @@ trait OracleDialectTrait
 
         if ($offset !== null || $limit !== null) {
             if ($serverVersion !== null && $serverVersion >= 12) {
-                return $this->_pagingSubqueryNew($query, $limit, $offset);
+                return $this->_pagingSubquery12($query, $limit, $offset);
             } else {
                 return $this->_pagingSubquery($query, $limit, $offset);
             }
@@ -109,7 +110,7 @@ trait OracleDialectTrait
         $outer
             ->select([
                 'cake_paging.*',
-                '_cake_page_rownum_' => new SimpleExpression('ROWNUM')
+                '_cake_page_rownum_' => new SimpleExpression('ROWNUM'),
             ])
             ->from(['cake_paging' => $query]);
 
@@ -131,8 +132,10 @@ trait OracleDialectTrait
             } elseif (isset($row['_cake_page_rownum_'])) {
                 unset($row['_cake_page_rownum_']);
             }
+
             return $row;
         });
+
         return $outer2;
     }
 
@@ -147,19 +150,11 @@ trait OracleDialectTrait
      * @param int $offset The number of rows to offset.
      * @return \Cake\Database\Query Modified query object.
      */
-    protected function _pagingSubqueryNew($original, $limit, $offset)
+    protected function _pagingSubquery12($original, $limit, $offset)
     {
+        // @todo add hints support for selects like "select /*+ FIRST_ROWS({$query->limit}) */"
 
-        // @todo add hints support for selects
-
-          //  $components['columns'] = str_replace('select', "select /*+ FIRST_ROWS({$query->limit}) */",
-        // $components['columns']);
-
-          //  $offset = $query->offset ?: 0;
-          //  $limit = $query->limit;
-          //  $components['limit'] = "offset $offset rows fetch next $limit rows only";
-
-            return $original;
+        return $original;
     }
 
     /**
@@ -168,22 +163,23 @@ trait OracleDialectTrait
      *
      * @return array
      */
-    protected function _expressionTranslators()
+    protected function _expressionTranslators(): array
     {
         $namespace = 'Cake\Database\Expression';
+
         return [
-            $namespace . '\FunctionExpression' => '_transformFunctionExpression'
+            $namespace . '\FunctionExpression' => '_transformFunctionExpression',
         ];
     }
 
     /**
      * Receives a FunctionExpression and changes it so that it conforms to this SQL dialect.
      *
-     * @param \Cake\Database\Expression\FunctionExpression $expression The function expression
+     * @param \Cake\Database\Expression\FunctionExpression $expression The function expression
      * to convert to oracle SQL.
      * @return void
      */
-    protected function _transformFunctionExpression(FunctionExpression $expression)
+    protected function _transformFunctionExpression(FunctionExpression $expression): void
     {
         switch ($expression->getName()) {
             case 'RAND':
@@ -229,6 +225,7 @@ trait OracleDialectTrait
                             $value = str_replace("'", '', $value);
                             $p = sprintf("'%s' %s", $value, $unit);
                         }
+
                         return $p;
                     });
                 break;
@@ -248,11 +245,12 @@ trait OracleDialectTrait
      *
      * @return \CakeDC\OracleDriver\Database\Schema\OracleSchema
      */
-    public function schemaDialect()
+    public function schemaDialect(): BaseSchema
     {
         if (!$this->_schemaDialect) {
             $this->_schemaDialect = new OracleSchema($this);
         }
+
         return $this->_schemaDialect;
     }
 
@@ -260,7 +258,7 @@ trait OracleDialectTrait
      * {@inheritDoc}
      * @see http://www.dba-oracle.com/t_enabling_disabling_constraints.htm
      */
-    public function disableForeignKeySQL()
+    public function disableForeignKeySQL(): string
     {
         return $this->_processAllForeignKeys('disable');
     }
@@ -269,7 +267,7 @@ trait OracleDialectTrait
      * {@inheritDoc}
      * @see http://www.dba-oracle.com/t_enabling_disabling_constraints.htm
      */
-    public function enableForeignKeySQL()
+    public function enableForeignKeySQL(): string
     {
         return $this->_processAllForeignKeys('enable');
     }
@@ -280,7 +278,7 @@ trait OracleDialectTrait
      * @param string $type "enable" or "disable"
      * @return string
      */
-    protected function _processAllForeignKeys($type)
+    protected function _processAllForeignKeys(string $type): string
     {
         $startQuote = $this->_startQuote;
         $endQuote = $this->_endQuote;
@@ -292,6 +290,7 @@ trait OracleDialectTrait
             $fromWhere = "from user_constraints
                 where constraint_type = 'R'";
         }
+
         return "declare
             cursor c is select owner, table_name, constraint_name
                 {$fromWhere};
@@ -311,9 +310,9 @@ trait OracleDialectTrait
      *
      * @return \CakeDC\OracleDriver\Database\OracleCompiler
      */
-    public function newCompiler()
+    public function newCompiler(): QueryCompiler
     {
-        return new OracleCompiler;
+        return new OracleCompiler();
     }
 
     /**
@@ -326,10 +325,10 @@ trait OracleDialectTrait
      * @param \Cake\Database\Query $query The query to translate
      * @return \Cake\Database\Query
      */
-    protected function _insertQueryTranslator($query)
+    protected function _insertQueryTranslator(Query $query): Query
     {
         $v = $query->clause('values');
-        if (count($v->getValues()) === 1 || $v->getQuery()) {
+        if ((is_countable($v->getValues()) ? count($v->getValues()) : 0) === 1 || $v->getQuery()) {
             return $query;
         }
 
@@ -339,7 +338,7 @@ trait OracleDialectTrait
         $replaceQuery = false;
 
         foreach ($v->getValues() as $k => $val) {
-            $fillLength = count($cols) - count($val);
+            $fillLength = (is_countable($cols) ? count($cols) : 0) - (is_countable($val) ? count($val) : 0);
             if ($fillLength > 0) {
                 $val = array_merge($val, array_fill(0, $fillLength, null));
             }
@@ -368,5 +367,4 @@ trait OracleDialectTrait
 
         return $query;
     }
-
 }

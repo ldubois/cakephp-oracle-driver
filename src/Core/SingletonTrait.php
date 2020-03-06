@@ -1,13 +1,13 @@
 <?php
+declare(strict_types=1);
 
 namespace CakeDC\OracleDriver\Core;
 
 /**
  * Singleton trait.
  */
-trait Singleton
+trait SingletonTrait
 {
-
     /**
      * Object instance.
      *
@@ -22,7 +22,7 @@ trait Singleton
      */
     final public static function getInstance()
     {
-        return isset(static::$_instance) ? static::$_instance : static::$_instance = new static;
+        return static::$_instance ?? static::$_instance = new static();
     }
 
     /**
@@ -42,10 +42,20 @@ trait Singleton
     {
     }
 
+    /**
+     * Default wakeup behavior.
+     *
+     * @return void
+     */
     final private function __wakeup()
     {
     }
 
+    /**
+     * Default clone behavior.
+     *
+     * @return void
+     */
     final private function __clone()
     {
     }

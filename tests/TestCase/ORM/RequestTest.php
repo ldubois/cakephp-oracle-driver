@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 /**
  * Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
  *
@@ -11,15 +13,14 @@
 
 namespace CakeDC\OracleDriver\Test\TestCase\ORM;
 
-use CakeDC\OracleDriver\ORM\Request;
 use Cake\TestSuite\TestCase;
+use CakeDC\OracleDriver\ORM\Request;
 
 /**
  * Request test case.
  */
 class RequestTest extends TestCase
 {
-
     /**
      * Tests setting a single property in an request without custom setters
      *
@@ -27,7 +28,7 @@ class RequestTest extends TestCase
      */
     public function testSetOneParamNoSetters()
     {
-        $request = new Request;
+        $request = new Request();
         $request->set('foo', 'bar');
         $this->assertEquals('bar', $request->foo);
 
@@ -45,7 +46,7 @@ class RequestTest extends TestCase
      */
     public function testSetMultiplePropertiesNoSetters()
     {
-        $request = new Request;
+        $request = new Request();
 
         $request->set(['foo' => 'bar', 'id' => 1]);
         $this->assertEquals('bar', $request->foo);
@@ -71,6 +72,7 @@ class RequestTest extends TestCase
             ->with('Jones')
             ->will($this->returnCallback(function ($name) {
                 $this->assertEquals('Jones', $name);
+
                 return 'Dr. ' . $name;
             }));
         $request->set('name', 'Jones');
@@ -91,12 +93,14 @@ class RequestTest extends TestCase
             ->with('Jones')
             ->will($this->returnCallback(function ($name) {
                 $this->assertEquals('Jones', $name);
+
                 return 'Dr. ' . $name;
             }));
         $request->expects($this->once())->method('_setStuff')
             ->with(['a', 'b'])
             ->will($this->returnCallback(function ($stuff) {
                 $this->assertEquals(['a', 'b'], $stuff);
+
                 return ['c', 'd'];
             }));
         $request->set(['name' => 'Jones', 'stuff' => ['a', 'b']]);
@@ -236,7 +240,7 @@ class RequestTest extends TestCase
      */
     public function testMagicSet()
     {
-        $request = new Request;
+        $request = new Request();
         $request->name = 'Jones';
         $this->assertEquals('Jones', $request->name);
         $request->name = 'George';
@@ -257,6 +261,7 @@ class RequestTest extends TestCase
             ->with('Jones')
             ->will($this->returnCallback(function ($name) {
                 $this->assertEquals('Jones', $name);
+
                 return 'Dr. ' . $name;
             }));
         $request->name = 'Jones';
@@ -277,6 +282,7 @@ class RequestTest extends TestCase
             ->with('Jones')
             ->will($this->returnCallback(function ($name) {
                 $this->assertSame('Jones', $name);
+
                 return 'Dr. ' . $name;
             }));
         $request->set('name', 'Jones');
@@ -290,7 +296,7 @@ class RequestTest extends TestCase
      */
     public function testIndirectModification()
     {
-        $request = new Request;
+        $request = new Request();
         $request->things = ['a', 'b'];
         $request->things[] = 'c';
         $this->assertEquals(['a', 'b', 'c'], $request->things);
@@ -522,7 +528,7 @@ class RequestTest extends TestCase
         $data = [
             'id' => 1,
             'title' => 'Foo',
-            'author_id' => 3
+            'author_id' => 3,
         ];
         $request = new Request($data);
         $this->assertTrue($request->isNew());
@@ -621,11 +627,11 @@ class RequestTest extends TestCase
         $this->assertSame($expected, $result);
     }
 
-    /**
-     * Tests the source method
-     *
-     * @return void
-     */
+/**
+ * Tests the source method
+ *
+ * @return void
+ */
 //    public function testRepository()
 //    {
 //        $request = new Request;
@@ -641,6 +647,7 @@ class RequestTest extends TestCase
     {
         return [[''], [null], [false]];
     }
+
     /**
      * Tests that trying to get an empty propery name throws exception
      *
@@ -666,5 +673,4 @@ class RequestTest extends TestCase
         $request = new Request();
         $request->set($property, 'bar');
     }
-
 }

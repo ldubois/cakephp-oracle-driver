@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 /**
  * Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
  *
@@ -44,5 +46,4 @@ class CalcCodeFixture extends MethodTestFixture
 
         parent::__construct();
     }
-
 }

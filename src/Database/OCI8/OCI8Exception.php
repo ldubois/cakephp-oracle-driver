@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 /**
  * Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
  *
@@ -8,7 +10,6 @@
  * @copyright Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
  * @license MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
-
 namespace CakeDC\OracleDriver\Database\OCI8;
 
 use Cake\Core\Exception\Exception;
@@ -19,7 +20,7 @@ class OCI8Exception extends Exception
      * OCI Error builder.
      *
      * @param array $error Error information that includes error message and code.
-     * @return OCI8Exception
+     * @return \CakeDC\OracleDriver\Database\OCI8\OCI8Exception
      */
     public static function fromErrorInfo($error)
     {

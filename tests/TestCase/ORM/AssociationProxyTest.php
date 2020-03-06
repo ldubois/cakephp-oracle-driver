@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 /**
  * Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
  *
@@ -14,14 +16,12 @@ namespace CakeDC\OracleDriver\Test\TestCase\ORM;
 use Cake\ORM\TableRegistry;
 use Cake\Test\TestCase\ORM\AssociationProxyTest as CakeAssociationProxyTest;
 
-
 /**
  * Tests AssociationProxy class
  *
  */
 class AssociationProxyTest extends CakeAssociationProxyTest
 {
-
     /**
      * Tests that the proxied updateAll will preserve conditions set for the association
      *
@@ -39,5 +39,4 @@ class AssociationProxyTest extends CakeAssociationProxyTest
             ->count();
         $this->assertEquals(3, $changed);
     }
-
 }

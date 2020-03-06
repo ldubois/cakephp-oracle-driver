@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 /**
  * Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
  *
@@ -8,7 +10,6 @@
  * @copyright Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
  * @license MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
-
 namespace CakeDC\OracleDriver\Database\Statement\Method;
 
 use Cake\Database\Statement\StatementDecorator;
@@ -27,12 +28,11 @@ use IteratorAggregate;
  */
 class MethodStatementDecorator extends StatementDecorator implements StatementInterface, Countable, IteratorAggregate
 {
-
     /**
      * Assign a value to a positional or named variable in prepared query. If using
      * positional variables you need to start with index one, if using named params then
      * just use the name in any order.
-     * 
+     *
      * Parameters values are always passed by reference.
      *
      * You can pass OCI compatible constants for binding values with a type or optionally
@@ -61,5 +61,4 @@ class MethodStatementDecorator extends StatementDecorator implements StatementIn
     {
         $this->_statement->bindParam($column, $value, $type);
     }
-
 }

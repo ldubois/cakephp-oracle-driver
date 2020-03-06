@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 /**
  * Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
  *
@@ -16,27 +18,25 @@ use Cake\Database\Expression\IdentifierExpression;
 use Cake\ORM\Table;
 use Cake\Test\TestCase\ORM\TableTest as CakeTableTest;
 
-
 /**
  * Tests Table class
  *
  */
 class TableTest extends CakeTableTest
 {
-
     public $fixtures = [
-        'core.articles',
-        'core.tags',
-        'core.articles_tags',
-        'core.authors',
-        'core.categories',
-        'core.comments',
-        'core.groups',
-        'core.members',
-        'core.groups_members',
-        'core.polymorphic_tagged',
-        'core.site_articles',
-        'core.users'
+        'core.Articles',
+        'core.Tags',
+        'core.ArticlesTags',
+        'core.Authors',
+        'core.Categories',
+        'core.Comments',
+        'core.Groups',
+        'core.Members',
+        'core.GroupsMembers',
+        'core.PolymorphicTagged',
+        'core.SiteArticles',
+        'core.Users',
     ];
 
     /**
@@ -59,7 +59,7 @@ class TableTest extends CakeTableTest
             1 => 'mariano',
             2 => 'nate',
             3 => 'larry',
-            4 => 'garrett'
+            4 => 'garrett',
         ];
         $this->assertSame($expected, $query->toArray());
 
@@ -70,7 +70,7 @@ class TableTest extends CakeTableTest
             1 => 'mariano',
             2 => 'nate',
             3 => 'larry',
-            4 => 'garrett'
+            4 => 'garrett',
         ];
         $this->assertSame($expected, $query->toArray());
 
@@ -78,19 +78,19 @@ class TableTest extends CakeTableTest
            ->select([
                'id',
                'username',
-               'odd' => new FunctionExpression('MOD', [new IdentifierExpression('id'), 2])
+               'odd' => new FunctionExpression('MOD', [new IdentifierExpression('id'), 2]),
            ])
            ->enableHydration(false)
            ->order('id');
         $expected = [
             1 => [
                 1 => 'mariano',
-                3 => 'larry'
+                3 => 'larry',
             ],
             0 => [
                 2 => 'nate',
-                4 => 'garrett'
-            ]
+                4 => 'garrett',
+            ],
         ];
         $this->assertSame($expected, $query->toArray());
     }
@@ -113,7 +113,7 @@ class TableTest extends CakeTableTest
             1 => 'mariano',
             2 => 'nate',
             3 => 'larry',
-            4 => 'garrett'
+            4 => 'garrett',
         ];
         $this->assertSame($expected, $query->toArray());
 
@@ -121,19 +121,19 @@ class TableTest extends CakeTableTest
            ->select([
                'id',
                'username',
-               'odd' => new FunctionExpression('MOD', [new IdentifierExpression('id'), 2])
+               'odd' => new FunctionExpression('MOD', [new IdentifierExpression('id'), 2]),
            ])
            ->enableHydration(true)
            ->order('id');
         $expected = [
             1 => [
                 1 => 'mariano',
-                3 => 'larry'
+                3 => 'larry',
             ],
             0 => [
                 2 => 'nate',
-                4 => 'garrett'
-            ]
+                4 => 'garrett',
+            ],
         ];
         $this->assertSame($expected, $query->toArray());
     }
@@ -160,13 +160,13 @@ class TableTest extends CakeTableTest
             'comments' => [
                 [
                     'user_id' => 1,
-                    'comment' => 'That is true!'
+                    'comment' => 'That is true!',
                 ],
                 [
                     'user_id' => 2,
-                    'comment' => 'Of course'
-                ]
-            ]
+                    'comment' => 'Of course',
+                ],
+            ],
         ], ['associated' => ['Comments']]);
 
         $article = $articles->save($article, ['associated' => ['Comments']]);
@@ -182,7 +182,7 @@ class TableTest extends CakeTableTest
         unset($article->comments[0]);
         $article->comments[] = $articles->Comments->newEntity([
             'user_id' => 1,
-            'comment' => 'new comment'
+            'comment' => 'new comment',
         ]);
 
         $article->setDirty('comments', true);
@@ -194,8 +194,7 @@ class TableTest extends CakeTableTest
         $this->assertFalse($articles->Comments->exists(['id' => $commentId]));
         $this->assertTrue($articles->Comments->exists([
             'to_char(comment)' => 'new comment',
-            'article_id' => $articleId
+            'article_id' => $articleId,
         ]));
     }
-
 }

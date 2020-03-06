@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 /**
  * Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
  *
@@ -8,7 +10,6 @@
  * @copyright Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
  * @license MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
-
 namespace CakeDC\OracleDriver\Database\OCI8;
 
 use Cake\Core\InstanceConfigTrait;
@@ -36,7 +37,7 @@ class OCI8Connection extends PDO
     protected $dbh;
 
     /**
-     * @var integer
+     * @var int
      */
     protected $executeMode = OCI_COMMIT_ON_SUCCESS;
 
@@ -50,7 +51,7 @@ class OCI8Connection extends PDO
      * @param string $password Oracle user's password.
      * @param array $options Additional connection settings.
      *
-     * @throws OCI8Exception
+     * @throws \CakeDC\OracleDriver\Database\OCI8\OCI8Exception
      */
     public function __construct($dsn, $username, $password, $options)
     {
@@ -59,9 +60,28 @@ class OCI8Connection extends PDO
         $sessionMode = !empty($options['sessionMode']) ? $options['sessionMode'] : null;
 
         if ($persistent) {
-            $this->dbh = @oci_pconnect($username, $password, $dsn, $charset, $sessionMode);
+            if ($charset !== null) {
+                if ($sessionMode !== null) {
+                    $this->dbh = @oci_pconnect($username, $password, $dsn, $charset, $sessionMode);
+                } else {
+                    $this->dbh = @oci_pconnect($username, $password, $dsn, $charset);
+                }
+            } else {
+                $this->dbh = @oci_pconnect($username, $password, $dsn);
+            }
         } else {
-            $this->dbh = @oci_connect($username, $password, $dsn, $charset, $sessionMode);
+            if ($charset !== null) {
+                if ($sessionMode !== null) {
+                    $this->dbh = @oci_connect($username, $password, $dsn, $charset, $sessionMode);
+                } else {
+                    $this->dbh = @oci_connect($username, $password, $dsn, $charset);
+                }
+            } else {
+                $this->dbh = @oci_connect($username, $password, $dsn);
+            }
+
+
+//            $this->dbh = @oci_connect($username, $password, $dsn, $charset, $sessionMode);
         }
 
         if (!$this->dbh) {
@@ -145,7 +165,7 @@ class OCI8Connection extends PDO
     /**
      * Returns the current execution mode.
      *
-     * @return integer
+     * @return int
      */
     public function getExecuteMode()
     {
@@ -168,7 +188,7 @@ class OCI8Connection extends PDO
      */
     public function inTransaction()
     {
-        return $this->executeMode == OCI_NO_AUTO_COMMIT;
+        return $this->executeMode === OCI_NO_AUTO_COMMIT;
     }
 
     /**

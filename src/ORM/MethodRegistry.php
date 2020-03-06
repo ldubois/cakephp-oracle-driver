@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 /**
  * Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
  *
@@ -8,7 +10,6 @@
  * @copyright Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
  * @license MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
-
 namespace CakeDC\OracleDriver\ORM;
 
 use CakeDC\OracleDriver\ORM\Locator\LocatorInterface;
@@ -42,7 +43,6 @@ use CakeDC\OracleDriver\ORM\Locator\LocatorInterface;
  */
 class MethodRegistry
 {
-
     /**
      * LocatorInterface implementation instance.
      *
@@ -77,14 +77,14 @@ class MethodRegistry
      * @param \CakeDC\OracleDriver\ORM\Locator\LocatorInterface $locator Instance of a locator to use.
      * @return \CakeDC\OracleDriver\ORM\Locator\LocatorInterface
      */
-    public static function locator(LocatorInterface $locator = null)
+    public static function locator(?LocatorInterface $locator = null)
     {
-        if ($locator) {
+        if ($locator !== null) {
             static::$_locator = $locator;
         }
 
         if (!static::$_locator) {
-            static::$_locator = new static::$_defaultLocatorClass;
+            static::$_locator = new static::$_defaultLocatorClass();
         }
 
         return static::$_locator;

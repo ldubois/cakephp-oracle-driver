@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 /**
  * Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
  *
@@ -13,12 +15,10 @@ namespace CakeDC\OracleDriver\Test\TestCase\ORM\Behavior;
 
 use Cake\Test\TestCase\ORM\Behavior\TreeBehaviorTest as CakeTreeBehaviorTest;
 
-
 /**
  * Tests TreeBehavior class
  *
  */
 class TreeBehaviorTest extends CakeTreeBehaviorTest
 {
-
 }

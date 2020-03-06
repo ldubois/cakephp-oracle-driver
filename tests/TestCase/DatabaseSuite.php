@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 /**
  * Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
  *
@@ -25,7 +27,6 @@
 namespace Cake\Test\TestCase;
 
 use Cake\Datasource\ConnectionManager;
-use Cake\TestSuite\TestPermutationDecorator;
 use Cake\TestSuite\TestSuite;
 use PHPUnit\Framework\TestResult;
 
@@ -35,7 +36,6 @@ use PHPUnit\Framework\TestResult;
  */
 class DatabaseSuite extends TestSuite
 {
-
     /**
      * Returns a suite containing all tests requiring a database connection,
      * tests are decorated so that they are run once with automatic
@@ -48,6 +48,7 @@ class DatabaseSuite extends TestSuite
         // $suite->addTestFile(__DIR__ . DS . 'Database' . DS . 'ConnectionTest.php');
         $suite->addTestDirectoryRecursive(__DIR__ . DS . 'Database');
         $suite->addTestDirectoryRecursive(__DIR__ . DS . 'ORM');
+
         return $suite;
     }
 
@@ -62,13 +63,8 @@ class DatabaseSuite extends TestSuite
      * @param \PHPUnit\Framework\TestResult $result
      * @return \PHPUnit\Framework\TestResult
      */
-    public function run(
-        TestResult $result = null,
-        $filter = false,
-        array $groups = [],
-        array $excludeGroups = [],
-        $processIsolation = false
-    ) {
+    public function run(?TestResult $result = null): TestResult
+    {
         $permutations = [
             'Identifier Quoting' => function () {
                 ConnectionManager::get('test')->getDriver()->enableAutoQuoting(true);
@@ -80,8 +76,9 @@ class DatabaseSuite extends TestSuite
 
         foreach ($permutations as $permutation) {
             $permutation();
-            $result = parent::run($result, $filter, $groups, $excludeGroups, $processIsolation);
+            $result = parent::run($result);
         }
+
         return $result;
     }
 }

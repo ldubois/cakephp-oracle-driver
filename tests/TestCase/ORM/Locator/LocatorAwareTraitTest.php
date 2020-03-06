@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 /**
  * Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
  *
@@ -11,8 +13,8 @@
 
 namespace CakeDC\OracleDriver\Test\TestCase\ORM\Locator;
 
-use CakeDC\OracleDriver\ORM\MethodRegistry;
 use Cake\TestSuite\TestCase;
+use CakeDC\OracleDriver\ORM\MethodRegistry;
 
 /**
  * LocatorAwareTrait test case
@@ -20,13 +22,12 @@ use Cake\TestSuite\TestCase;
  */
 class LocatorAwareTraitTest extends TestCase
 {
-
     /**
      * setup
      *
      * @return void
      */
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 

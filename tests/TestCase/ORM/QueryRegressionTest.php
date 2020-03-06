@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 /**
  * Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
  *
@@ -14,14 +16,12 @@ namespace CakeDC\OracleDriver\Test\TestCase\ORM;
 use Cake\ORM\TableRegistry;
 use Cake\Test\TestCase\ORM\QueryRegressionTest as CakeQueryRegressionTest;
 
-
 /**
  * Tests QueryRegression class
  *
  */
 class QueryRegressionTest extends CakeQueryRegressionTest
 {
-
     /**
      * Test expression based ordering with unions.
      *
@@ -74,7 +74,7 @@ class QueryRegressionTest extends CakeQueryRegressionTest
         $table = TableRegistry::get('Authors');
         $table->hasMany('Articles');
         $table->Articles->belongsToMany('Tags', [
-            'strategy' => 'subquery'
+            'strategy' => 'subquery',
         ]);
 
         $result = $table->find()
@@ -82,8 +82,8 @@ class QueryRegressionTest extends CakeQueryRegressionTest
                 'Articles' => [
                     'Tags' => function ($q) {
                         return $q->order(['name']);
-                    }
-                ]
+                    },
+                ],
             ])
             ->toArray();
         $this->assertEquals(['tag1', 'tag3'], collection($result[2]->articles[0]->tags)->extract('name')->toArray());
@@ -100,7 +100,7 @@ class QueryRegressionTest extends CakeQueryRegressionTest
         $table = TableRegistry::get('Authors');
         $table->hasMany('Articles');
         $table->Articles->belongsToMany('Tags', [
-            'strategy' => 'subquery'
+            'strategy' => 'subquery',
         ]);
         $table->belongsToMany('Tags', [
             'strategy' => 'subquery',
@@ -114,8 +114,8 @@ class QueryRegressionTest extends CakeQueryRegressionTest
               'Authors' => [
                   'Tags' => function ($q) {
                       return $q->order(['name']);
-                  }
-              ]
+                  },
+              ],
           ])
           ->toArray();
         $this->assertEquals(['tag1', 'tag2'], collection($result[0]->author->tags)
@@ -152,7 +152,7 @@ class QueryRegressionTest extends CakeQueryRegressionTest
             'author_id',
             'title',
             'body' => 'to_char(body)',
-            'published'
+            'published',
         ];
         $query = $table->find()
                        ->select($fields)
@@ -163,5 +163,4 @@ class QueryRegressionTest extends CakeQueryRegressionTest
         $query->union($query2);
         $this->assertEquals(2, $query->count());
     }
-
 }

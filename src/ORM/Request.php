@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 /**
  * Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
  *
@@ -8,12 +10,10 @@
  * @copyright Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
  * @license MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
-
 namespace CakeDC\OracleDriver\ORM;
 
 class Request implements RequestInterface
 {
-
     use RequestTrait;
 
     /**
@@ -28,9 +28,9 @@ class Request implements RequestInterface
         $options += [
             'useSetters' => true,
             'markNew' => null,
-            'repository' => null
+            'repository' => null,
         ];
-        $this->_className = get_class($this);
+        $this->_className = static::class;
 
         if ($options['markNew'] !== null) {
             $this->isNew($options['markNew']);

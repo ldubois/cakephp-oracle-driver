@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 /**
  * CakePHP(tm) : Rapid Development Framework (https://cakephp.org)
  * Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
@@ -7,17 +9,18 @@
  * For full copyright and license information, please see the LICENSE.txt
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
- * @link          https://cakephp.org CakePHP(tm) Project
- * @since         3.0.0
- * @license       https://opensource.org/licenses/mit-license.php MIT License
+ * @copyright Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
+ * @link https://cakephp.org CakePHP(tm) Project
+ * @since 3.0.0
+ * @license https://opensource.org/licenses/mit-license.php MIT License
  */
 namespace CakeDC\OracleDriver\Database\Type;
 
 use Cake\Database\Driver;
-use Cake\Database\Type;
-use Cake\Database\TypeInterface;
+use Cake\Database\DriverInterface;
+use Cake\Database\Type\BaseType;
 use Cake\Database\Type\BatchCastingInterface;
+use Cake\Database\TypeInterface;
 use InvalidArgumentException;
 use PDO;
 
@@ -26,7 +29,7 @@ use PDO;
  *
  * Use to convert integer data between PHP and the database types.
  */
-class IntegerType extends Type implements TypeInterface, BatchCastingInterface
+class IntegerType extends BaseType implements TypeInterface, BatchCastingInterface
 {
     /**
      * Identifier name for this type.
@@ -46,7 +49,7 @@ class IntegerType extends Type implements TypeInterface, BatchCastingInterface
      *
      * @param string|null $name The name identifying this type
      */
-    public function __construct($name = null)
+    public function __construct(?string $name = null)
     {
         $this->_name = $name;
     }
@@ -60,8 +63,12 @@ class IntegerType extends Type implements TypeInterface, BatchCastingInterface
      */
     protected function checkNumeric($value)
     {
-        if($value === false) $value=0;
-        if($value === true) $value=1;
+        if ($value === false) {
+            $value = 0;
+        }
+        if ($value === true) {
+            $value = 1;
+        }
         if (!is_numeric($value)) {
             throw new InvalidArgumentException(sprintf(
                 'Cannot convert value of type `%s` to integer',
@@ -74,10 +81,10 @@ class IntegerType extends Type implements TypeInterface, BatchCastingInterface
      * Convert integer data into the database format.
      *
      * @param mixed $value The value to convert.
-     * @param \Cake\Database\Driver $driver The driver instance to convert with.
+     * @param \Cake\Database\DriverInterface $driver The driver instance to convert with.
      * @return int|null
      */
-    public function toDatabase($value, Driver $driver)
+    public function toDatabase($value, DriverInterface $driver)
     {
         if ($value === null || $value === '') {
             return null;
@@ -92,10 +99,10 @@ class IntegerType extends Type implements TypeInterface, BatchCastingInterface
      * Convert integer values to PHP integers
      *
      * @param mixed $value The value to convert.
-     * @param \Cake\Database\Driver $driver The driver instance to convert with.
+     * @param \Cake\Database\DriverInterface $driver The driver instance to convert with.
      * @return int|null
      */
-    public function toPHP($value, Driver $driver)
+    public function toPHP($value, DriverInterface $driver)
     {
         if ($value === null) {
             return $value;
@@ -109,7 +116,7 @@ class IntegerType extends Type implements TypeInterface, BatchCastingInterface
      *
      * @return array
      */
-    public function manyToPHP(array $values, array $fields, Driver $driver)
+    public function manyToPHP(array $values, array $fields, DriverInterface $driver): array
     {
         foreach ($fields as $field) {
             if (!isset($values[$field])) {
@@ -131,7 +138,7 @@ class IntegerType extends Type implements TypeInterface, BatchCastingInterface
      * @param \Cake\Database\Driver $driver The driver.
      * @return int
      */
-    public function toStatement($value, Driver $driver)
+    public function toStatement($value, DriverInterface $driver)
     {
         return PDO::PARAM_INT;
     }

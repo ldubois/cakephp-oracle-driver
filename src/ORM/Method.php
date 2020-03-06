@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 /**
  * Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
  *
@@ -8,19 +10,16 @@
  * @copyright Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
  * @license MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
-
 namespace CakeDC\OracleDriver\ORM;
 
+use Cake\Core\App;
+use Cake\Utility\Inflector;
 use CakeDC\OracleDriver\Database\OracleConnection;
 use CakeDC\OracleDriver\Database\Schema\Method as Schema;
 use CakeDC\OracleDriver\ORM\Exception\MissingRequestException;
-use Cake\Core\App;
-use Cake\Database\Type;
-use Cake\Utility\Inflector;
 
 class Method
 {
-
     /**
      * Name of the method as it can be found in the database
      *
@@ -83,10 +82,11 @@ class Method
             $this->_method = $method;
         }
         if ($this->_method === null) {
-            $method = namespaceSplit(get_class($this));
+            $method = namespaceSplit(static::class);
             $method = substr(end($method), 0, -6);
             $this->_method = Inflector::underscore($method);
         }
+
         return $this->_method;
     }
 
@@ -96,7 +96,7 @@ class Method
      * @param \CakeDC\OracleDriver\Database\OracleConnection|null $conn The new connection instance
      * @return \CakeDC\OracleDriver\Database\OracleConnection
      */
-    public function connection(OracleConnection $conn = null)
+    public function connection(?OracleConnection $conn = null)
     {
         if ($conn === null) {
             return $this->_connection;
@@ -124,12 +124,12 @@ class Method
                                                                ->methodSchemaCollection()
                                                                ->describe($this->method()));
             }
+
             return $this->_schema;
         }
 
         if (is_array($schema)) {
             $schema = new Schema($this->method(), $schema);
-
         }
 
         return $this->_schema = $schema;
@@ -170,10 +170,10 @@ class Method
     {
         if ($name === null && !$this->_requestClass) {
             $default = '\CakeDC\OracleDriver\ORM\Request';
-            $self = get_called_class();
+            $self = static::class;
             $parts = explode('\\', $self);
 
-            if ($self === __CLASS__ || count($parts) < 3) {
+            if ($self === self::class || count($parts) < 3) {
                 return $this->_requestClass = $default;
             }
 
@@ -189,7 +189,7 @@ class Method
             $this->_requestClass = $class;
         }
 
-        if (!$this->_requestClass) {
+        if ($this->_requestClass === '') {
             throw new MissingRequestException([$name]);
         }
 
@@ -222,7 +222,7 @@ class Method
      * Builds new request object for current method.
      *
      * @param array $data Parameters data.
-     * @return Request
+     * @return \CakeDC\OracleDriver\ORM\Request
      */
     public function newRequest($data = null)
     {
@@ -233,13 +233,14 @@ class Method
         if (is_array($data)) {
             $request->set($data);
         }
+
         return $request;
     }
 
     /**
      * Execute request. Request should be initialized.
      *
-     * @param RequestInterface $request Request object instance.
+     * @param \CakeDC\OracleDriver\ORM\RequestInterface $request Request object instance.
      * @return mixed
      */
     public function execute(RequestInterface $request)
@@ -265,8 +266,9 @@ class Method
     protected function _generateSql()
     {
         $query = '';
-        if ($this->schema()
-                 ->isFunction()
+        if (
+            $this->schema()
+                 ->isFunction() !== []
         ) {
             $query = ':result := ';
         }
@@ -283,6 +285,7 @@ class Method
         $query .= implode(',', $names);
         $query .= ');';
         $query = 'begin ' . $query . ' end;';
+
         return $query;
     }
 
@@ -295,10 +298,11 @@ class Method
     public function __debugInfo()
     {
         $conn = $this->connection();
+
         return [
             'method' => $this->method(),
             'defaultConnection' => $this->defaultConnectionName(),
-            'connectionName' => $conn ? $conn->configName() : null
+            'connectionName' => $conn ? $conn->configName() : null,
         ];
     }
 

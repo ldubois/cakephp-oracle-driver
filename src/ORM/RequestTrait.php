@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 /**
  * Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
  *
@@ -8,14 +10,12 @@
  * @copyright Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
  * @license MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
-
 namespace CakeDC\OracleDriver\ORM;
 
-use CakeDC\OracleDriver\Database\Schema\Method as MethodSchema;
-use CakeDC\OracleDriver\ORM\Method\ResultSet;
-use Cake\Database\Driver;
 use Cake\Database\TypeConverterTrait;
 use Cake\Utility\Inflector;
+use CakeDC\OracleDriver\Database\Schema\Method as MethodSchema;
+use CakeDC\OracleDriver\ORM\Method\ResultSet;
 use InvalidArgumentException;
 
 /**
@@ -56,14 +56,14 @@ trait RequestTrait
     /**
      * Holds the repository of the method class for the instance object
      *
-     * @var Method
+     * @var \CakeDC\OracleDriver\ORM\Method
      */
     protected $_repository;
 
     /**
      * Holds the driver for type casting
      *
-     * @var Driver
+     * @var \Cake\Database\Driver
      */
     protected $_driver;
 
@@ -119,9 +119,9 @@ trait RequestTrait
         }
 
         if ($this->_methodExists($method)) {
-            $result = $this->{$method}($value);
-            return $result;
+            return $this->{$method}($value);
         }
+
         return $value;
     }
 
@@ -136,6 +136,7 @@ trait RequestTrait
         if (empty(static::$_accessors[$this->_className])) {
             static::$_accessors[$this->_className] = array_flip(get_class_methods($this));
         }
+
         return isset(static::$_accessors[$this->_className][$method]);
     }
 
@@ -169,11 +170,11 @@ trait RequestTrait
      * $request->set(['name' => 'Andrew', 'id' => 1], ['setter' => false]);
      * ```
      *
-     * @param string|array $property the name of property to set or a list of
+     * @param string|array $property the name of property to set or a list of
      * properties with their respective values
-     * @param mixed $value The value to set to the property or an array if the
+     * @param mixed $value The value to set to the property or an array if the
      * first argument is also an array, in which case will be treated as $options
-     * @param array $options options to be used for setting the property. Allowed option
+     * @param array $options options to be used for setting the property. Allowed option
      * keys are `setter`
      * @return $this
      * @throws \InvalidArgumentException
@@ -193,7 +194,7 @@ trait RequestTrait
         $options += ['setter' => true];
 
         foreach ($property as $p => $value) {
-            if (!$options['setter']) {
+            if ($options['setter'] === []) {
                 $this->_properties[$p] = $value;
                 continue;
             }
@@ -247,6 +248,7 @@ trait RequestTrait
                 return false;
             }
         }
+
         return true;
     }
 
@@ -317,6 +319,7 @@ trait RequestTrait
                 $result[$property] = $value;
             }
         }
+
         return $result;
     }
 
@@ -326,13 +329,12 @@ trait RequestTrait
      * The list of visible properties is all standard properties
      * plus virtual properties minus hidden properties.
      *
-     * @return array A list of properties that are 'visible' in all
+     * @return array A list of properties that are 'visible' in all
      *     representations.
      */
     public function visibleProperties()
     {
-        $properties = array_keys($this->_properties);
-        return $properties;
+        return array_keys($this->_properties);
     }
 
     /**
@@ -398,19 +400,13 @@ trait RequestTrait
             if ($parameter === null) {
                 continue;
             }
-            if ($name === ':result') {
-                $paramName = $name;
-            } else {
-                $paramName = ':' . $name;
-            }
+            $paramName = $name === ':result' ? $name : ':' . $name;
             if ($parameter !== null) {
                 $type = $parameter['type'];
-                list($value, $type) = $this->cast($this->_properties[$name], $type);
+                [$value, $type] = $this->cast($this->_properties[$name], $type);
                 $this->_castedProperties[$name] = $value;
-                if ($parameter['in']) {
-                    if ($parameter['out']) {
-                        $this->_properties[$name] = $value;
-                    }
+                if ($parameter['in'] && $parameter['out']) {
+                    $this->_properties[$name] = $value;
                 }
                 if ($parameter['out']) {
                     $statement->bindParam($paramName, $this->_properties[$name], $type);
@@ -426,7 +422,7 @@ trait RequestTrait
      *
      * @param string $name Property name.
      * @param array $options Cursor ResultSet configuration options.
-     * @return ResultSet
+     * @return \CakeDC\OracleDriver\ORM\Method\ResultSet
      */
     public function fetchCursor($name, $options = [])
     {
@@ -445,6 +441,7 @@ trait RequestTrait
         $statement = $this->_repository->connection()->prepareMethod($property);
         $statement->queryString = __('fetch {0} cursor', $name);
         $statement->execute();
+
         return new ResultSet($this->_repository, $statement, $options);
     }
 
@@ -466,13 +463,14 @@ trait RequestTrait
         }
 
         $new = (bool)$new;
+
         return $this->_new = $new;
     }
 
     /**
      * Apply schema structure to the request object.
      *
-     * @param MethodSchema $schema Method schema object instance.
+     * @param \CakeDC\OracleDriver\Database\Schema\Method $schema Method schema object instance.
      * @return void
      */
     public function applySchema(MethodSchema $schema)
@@ -500,6 +498,7 @@ trait RequestTrait
         if ($this->isNew() || !$this->_repository->schema()->isFunction()) {
             return null;
         }
+
         return $this->_properties[':result'];
     }
 

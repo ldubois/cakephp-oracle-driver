@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 /**
  * Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
  *
@@ -11,18 +13,17 @@
 
 namespace CakeDC\OracleDriver\Test\TestCase\ORM;
 
+use Cake\TestSuite\TestCase;
 use CakeDC\OracleDriver\ORM\Locator\LocatorInterface;
 use CakeDC\OracleDriver\ORM\Locator\MethodLocator;
 use CakeDC\OracleDriver\ORM\Method;
 use CakeDC\OracleDriver\ORM\MethodRegistry;
-use Cake\TestSuite\TestCase;
 
 /**
  * Test case for MethodRegistry
  */
 class MethodRegistryTest extends TestCase
 {
-
     /**
      * Original MethodLocator.
      *
@@ -36,7 +37,7 @@ class MethodRegistryTest extends TestCase
      *
      * @return void
      */
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->_originalLocator = MethodRegistry::locator();
@@ -47,7 +48,7 @@ class MethodRegistryTest extends TestCase
      *
      * @return void
      */
-    public function tearDown()
+    public function tearDown(): void
     {
         parent::tearDown();
         MethodRegistry::locator($this->_originalLocator);

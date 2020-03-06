@@ -1,8 +1,10 @@
 <?php
+declare(strict_types=1);
+
 namespace CakeDC\OracleDriver\Database;
 
-use CakeDC\OracleDriver\Core\Singleton;
 use Cake\Database\Expression\FunctionExpression;
+use CakeDC\OracleDriver\Core\SingletonTrait;
 
 /**
  * Contains methods related to generating FunctionExpression objects
@@ -11,7 +13,7 @@ use Cake\Database\Expression\FunctionExpression;
  */
 class FunctionsBuilder
 {
-    use Singleton;
+    use SingletonTrait;
 
     protected $_defaultDateFormat = 'YYYY-MM-DD HH24:MI:SS';
 
@@ -22,7 +24,7 @@ class FunctionsBuilder
      * @param string $name the name of the SQL function to constructed
      * @param array $params list of params to be passed to the function
      * @param array $types list of types for each function param
-     * @return FunctionExpression
+     * @return \Cake\Database\Expression\FunctionExpression
      */
     protected function _build($name, $params = [], $types = [])
     {
@@ -43,6 +45,7 @@ class FunctionsBuilder
         } elseif (!is_array($expression)) {
             $expression = [$expression];
         }
+
         return $expression;
     }
 
@@ -51,13 +54,14 @@ class FunctionsBuilder
      *
      * @param mixed $expression the function argument
      * @param array $types list of types to bind to the arguments
-     * @return FunctionExpression
+     * @return \Cake\Database\Expression\FunctionExpression
      */
     public static function toChar($expression, $types = [])
     {
         $builder = self::getInstance();
         $args = [];
         $args += $builder->_literalArgument($expression);
+
         return $builder->_build('TO_CHAR', $args, $types);
     }
 
@@ -67,7 +71,7 @@ class FunctionsBuilder
      * @param mixed $expression the function argument
      * @param mixed $format the function argument
      * @param array $types list of types to bind to the arguments
-     * @return FunctionExpression
+     * @return \Cake\Database\Expression\FunctionExpression
      */
     public static function toCharWithFormat($expression, $format = null, $types = [])
     {
@@ -77,7 +81,9 @@ class FunctionsBuilder
             $format = $builder->_defaultDateFormat;
         }
         $args += $builder->_literalArgument($expression);
+        $args = (array) $args;
         $args[] = $format;
+
         return $builder->_build('TO_CHAR', $args, $types);
     }
 
@@ -87,7 +93,7 @@ class FunctionsBuilder
      * @param mixed $expression the function argument
      * @param mixed $format the function argument
      * @param array $types list of types to bind to the arguments
-     * @return FunctionExpression
+     * @return \Cake\Database\Expression\FunctionExpression
      */
     public static function toDate($expression, $format = null, $types = [])
     {
@@ -97,7 +103,9 @@ class FunctionsBuilder
             $format = $builder->_defaultDateFormat;
         }
         $args += $builder->_literalArgument($expression);
+        $args = (array) $args;
         $args[] = $format;
+
         return $builder->_build('TO_DATE', $args, $types);
     }
 
@@ -105,8 +113,8 @@ class FunctionsBuilder
      * Magic method dispatcher to create custom SQL function calls
      *
      * @param string $name the SQL function name to construct
-     * @param array $args list with up to 2 arguments, first one being an array with
-     * parameters for the SQL function and second one a list of types to bind to those
+     * @param array $args list with up to 2 arguments, first one being an array with
+     * parameters for the SQL function and second one a list of types to bind to those
      * params
      * @return \Cake\Database\Expression\FunctionExpression
      */

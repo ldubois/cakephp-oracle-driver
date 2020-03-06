@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 /**
  * Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
  *
@@ -8,17 +10,15 @@
  * @copyright Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
  * @license MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
-
 namespace CakeDC\OracleDriver\Database\Driver;
 
-use Cake\Database\Driver;
-
-class OraclePDO extends OracleBase {
-
+class OraclePDO extends OracleBase
+{
     /**
      * @inheritdoc
      */
-    protected function _connect($database, array $config) {
+    protected function _connect(string $database, array $config): bool
+    {
         $database = 'oci:dbname=' . $database;
         parent::_connect($database, $config);
     }
@@ -28,8 +28,8 @@ class OraclePDO extends OracleBase {
      *
      * @return bool true if it is valid to use this driver
      */
-    public function enabled() {
-          return (class_exists('PDO') && in_array('oci', \PDO::getAvailableDrivers(), true));
+    public function enabled(): bool
+    {
+          return class_exists('PDO') && in_array('oci', \PDO::getAvailableDrivers(), true);
     }
-
 }
