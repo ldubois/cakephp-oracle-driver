@@ -118,7 +118,8 @@ class MethodLocator implements LocatorInterface
      * will be called to get the default connection name to use.
      *
      * @param string $alias The alias name you want to get.
-     * @param array $options The options you want to build the method with.
+     * @param array $options The options you want to build the method with.
+
      *   If a method has already been loaded the options will be ignored.
      * @return \CakeDC\OracleDriver\ORM\Method
      * @throws \RuntimeException When you try to configure an alias that already exists.
@@ -149,7 +150,7 @@ class MethodLocator implements LocatorInterface
         }
 
         $className = $this->_getClassName($alias, $options);
-        if ($className !== '') {
+        if ($className !== null) {
             $options['className'] = $className;
             $options['method'] = Inflector::underscore($alias);
         } else {

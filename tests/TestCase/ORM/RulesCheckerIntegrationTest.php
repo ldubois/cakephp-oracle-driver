@@ -21,4 +21,24 @@ use Cake\Test\TestCase\ORM\RulesCheckerIntegrationTest as CakeRulesCheckerIntegr
  */
 class RulesCheckerIntegrationTest extends CakeRulesCheckerIntegrationTest
 {
+
+    /**
+     * Fixtures to be loaded
+     *
+     * @var array
+     */
+    protected $fixtures = [
+        'core.Articles',
+//        'core.ArticlesTags',
+        'plugin.CakeDC/OracleDriver.ArticlesTags',
+        'core.Authors',
+        'core.Comments',
+        'core.Tags',
+        'core.SpecialTags',
+        'core.Categories',
+        'core.SiteArticles',
+        'core.SiteAuthors',
+        'core.Comments',
+    ];
+
 }

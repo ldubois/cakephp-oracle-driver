@@ -119,7 +119,9 @@ trait RequestTrait
         }
 
         if ($this->_methodExists($method)) {
-            return $this->{$method}($value);
+            $result = $this->{$method}($value);
+
+            return $result;
         }
 
         return $value;
@@ -170,11 +172,14 @@ trait RequestTrait
      * $request->set(['name' => 'Andrew', 'id' => 1], ['setter' => false]);
      * ```
      *
-     * @param string|array $property the name of property to set or a list of
+     * @param string|array $property the name of property to set or a list of
+
      * properties with their respective values
-     * @param mixed $value The value to set to the property or an array if the
+     * @param mixed $value The value to set to the property or an array if the
+
      * first argument is also an array, in which case will be treated as $options
-     * @param array $options options to be used for setting the property. Allowed option
+     * @param array $options options to be used for setting the property. Allowed option
+
      * keys are `setter`
      * @return $this
      * @throws \InvalidArgumentException
@@ -194,7 +199,7 @@ trait RequestTrait
         $options += ['setter' => true];
 
         foreach ($property as $p => $value) {
-            if ($options['setter'] === []) {
+            if ($options['setter'] === false) {
                 $this->_properties[$p] = $value;
                 continue;
             }
@@ -329,7 +334,8 @@ trait RequestTrait
      * The list of visible properties is all standard properties
      * plus virtual properties minus hidden properties.
      *
-     * @return array A list of properties that are 'visible' in all
+     * @return array A list of properties that are 'visible' in all
+
      *     representations.
      */
     public function visibleProperties()

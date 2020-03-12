@@ -652,11 +652,11 @@ class RequestTest extends TestCase
      * Tests that trying to get an empty propery name throws exception
      *
      * @dataProvider emptyNamesProvider
-     * @expectedException \InvalidArgumentException
      * @return void
      */
     public function testEmptyProperties($property)
     {
+        $this->expectException(\InvalidArgumentException::class);
         $request = new Request();
         $request->get($property);
     }
@@ -664,12 +664,12 @@ class RequestTest extends TestCase
     /**
      * Tests that setitng an empty property name does nothing
      *
-     * @expectedException \InvalidArgumentException
      * @dataProvider emptyNamesProvider
      * @return void
      */
     public function testSetEmptyPropertyName($property)
     {
+        $this->expectException(\InvalidArgumentException::class);
         $request = new Request();
         $request->set($property, 'bar');
     }

@@ -610,8 +610,10 @@ class TableSchemaTest extends TestCase
      *
      * @return void
      */
-    protected function testConstraintForeignKey()
+    public function testConstraintForeignKey()
     {
+        $this->markTestSkipped('');
+        return;
         $table = $this->getTableLocator()->get('ArticlesTags');
         $compositeConstraint = $table->getSchema()->getConstraint('tag_id_fk');
         $expected = [
@@ -634,8 +636,10 @@ class TableSchemaTest extends TestCase
      *
      * @return void
      */
-    protected function testConstraintForeignKeyTwoColumns()
+    public function testConstraintForeignKeyTwoColumns()
     {
+        $this->markTestSkipped('');
+        return;
         $table = $this->getTableLocator()->get('Orders');
         $compositeConstraint = $table->getSchema()->getConstraint('product_category_fk');
         $expected = [

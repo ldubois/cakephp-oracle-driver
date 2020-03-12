@@ -21,6 +21,8 @@ class Oci8Statement extends Statement
      */
     public function closeCursor()
     {
+        $this->_sth->closeCursor();
+
         return empty($this->_sth);
     }
 

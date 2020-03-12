@@ -52,10 +52,10 @@ class DatabaseSuite extends TestSuite
         return $suite;
     }
 
-    // public function count()
-    // {
-    // return parent::count() * 2;
-    // }
+//     public function count(bool $preferCache = false): int
+//     {
+//        return parent::count() * 2;
+//     }
 
     /**
      * Runs the tests and collects their result in a TestResult.
@@ -69,9 +69,9 @@ class DatabaseSuite extends TestSuite
             'Identifier Quoting' => function () {
                 ConnectionManager::get('test')->getDriver()->enableAutoQuoting(true);
             },
-            // 'No identifier quoting' => function () {
-                // ConnectionManager::get('test')->getDriver()->enableAutoQuoting(false);
-            // }
+//             'No identifier quoting' => function () {
+//                 ConnectionManager::get('test')->getDriver()->enableAutoQuoting(false);
+//             }
         ];
 
         foreach ($permutations as $permutation) {

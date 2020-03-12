@@ -54,10 +54,37 @@ abstract class OracleBase extends Driver
         'case' => 'lower',
         'timezone' => null,
         'init' => [],
+        'server_version' => 11,
+        'autoincrement' => false,
     ];
 
     protected $_defaultConfig = [];
 
+    protected $_serverVersion = null;
+
+    /**
+     * @var bool
+     */
+    protected $_autoincrement;
+
+    /**
+     * @return bool
+     */
+    public function useAutoincrement(): bool
+    {
+        return $this->_autoincrement;
+    }
+
+
+
+    public function __construct(array $config = [])
+    {
+        parent::__construct($config);
+        if (array_key_exists('server_version', $config)) {
+            $this->_serverVersion = $config['server_version'];
+        }
+        $this->_autoincrement = !empty($config['autoincrement']);
+    }
     /**
      * Establishes a connection to the database server
      *
@@ -188,10 +215,7 @@ abstract class OracleBase extends Driver
      */
     public function compileQuery(Query $query, ValueBinder $generator): array
     {
-        $config = $query->getConnection()->config();
-        $serverVersion = $config['server_version'] ?? null;
-
-        if ($serverVersion !== null && $serverVersion >= 12) {
+        if ($this->_serverVersion !== null && $this->_serverVersion >= 12) {
             $processor = new Oracle12Compiler();
         } else {
             $processor = new OracleCompiler();
@@ -213,7 +237,7 @@ abstract class OracleBase extends Driver
     protected function _fromDualIfy($queryString)
     {
         $statement = strtolower(trim($queryString));
-        if (strpos($statement, 'select') !== 0 || preg_match('/ from /', $statement)) {
+        if (strpos($statement, 'select') !== 0 || preg_match('/\sfrom\s/', $statement)) {
             return $queryString;
         }
 
@@ -263,13 +287,33 @@ abstract class OracleBase extends Driver
      */
     public function lastInsertId(?string $table = null, ?string $column = null)
     {
-        $sequenceName = 'seq_' . strtolower($table);
-        $this->connect();
-        $statement = $this->_connection->query("SELECT {$sequenceName}.CURRVAL FROM DUAL");
-        $statement->execute();
-        $result = $statement->fetch();
+        if ($this->useAutoincrement()) {
+            if ($this->isAutoQuotingEnabled()) {
+                $tableName = $table;
+                $columnName = $column;
+            } else {
+                $tableName = strtoupper($table);
+                $columnName = strtoupper($column);
+            }
+            $query = "select sequence_name from user_tab_identity_cols where table_name='$tableName' and column_name='$columnName'";
+            $this->connect();
+            $seqStatement = $this->_connection->query($query);
+            $result = $seqStatement->fetch(PDO::FETCH_NUM);
 
-        return $result[0];
+            $sequenceName = $result[0];
+
+            $statement = $this->_connection->query("SELECT {$sequenceName}.CURRVAL FROM DUAL");
+            $result = $statement->fetch(PDO::FETCH_NUM);
+
+            return $result[0];
+        } else {
+            $sequenceName = 'seq_' . strtolower($table);
+            $this->connect();
+            $statement = $this->_connection->query("SELECT {$sequenceName}.CURRVAL FROM DUAL");
+            $result = $statement->fetch(PDO::FETCH_NUM);
+
+            return $result[0];
+        }
     }
 
     /**

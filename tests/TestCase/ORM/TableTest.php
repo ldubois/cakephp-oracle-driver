@@ -15,8 +15,11 @@ namespace CakeDC\OracleDriver\Test\TestCase\ORM;
 
 use Cake\Database\Expression\FunctionExpression;
 use Cake\Database\Expression\IdentifierExpression;
+use Cake\ORM\Exception\PersistenceFailedException;
 use Cake\ORM\Table;
 use Cake\Test\TestCase\ORM\TableTest as CakeTableTest;
+use Cake\Validation\Validator;
+use TestApp\Model\Entity\ProtectedEntity;
 
 /**
  * Tests Table class
@@ -27,7 +30,8 @@ class TableTest extends CakeTableTest
     public $fixtures = [
         'core.Articles',
         'core.Tags',
-        'core.ArticlesTags',
+        //'core.ArticlesTags',
+        'plugin.CakeDC/OracleDriver.ArticlesTags',
         'core.Authors',
         'core.Categories',
         'core.Comments',
@@ -196,5 +200,28 @@ class TableTest extends CakeTableTest
             'to_char(comment)' => 'new comment',
             'article_id' => $articleId,
         ]));
+    }
+
+    /**
+     * Test that findOrCreate cannot accidentally bypass required validation.
+     *
+     * @return void
+     */
+    public function testFindOrCreatePartialValidation()
+    {
+        $articles = $this->getTableLocator()->get('Articles');
+        $articles->setEntityClass(ProtectedEntity::class);
+        $validator = new Validator();
+        $validator->notBlank('title')->requirePresence('title', 'create');
+        $validator->notBlank('body')->requirePresence('body', 'create');
+        $articles->setValidator('default', $validator);
+
+        $this->expectException(PersistenceFailedException::class);
+        $this->expectExceptionMessage(
+            'Entity findOrCreate failure. ' .
+            'Found the following errors (body._required: "This field is required").'
+        );
+
+        $articles->findOrCreate(['title' => 'test']);
     }
 }

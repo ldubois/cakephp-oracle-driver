@@ -19,6 +19,7 @@ use Cake\Database\QueryCompiler;
 use Cake\Database\Schema\BaseSchema;
 use Cake\Database\SqlDialectTrait;
 use CakeDC\OracleDriver\Database\Expression\SimpleExpression;
+use CakeDC\OracleDriver\Database\Oracle12Compiler;
 use CakeDC\OracleDriver\Database\OracleCompiler;
 use CakeDC\OracleDriver\Database\Schema\OracleSchema;
 
@@ -73,11 +74,8 @@ trait OracleDialectTrait
         $limit = $query->clause('limit');
         $offset = $query->clause('offset');
 
-        $config = $query->getConnection()->config();
-        $serverVersion = $config['server_version'] ?? null;
-
         if ($offset !== null || $limit !== null) {
-            if ($serverVersion !== null && $serverVersion >= 12) {
+            if ($this->_serverVersion !== null && $this->_serverVersion >= 12) {
                 return $this->_pagingSubquery12($query, $limit, $offset);
             } else {
                 return $this->_pagingSubquery($query, $limit, $offset);
@@ -175,7 +173,8 @@ trait OracleDialectTrait
     /**
      * Receives a FunctionExpression and changes it so that it conforms to this SQL dialect.
      *
-     * @param \Cake\Database\Expression\FunctionExpression $expression The function expression
+     * @param \Cake\Database\Expression\FunctionExpression $expression The function expression
+
      * to convert to oracle SQL.
      * @return void
      */
@@ -312,7 +311,13 @@ trait OracleDialectTrait
      */
     public function newCompiler(): QueryCompiler
     {
-        return new OracleCompiler();
+        if ($this->_serverVersion !== null && $this->_serverVersion >= 12) {
+            $processor = new Oracle12Compiler();
+        } else {
+            $processor = new OracleCompiler();
+        }
+
+        return $processor;
     }
 
     /**

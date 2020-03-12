@@ -62,8 +62,7 @@ class OracleStatement extends StatementDecorator
             return;
         }
 
-        $annonymousParams = is_int(key($params));
-
+        $anonymousParams = is_int(key($params));
         $offset = 0;
 
         foreach ($params as $index => $value) {
@@ -71,7 +70,7 @@ class OracleStatement extends StatementDecorator
             if (isset($types[$index])) {
                 $type = $types[$index];
             }
-            if ($annonymousParams) {
+            if ($anonymousParams) {
                 $index += $offset;
             }
             $this->bindValue($index, $value, $type);
@@ -112,6 +111,17 @@ class OracleStatement extends StatementDecorator
      */
     public function fetchAll($type = 'num')
     {
-        return $this->_statement->fetchAll($type);
+        $result = $this->_statement->fetchAll($type);
+        if (is_array($result)) {
+            foreach ($result as $k => $row) {
+                foreach ($row as $key => $value) {
+                    if (is_resource($value)) {
+                        $result[$k][$key] = stream_get_contents($value);
+                    }
+                }
+            }
+        }
+
+        return $result;
     }
 }

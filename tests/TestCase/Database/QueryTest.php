@@ -471,7 +471,7 @@ class QueryTest extends CakeQueryTest
      */
     public function testSelectDistinctON()
     {
-        // DISABLED as DISTINCT ON NOT SUPPORTED IN ORACLE
+        $this->markTestSkipped('Distinct on not supported in Oracle');
     }
 
     /**

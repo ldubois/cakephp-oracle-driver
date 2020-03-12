@@ -12,15 +12,25 @@ declare(strict_types=1);
  */
 namespace CakeDC\OracleDriver\Database\Driver;
 
+use PDO;
+
 class OraclePDO extends OracleBase
 {
+
     /**
      * @inheritdoc
      */
     protected function _connect(string $database, array $config): bool
     {
+        $config['flags'] += [
+            PDO::NULL_EMPTY_STRING => true,
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_PERSISTENT => empty($config['persistent']) ? false : $config['persistent'],
+            PDO::ATTR_ORACLE_NULLS => true,
+        ];
         $database = 'oci:dbname=' . $database;
-        parent::_connect($database, $config);
+
+        return parent::_connect($database, $config);
     }
 
     /**

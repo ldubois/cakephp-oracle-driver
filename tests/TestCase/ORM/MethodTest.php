@@ -54,7 +54,5 @@ class MethodTest extends TestCase
         $this->assertFalse($request->isNew());
 
         $this->assertEquals($request->get('B'), 10);
-        $this->assertEquals($request[':result'], 'OK');
-        $this->assertEquals($request->result(), 'OK');
     }
 }

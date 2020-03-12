@@ -31,6 +31,7 @@ class CalcCodeFixture extends MethodTestFixture
                 "create or replace package calc is
 
                 		function sum(a number, b number) return number;
+                		PROCEDURE twice(a number, b out number);
 
                 end calc;";
             $this->create[] =
@@ -38,9 +39,14 @@ class CalcCodeFixture extends MethodTestFixture
                 create or replace package body calc is
 
                 	function sum(a number, b number) return number is
-                      begin
+                    begin
                         return a+b;
-                      end;
+                    end;
+
+                	PROCEDURE twice(a number, b out number) is
+                    begin
+                        b := 2*a;
+                    end;
 
                 end calc;";
 

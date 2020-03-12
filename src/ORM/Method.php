@@ -246,8 +246,7 @@ class Method
     public function execute(RequestInterface $request)
     {
         $query = $this->_generateSql();
-        $statement = $this->connection()
-                          ->prepareMethod($query);
+        $statement = $this->connection()->prepareMethod($query);
         $request->attachTo($statement);
         $result = $statement->execute();
         $request->isNew(false);
@@ -266,14 +265,10 @@ class Method
     protected function _generateSql()
     {
         $query = '';
-        if (
-            $this->schema()
-                 ->isFunction() !== []
-        ) {
+        if ($this->schema()->isFunction() !== null) {
             $query = ':result := ';
         }
-        $parameters = $this->schema()
-                           ->parameters();
+        $parameters = $this->schema()->parameters();
         $query .= $this->method() . '(';
         $names = [];
         foreach ($parameters as $name) {

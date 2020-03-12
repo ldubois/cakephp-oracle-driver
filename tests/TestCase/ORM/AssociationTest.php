@@ -21,4 +21,14 @@ use Cake\Test\TestCase\ORM\AssociationTest as CakeAssociationTest;
  */
 class AssociationTest extends CakeAssociationTest
 {
+
+    /**
+     * Test that warning is shown if property name clashes with table field.
+     *
+     * @return void
+     */
+    public function testPropertyNameClash()
+    {
+        $this->markTestSkipped();
+    }
 }

@@ -28,6 +28,10 @@ class OracleOCI extends OracleBase
      */
     protected function _connect(string $dsn, array $config): bool
     {
+        $config['flags'] += [
+            'charset' => empty($config['encoding']) ? null : $config['encoding'],
+            'persistent' => empty($config['persistent']) ? false : $config['persistent'],
+        ];
         $connection = new OCI8Connection($dsn, $config['username'], $config['password'], $config['flags']);
         $this->setConnection($connection);
 
@@ -40,38 +44,6 @@ class OracleOCI extends OracleBase
     public function enabled(): bool
     {
         return function_exists('oci_connect');
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function isConnected(): bool
-    {
-        if ($this->_connection === null) {
-            $connected = false;
-        } else {
-            try {
-                $connected = $this->_connection->query('SELECT 1 FROM DUAL');
-            } catch (\PDOException $e) {
-                $connected = false;
-            }
-        }
-        $this->connected = !empty($connected);
-
-        return $this->connected;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function lastInsertId(?string $table = null, ?string $column = null)
-    {
-        $sequenceName = 'seq_' . strtolower($table);
-        $this->connect();
-        $statement = $this->_connection->query("SELECT {$sequenceName}.CURRVAL FROM DUAL");
-        $result = $statement->fetch(PDO::FETCH_NUM);
-
-        return $result[0];
     }
 
     /**
