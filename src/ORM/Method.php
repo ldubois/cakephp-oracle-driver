@@ -13,9 +13,10 @@ declare(strict_types=1);
 namespace CakeDC\OracleDriver\ORM;
 
 use Cake\Core\App;
+use Cake\Datasource\ConnectionManager;
 use Cake\Utility\Inflector;
 use CakeDC\OracleDriver\Database\OracleConnection;
-use CakeDC\OracleDriver\Database\Schema\Method as Schema;
+use CakeDC\OracleDriver\Database\Schema\MethodSchema;
 use CakeDC\OracleDriver\ORM\Exception\MissingRequestException;
 
 class Method
@@ -37,7 +38,7 @@ class Method
     /**
      * The schema object containing a description of this method fields
      *
-     * @var \CakeDC\OracleDriver\Database\Schema\Method
+     * @var \CakeDC\OracleDriver\Database\Schema\MethodSchema
      */
     protected $_schema;
 
@@ -56,13 +57,13 @@ class Method
     public function __construct(array $config = [])
     {
         if (!empty($config['method'])) {
-            $this->method($config['method']);
+            $this->setMethod($config['method']);
         }
         if (!empty($config['connection'])) {
-            $this->connection($config['connection']);
+            $this->setConnection($config['connection']);
         }
         if (!empty($config['schema'])) {
-            $this->schema($config['schema']);
+            $this->setSchema($config['schema']);
         }
         if (!empty($config['requestClass'])) {
             $this->requestClass($config['requestClass']);
@@ -73,14 +74,10 @@ class Method
     /**
      * Returns the database method name or sets a new one
      *
-     * @param string|null $method the new method name
      * @return string
      */
-    public function method($method = null)
+    public function getMethod()
     {
-        if ($method !== null) {
-            $this->_method = $method;
-        }
         if ($this->_method === null) {
             $method = namespaceSplit(static::class);
             $method = substr(end($method), 0, -6);
@@ -91,48 +88,84 @@ class Method
     }
 
     /**
-     * Returns the connection instance or sets a new one
+     * Returns the database method name or sets a new one
      *
-     * @param \CakeDC\OracleDriver\Database\OracleConnection|null $conn The new connection instance
+     * @param string $method the new method name
+     * @return string
+     */
+    public function setMethod($method)
+    {
+        $this->_method = $method;
+
+        return $this;
+    }
+
+    /**
+     * Sets the connection instance.
+     *
+     * @param \CakeDC\OracleDriver\Database\OracleConnection $connection The connection instance
+     * @return $this
+     */
+    public function setConnection(OracleConnection $connection)
+    {
+        $this->_connection = $connection;
+
+        return $this;
+    }
+
+    /**
+     * Returns the connection instance.
+     *
      * @return \CakeDC\OracleDriver\Database\OracleConnection
      */
-    public function connection(?OracleConnection $conn = null)
+    public function getConnection(): OracleConnection
     {
-        if ($conn === null) {
-            return $this->_connection;
+        if (!$this->_connection) {
+            /** @var \CakeDC\OracleDriver\Database\OracleConnection $connection */
+            $connection = ConnectionManager::get(static::defaultConnectionName());
+            $this->_connection = $connection;
         }
 
-        return $this->_connection = $conn;
+        return $this->_connection;
     }
 
     /**
      * Returns the schema method object describing this method's parameters.
      *
-     * If an \CakeDC\OracleDriver\Database\Schema\Method is passed, it will be used for
+     * @return \CakeDC\OracleDriver\Database\Schema\MethodSchema
+     */
+    public function getSchema(): MethodSchema
+    {
+        if ($this->_schema === null) {
+            $method = $this->getConnection()
+                           ->methodSchemaCollection()
+                           ->describe($this->getMethod());
+            $this->_schema = $this->_initializeSchema($method);
+        }
+
+        return $this->_schema;
+    }
+
+    /**
+     * Sets the schema method object describing this method's parameters.
+     *
+     * If an \CakeDC\OracleDriver\Database\Schema\MethodSchema is passed, it will be used for
      * this method instead of the default one.
      *
-     * If an array is passed, a new \CakeDC\OracleDriver\Database\Schema\Method will be constructed out of it and used as the schema for this method.
+     * If an array is passed, a new \CakeDC\OracleDriver\Database\Schema\MethodSchema will be constructed out of it and used as the schema for this method.
      *
-     * @param array|\CakeDC\OracleDriver\Database\Schema\Method|null $schema New schema to be used for this table
-     * @return \CakeDC\OracleDriver\Database\Schema\Method
+     * @param array|\CakeDC\OracleDriver\Database\Schema\MethodSchema|null $schema New schema to be used for this table
+     * @return $this
      */
-    public function schema($schema = null)
+    public function setSchema($schema)
     {
-        if ($schema === null) {
-            if ($this->_schema === null) {
-                $this->_schema = $this->_initializeSchema($this->connection()
-                                                               ->methodSchemaCollection()
-                                                               ->describe($this->method()));
-            }
-
-            return $this->_schema;
-        }
-
         if (is_array($schema)) {
-            $schema = new Schema($this->method(), $schema);
+            $schema = new MethodSchema($this->getMethod(), $schema);
         }
 
-        return $this->_schema = $schema;
+        $this->_schema = $schema;
+
+        return $this;
     }
 
     /**
@@ -145,16 +178,16 @@ class Method
      * ### Example:
      *
      * ```
-     * protected function _initializeSchema(\CakeDC\OracleDriver\Database\Schema\Method $method) {
+     * protected function _initializeSchema(\CakeDC\OracleDriver\Database\Schema\MethodSchema $method) {
      *  return $method;
      * }
      * ```
      *
-     * @param \CakeDC\OracleDriver\Database\Schema\Method $method The method definition fetched from database.
-     * @return \CakeDC\OracleDriver\Database\Schema\Method the altered schema
+     * @param \CakeDC\OracleDriver\Database\Schema\MethodSchema $method The method definition fetched from database.
+     * @return \CakeDC\OracleDriver\Database\Schema\MethodSchema the altered schema
      * @api
      */
-    protected function _initializeSchema(Schema $method)
+    protected function _initializeSchema(MethodSchema $method)
     {
         return $method;
     }
@@ -246,7 +279,7 @@ class Method
     public function execute(RequestInterface $request)
     {
         $query = $this->_generateSql();
-        $statement = $this->connection()->prepareMethod($query);
+        $statement = $this->getConnection()->prepareMethod($query);
         $request->attachTo($statement);
         $result = $statement->execute();
         $request->isNew(false);
@@ -265,11 +298,11 @@ class Method
     protected function _generateSql()
     {
         $query = '';
-        if ($this->schema()->isFunction() !== null) {
+        if ($this->getSchema()->isFunction() !== null) {
             $query = ':result := ';
         }
-        $parameters = $this->schema()->parameters();
-        $query .= $this->method() . '(';
+        $parameters = $this->getSchema()->parameters();
+        $query .= $this->getMethod() . '(';
         $names = [];
         foreach ($parameters as $name) {
             if ($name === ':result') {
@@ -292,10 +325,10 @@ class Method
      */
     public function __debugInfo()
     {
-        $conn = $this->connection();
+        $conn = $this->getConnection();
 
         return [
-            'method' => $this->method(),
+            'method' => $this->getMethod(),
             'defaultConnection' => $this->defaultConnectionName(),
             'connectionName' => $conn ? $conn->configName() : null,
         ];

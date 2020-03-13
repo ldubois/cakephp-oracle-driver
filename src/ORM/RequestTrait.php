@@ -14,7 +14,7 @@ namespace CakeDC\OracleDriver\ORM;
 
 use Cake\Database\TypeConverterTrait;
 use Cake\Utility\Inflector;
-use CakeDC\OracleDriver\Database\Schema\Method as MethodSchema;
+use CakeDC\OracleDriver\Database\Schema\MethodSchema;
 use CakeDC\OracleDriver\ORM\Method\ResultSet;
 use InvalidArgumentException;
 
@@ -401,8 +401,7 @@ trait RequestTrait
             return;
         }
         foreach ($properties as $name => $value) {
-            $parameter = $this->_repository->schema()
-                                           ->parameter($name);
+            $parameter = $this->_repository->getSchema()->parameter($name);
             if ($parameter === null) {
                 continue;
             }
@@ -436,7 +435,7 @@ trait RequestTrait
         if ($this->isNew()) {
             throw new InvalidArgumentException('Cannot fetch cursor on not executed request');
         }
-        $parameter = $this->_repository->schema()->parameter($name);
+        $parameter = $this->_repository->getSchema()->parameter($name);
         if (empty($parameter)) {
             throw new InvalidArgumentException('Cannot fetch cursor for not declared parameter');
         }
@@ -444,7 +443,7 @@ trait RequestTrait
             throw new InvalidArgumentException('Cannot fetch cursor for parameter that have wrong type');
         }
         $property = $this->get($name);
-        $statement = $this->_repository->connection()->prepareMethod($property);
+        $statement = $this->_repository->getConnection()->prepareMethod($property);
         $statement->queryString = __('fetch {0} cursor', $name);
         $statement->execute();
 
@@ -476,7 +475,7 @@ trait RequestTrait
     /**
      * Apply schema structure to the request object.
      *
-     * @param \CakeDC\OracleDriver\Database\Schema\Method $schema Method schema object instance.
+     * @param \CakeDC\OracleDriver\Database\Schema\MethodSchema $schema Method schema object instance.
      * @return void
      */
     public function applySchema(MethodSchema $schema)
@@ -501,7 +500,7 @@ trait RequestTrait
      */
     public function result()
     {
-        if ($this->isNew() || !$this->_repository->schema()->isFunction()) {
+        if ($this->isNew() || !$this->_repository->getSchema()->isFunction()) {
             return null;
         }
 

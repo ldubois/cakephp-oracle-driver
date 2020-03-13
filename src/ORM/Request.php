@@ -44,8 +44,8 @@ class Request implements RequestInterface
 
         if ($options['repository'] !== null) {
             $this->_repository = $options['repository'];
-            $this->_driver = $this->_repository->connection()->getDriver();
-            $this->applySchema($this->_repository->schema());
+            $this->_driver = $this->_repository->getConnection()->getDriver();
+            $this->applySchema($this->_repository->getSchema());
         }
     }
 }

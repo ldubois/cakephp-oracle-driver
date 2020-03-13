@@ -125,7 +125,7 @@ class ResultSet implements ResultSetInterface
             'schema' => [],
         ];
         $this->_statement = $statement;
-        $this->_driver = $repository->connection()->getDriver();
+        $this->_driver = $repository->getConnection()->getDriver();
         $this->_hydrate = $options['hydrate'];
         $this->_entityClass = $options['entityClass'];
         $this->_useBuffering = $options['useBuffering'];

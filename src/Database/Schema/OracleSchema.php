@@ -334,11 +334,11 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
     /**
      * Convert parameter description results into abstract schema fields.
      *
-     * @param \CakeDC\OracleDriver\Database\Schema\Method $method The method object to append parameters to.
+     * @param \CakeDC\OracleDriver\Database\Schema\MethodSchema $method The method object to append parameters to.
      * @param array $row The row data from `describeParametersSql`.
      * @return void
      */
-    public function convertParametersDescription(Method $method, $row)
+    public function convertParametersDescription(MethodSchema $method, $row)
     {
         $row = array_change_key_case($row);
         switch ($row['type']) {

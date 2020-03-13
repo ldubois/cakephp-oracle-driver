@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace CakeDC\OracleDriver\Test\TestCase\Database\Schema;
 
-use CakeDC\OracleDriver\Database\Schema\Method;
+use CakeDC\OracleDriver\Database\Schema\MethodSchema;
 use CakeDC\OracleDriver\ORM\MethodRegistry;
 use CakeDC\OracleDriver\TestSuite\TestCase;
 
@@ -54,7 +54,7 @@ class MethodTest extends TestCase
                 'in' => true,
             ],
         ];
-        $method = new Method('CALC.SUM', $parameters);
+        $method = new MethodSchema('CALC.SUM', $parameters);
         $this->assertEquals(['a', 'b'], $method->parameters());
     }
 }

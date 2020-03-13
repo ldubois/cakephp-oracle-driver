@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace CakeDC\OracleDriver\Test\TestCase\ORM;
 
+use Cake\Database\Driver\Sqlite;
+use CakeDC\OracleDriver\Database\Driver\OraclePDO;
 use CakeDC\OracleDriver\ORM\MethodRegistry;
 use CakeDC\OracleDriver\TestSuite\TestCase;
 
@@ -32,6 +34,12 @@ class MethodTest extends TestCase
     public function testMethodCall()
     {
         $method = MethodRegistry::get('CalcSum', ['method' => 'CALC.SUM']);
+
+        $this->skipIf(
+            $method->getConnection()->getDriver() instanceof OraclePDO,
+            'OraclePDO does not support the requirements of this test.'
+        );
+
         $request = $method->newRequest(['A' => 5, 'B' => 10]);
         $this->assertTrue($request->isNew());
         $this->assertTrue($method->execute($request));
@@ -48,6 +56,12 @@ class MethodTest extends TestCase
     public function testOutParameterMethodCall()
     {
         $method = MethodRegistry::get('CalcTwice', ['method' => 'CALC.TWICE']);
+
+        $this->skipIf(
+            $method->getConnection()->getDriver() instanceof OraclePDO,
+            'OraclePDO does not support the requirements of this test.'
+        );
+
         $request = $method->newRequest(['A' => 5]);
         $this->assertTrue($request->isNew());
         $this->assertTrue($method->execute($request));
@@ -55,4 +69,5 @@ class MethodTest extends TestCase
 
         $this->assertEquals($request->get('B'), 10);
     }
+
 }

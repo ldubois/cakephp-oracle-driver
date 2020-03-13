@@ -22,7 +22,7 @@ namespace CakeDC\OracleDriver\Database\Schema;
  * Once created Table instances can be added to
  * Schema\MethodsCollection objects.
  */
-class Method
+class MethodSchema
 {
     /**
      * The name of the method

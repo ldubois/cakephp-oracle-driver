@@ -17,18 +17,18 @@ Cursors could be returned by Methods, check `fetchCursor` function https://git.c
 namespace App\Model\Method;
 
 use CakeDC\OracleDriver\ORM\Method;
-use CakeDC\OracleDriver\Database\Schema\Method as Schema;
+use CakeDC\OracleDriver\Database\Schema\MethodSchema;
 
 class TagsSearchMethod extends Method {
 
 	public function initialize(array $config) {
-		$this->method('WORK.TAGS_SEARCH');
+		$this->setMethod('WORK.TAGS_SEARCH');
 	}
 
     /**
-     * @param \CakeDC\OracleDriver\Database\Schema\Method $method
+     * @param \CakeDC\OracleDriver\Database\Schema\MethodSchema $method
      */
-    protected function _initializeSchema(Schema $method)
+    protected function _initializeSchema(MethodSchema $method)
     {
         return $method;
     }

@@ -102,7 +102,7 @@ class MethodsCollection
      *
      * @param string $name The name of the method to describe.
      * @param array $options The options to use, see above.
-     * @return \CakeDC\OracleDriver\Database\Schema\Method Object with method metadata.
+     * @return \CakeDC\OracleDriver\Database\Schema\MethodSchema Object with method metadata.
      * @throws \Cake\Database\Exception when method cannot be described.
      */
     public function describe($name, array $options = [])
@@ -112,7 +112,7 @@ class MethodsCollection
         if (empty($methods)) {
             throw new Exception(sprintf('Cannot describe %s. Method not found.', $name));
         }
-        $method = new Method($name);
+        $method = new MethodSchema($name);
 
         $this->_reflect($method, $name, $config);
 
@@ -122,7 +122,7 @@ class MethodsCollection
     /**
      * Helper method for running each step of the reflection process.
      *
-     * @param \CakeDC\OracleDriver\Database\Schema\Method $method Object with method metadata.
+     * @param \CakeDC\OracleDriver\Database\Schema\MethodSchema $method Object with method metadata.
      * @param string $name The method name.
      * @param array $config The config data.
      * @return void

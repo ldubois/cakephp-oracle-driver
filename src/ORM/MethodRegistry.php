@@ -67,8 +67,7 @@ class MethodRegistry
      */
     public static function config($alias = null, $options = null)
     {
-        return static::locator()
-                     ->config($alias, $options);
+        return static::locator()->config($alias, $options);
     }
 
     /**
@@ -99,8 +98,7 @@ class MethodRegistry
      */
     public static function get($alias, array $options = [])
     {
-        return static::locator()
-                     ->get($alias, $options);
+        return static::locator()->get($alias, $options);
     }
 
     /**
@@ -111,8 +109,7 @@ class MethodRegistry
      */
     public static function exists($alias)
     {
-        return static::locator()
-                     ->exists($alias);
+        return static::locator()->exists($alias);
     }
 
     /**
@@ -124,8 +121,7 @@ class MethodRegistry
      */
     public static function set($alias, Method $object)
     {
-        return static::locator()
-                     ->set($alias, $object);
+        return static::locator()->set($alias, $object);
     }
 
     /**
@@ -136,8 +132,7 @@ class MethodRegistry
      */
     public static function remove($alias)
     {
-        static::locator()
-              ->remove($alias);
+        static::locator()->remove($alias);
     }
 
     /**
@@ -147,8 +142,7 @@ class MethodRegistry
      */
     public static function clear()
     {
-        static::locator()
-              ->clear();
+        static::locator()->clear();
     }
 
     /**

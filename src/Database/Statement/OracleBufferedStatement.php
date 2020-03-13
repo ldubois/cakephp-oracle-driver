@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace CakeDC\OracleDriver\Database\Statement;
 
 use Cake\Database\Statement\BufferedStatement;
+use CakeDC\OracleDriver\Database\Driver\OracleOCI;
 
 /**
  * Statement class meant to be used by an Oracle driver
@@ -20,6 +21,28 @@ use Cake\Database\Statement\BufferedStatement;
  */
 class OracleBufferedStatement extends BufferedStatement
 {
+
+    /**
+     * @inheritDoc
+     *
+     * Emulate fetchAll using loop over fetch for Oracle PDO to fix issue with fetching wrong CLOB
+     */
+    public function fetchAll($type = self::FETCH_TYPE_NUM)
+    {
+        if ($this->_driver instanceof OracleOCI) {
+            return parent::fetchAll($type);
+        }
+
+        if ($this->_allFetched) {
+            return $this->buffer;
+        }
+        while (!$this->_allFetched) {
+            $this->fetch($type);
+        }
+
+        return $this->buffer;
+    }
+
     /**
      * {@inheritDoc}
      */

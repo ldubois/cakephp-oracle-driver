@@ -156,11 +156,11 @@ class MethodLocatorTest extends TestCase
             'method' => 'my_articles',
         ]);
         $this->assertInstanceOf('CakeDC\OracleDriver\ORM\Method', $result);
-        $this->assertEquals('my_articles', $result->method());
+        $this->assertEquals('my_articles', $result->getMethod());
 
         $result2 = $this->_locator->get('Articles');
         $this->assertSame($result, $result2);
-        $this->assertEquals('my_articles', $result->method());
+        $this->assertEquals('my_articles', $result->getMethod());
     }
 
     /**
@@ -172,32 +172,32 @@ class MethodLocatorTest extends TestCase
     {
         $result = $this->_locator->get('Droids');
         $this->assertInstanceOf('CakeDC\OracleDriver\ORM\Method', $result);
-        $this->assertEquals('droids', $result->method());
+        $this->assertEquals('droids', $result->getMethod());
 //        $this->assertEquals('Droids', $result->alias());
 
         $result = $this->_locator->get('R2D2', ['className' => 'Droids']);
         $this->assertInstanceOf('CakeDC\OracleDriver\ORM\Method', $result);
-        $this->assertEquals('droids', $result->method(), 'The method should be derived from the className');
+        $this->assertEquals('droids', $result->getMethod(), 'The method should be derived from the className');
 //        $this->assertEquals('R2D2', $result->alias());
 
         $result = $this->_locator->get('C3P0', ['className' => 'Droids', 'method' => 'rebels']);
         $this->assertInstanceOf('CakeDC\OracleDriver\ORM\Method', $result);
-        $this->assertEquals('rebels', $result->method(), 'The method should be taken from options');
+        $this->assertEquals('rebels', $result->getMethod(), 'The method should be taken from options');
 //        $this->assertEquals('C3P0', $result->alias());
 
         $result = $this->_locator->get('Funky.Chipmunks');
         $this->assertInstanceOf('CakeDC\OracleDriver\ORM\Method', $result);
-        $this->assertEquals('chipmunks', $result->method(), 'The method should be derived from the alias');
+        $this->assertEquals('chipmunks', $result->getMethod(), 'The method should be derived from the alias');
 //        $this->assertEquals('Chipmunks', $result->alias());
 
         $result = $this->_locator->get('Awesome', ['className' => 'Funky.Monkies']);
         $this->assertInstanceOf('CakeDC\OracleDriver\ORM\Method', $result);
-        $this->assertEquals('monkies', $result->method(), 'The method should be derived from the classname');
+        $this->assertEquals('monkies', $result->getMethod(), 'The method should be derived from the classname');
 //        $this->assertEquals('Awesome', $result->alias());
 
         $result = $this->_locator->get('Stuff', ['className' => 'CakeDC\OracleDriver\ORM\Method']);
         $this->assertInstanceOf('CakeDC\OracleDriver\ORM\Method', $result);
-        $this->assertEquals('stuff', $result->method(), 'The method should be derived from the alias');
+        $this->assertEquals('stuff', $result->getMethod(), 'The method should be derived from the alias');
 //        $this->assertEquals('Stuff', $result->alias());
     }
 
@@ -212,7 +212,7 @@ class MethodLocatorTest extends TestCase
             'method' => 'my_articles',
         ]);
         $result = $this->_locator->get('Articles');
-        $this->assertEquals('my_articles', $result->method(), 'Should use config() data.');
+        $this->assertEquals('my_articles', $result->getMethod(), 'Should use config() data.');
     }
 
     /**
@@ -390,7 +390,7 @@ class MethodLocatorTest extends TestCase
 
         $method = $this->_locator->get('users', ['method' => 'users']);
         $this->assertInstanceOf('CakeDC\OracleDriver\ORM\Method', $method);
-        $this->assertEquals('users', $method->method());
+        $this->assertEquals('users', $method->getMethod());
 //        $this->assertSame($connection, $method->connection());
 
 //        $this->assertEquals(array_keys($schema), $method->schema()->columns());
@@ -402,7 +402,7 @@ class MethodLocatorTest extends TestCase
         $this->_locator->config('users', $options);
         $method = $this->_locator->get('users', ['className' => __NAMESPACE__ . '\MyUsersMethod']);
         $this->assertInstanceOf(__NAMESPACE__ . '\MyUsersMethod', $method);
-        $this->assertEquals('users', $method->method());
+        $this->assertEquals('users', $method->getMethod());
 //        $this->assertSame($connection, $method->connection());
 
 //        $this->assertEquals(array_keys($schema), $method->schema()->columns());
