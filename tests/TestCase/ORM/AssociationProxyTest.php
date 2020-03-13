@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace CakeDC\OracleDriver\Test\TestCase\ORM;
 
-use Cake\ORM\TableRegistry;
 use Cake\Test\TestCase\ORM\AssociationProxyTest as CakeAssociationProxyTest;
 
 /**
@@ -29,8 +28,8 @@ class AssociationProxyTest extends CakeAssociationProxyTest
      */
     public function testUpdateAllFromAssociation()
     {
-        $articles =  $this->getTableLocator()->get('articles');
-        $comments =  $this->getTableLocator()->get('comments');
+        $articles = $this->getTableLocator()->get('articles');
+        $comments = $this->getTableLocator()->get('comments');
         $articles->hasMany('comments', ['conditions' => ['published' => 'Y']]);
         $articles->comments->updateAll(['comment' => 'changed'], ['article_id' => 1]);
         $changed = $comments

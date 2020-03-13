@@ -93,7 +93,7 @@ trait ConfigTrait
      *
      * @param string|array $key Key to write to.
      * @param mixed $value Value to write.
-     * @param bool|string $merge True to merge recursively, 'shallow' for simple merge,
+     * @param bool|string $merge True to merge recursively, 'shallow' for simple merge,
      *   false to overwrite, defaults to false.
      * @return void
      * @throws \Cake\Core\Exception\Exception if attempting to clobber existing config

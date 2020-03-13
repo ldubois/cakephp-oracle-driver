@@ -441,8 +441,7 @@ class OCI8Statement extends \PDOStatement implements \IteratorAggregate
      */
     public function rowCount()
     {
-//        return oci_num_rows($this->_sth);
-        if(is_resource($this->_sth)){
+        if (is_resource($this->_sth)) {
             return oci_num_rows($this->_sth);
         }
 

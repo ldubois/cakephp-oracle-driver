@@ -1,7 +1,6 @@
 <?php
-namespace CakeDC\OracleDriver\Test\TestCase\ORM;
+declare(strict_types=1);
 
-use CakeDC\OracleDriver\Database\Driver\OracleBase;
 namespace CakeDC\OracleDriver\Test\TestCase\ORM;
 
 use Cake\Test\TestCase\ORM\CompositeKeysTest as CakeCompositeKeysTest;
@@ -11,7 +10,6 @@ use Cake\Test\TestCase\ORM\CompositeKeysTest as CakeCompositeKeysTest;
  */
 class CompositeKeysTest extends CakeCompositeKeysTest
 {
-
     /**
      * Test that saving into composite primary keys where one column is missing & autoIncrement works.
      *

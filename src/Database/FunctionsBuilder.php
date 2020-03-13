@@ -81,7 +81,7 @@ class FunctionsBuilder
             $format = $builder->_defaultDateFormat;
         }
         $args += $builder->_literalArgument($expression);
-        $args = (array) $args;
+        $args = (array)$args;
         $args[] = $format;
 
         return $builder->_build('TO_CHAR', $args, $types);
@@ -103,7 +103,7 @@ class FunctionsBuilder
             $format = $builder->_defaultDateFormat;
         }
         $args += $builder->_literalArgument($expression);
-        $args = (array) $args;
+        $args = (array)$args;
         $args[] = $format;
 
         return $builder->_build('TO_DATE', $args, $types);
@@ -113,8 +113,8 @@ class FunctionsBuilder
      * Magic method dispatcher to create custom SQL function calls
      *
      * @param string $name the SQL function name to construct
-     * @param array $args list with up to 2 arguments, first one being an array with
-     * parameters for the SQL function and second one a list of types to bind to those
+     * @param array $args list with up to 2 arguments, first one being an array with
+     * parameters for the SQL function and second one a list of types to bind to those
      * params
      * @return \Cake\Database\Expression\FunctionExpression
      */

@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 /**
  * Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
  *
@@ -13,14 +15,12 @@ namespace CakeDC\OracleDriver\Test\TestCase\ORM;
 
 use Cake\Test\TestCase\ORM\TableUuidTest as CakeTableUuidTest;
 
-
 /**
  * Tests TableUuid class
  *
  */
 class TableUuidTest extends CakeTableUuidTest
 {
-
     /**
      * Fixtures
      *
@@ -39,5 +39,4 @@ class TableUuidTest extends CakeTableUuidTest
     {
         return [['uuiditems']];
     }
-
 }

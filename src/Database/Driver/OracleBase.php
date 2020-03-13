@@ -13,13 +13,12 @@ declare(strict_types=1);
 namespace CakeDC\OracleDriver\Database\Driver;
 
 use Cake\Database\Driver;
-//use Cake\Database\Driver\PDODriverTrait;
 use Cake\Database\Query;
 use Cake\Database\Statement\PDOStatement;
 use Cake\Database\StatementInterface;
 use Cake\Database\ValueBinder;
-use Cake\Log\Log;
 use Cake\Http\Exception\NotImplementedException;
+use Cake\Log\Log;
 use CakeDC\OracleDriver\Config\ConfigTrait;
 use CakeDC\OracleDriver\Database\Dialect\OracleDialectTrait;
 use CakeDC\OracleDriver\Database\Oracle12Compiler;
@@ -29,13 +28,13 @@ use PDO;
 
 abstract class OracleBase extends Driver
 {
+    use ConfigTrait;
+    use OracleDialectTrait;
+
     /**
      * @var bool|mixed
      */
     public $connected;
-    use ConfigTrait;
-    use OracleDialectTrait;
-//    use PDODriverTrait;
 
     /**
      * Base configuration settings for MySQL driver
@@ -75,8 +74,11 @@ abstract class OracleBase extends Driver
         return $this->_autoincrement;
     }
 
-
-
+    /**
+     * OracleBase constructor.
+     *
+     * @param array $config Configuration settings.
+     */
     public function __construct(array $config = [])
     {
         parent::__construct($config);
@@ -85,6 +87,7 @@ abstract class OracleBase extends Driver
         }
         $this->_autoincrement = !empty($config['autoincrement']);
     }
+
     /**
      * Establishes a connection to the database server
      *

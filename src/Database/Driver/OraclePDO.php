@@ -16,7 +16,6 @@ use PDO;
 
 class OraclePDO extends OracleBase
 {
-
     /**
      * @inheritdoc
      */

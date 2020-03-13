@@ -14,7 +14,6 @@ namespace CakeDC\OracleDriver\ORM\Method;
 
 use Cake\Collection\CollectionTrait;
 use Cake\Database\Exception;
-use Cake\Database\TypeFactory;
 use Cake\Datasource\EntityInterface;
 use Cake\Datasource\ResultSetInterface;
 use SplFixedArray;

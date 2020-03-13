@@ -13,7 +13,6 @@ declare(strict_types=1);
 namespace CakeDC\OracleDriver\TestSuite\Fixture;
 
 use Cake\TestSuite\TestCase;
-use Exception;
 use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\Test;
 use PHPUnit\Framework\TestListener;

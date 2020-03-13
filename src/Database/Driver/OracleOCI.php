@@ -15,7 +15,6 @@ namespace CakeDC\OracleDriver\Database\Driver;
 use CakeDC\OracleDriver\Database\OCI8\OCI8Connection;
 use CakeDC\OracleDriver\Database\Statement\Method\MethodOracleStatement;
 use CakeDC\OracleDriver\Database\Statement\Method\MethodPDOStatement;
-use PDO;
 
 class OracleOCI extends OracleBase
 {
@@ -23,6 +22,7 @@ class OracleOCI extends OracleBase
      * @var bool|mixed
      */
     public $connected;
+
     /**
      * @inheritDoc
      */

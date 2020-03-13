@@ -21,7 +21,6 @@ use Cake\Test\TestCase\ORM\RulesCheckerIntegrationTest as CakeRulesCheckerIntegr
  */
 class RulesCheckerIntegrationTest extends CakeRulesCheckerIntegrationTest
 {
-
     /**
      * Fixtures to be loaded
      *
@@ -40,5 +39,4 @@ class RulesCheckerIntegrationTest extends CakeRulesCheckerIntegrationTest
         'core.SiteAuthors',
         'core.Comments',
     ];
-
 }

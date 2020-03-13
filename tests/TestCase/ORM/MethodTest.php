@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace CakeDC\OracleDriver\Test\TestCase\ORM;
 
-use Cake\Database\Driver\Sqlite;
 use CakeDC\OracleDriver\Database\Driver\OraclePDO;
 use CakeDC\OracleDriver\ORM\MethodRegistry;
 use CakeDC\OracleDriver\TestSuite\TestCase;
@@ -69,5 +68,4 @@ class MethodTest extends TestCase
 
         $this->assertEquals($request->get('B'), 10);
     }
-
 }

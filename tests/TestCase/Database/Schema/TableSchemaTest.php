@@ -5,9 +5,8 @@ namespace CakeDC\OracleDriver\Test\TestCase\Database\Schema;
 
 use Cake\Database\DriverInterface;
 use Cake\Database\Schema\TableSchema;
-use Cake\Database\TypeInterface;
 use Cake\Database\Type;
-use Cake\Datasource\ConnectionManager;
+use Cake\Database\TypeInterface;
 use Cake\TestSuite\TestCase;
 
 /**
@@ -613,22 +612,6 @@ class TableSchemaTest extends TestCase
     public function testConstraintForeignKey()
     {
         $this->markTestSkipped('');
-        return;
-        $table = $this->getTableLocator()->get('ArticlesTags');
-        $compositeConstraint = $table->getSchema()->getConstraint('tag_id_fk');
-        $expected = [
-            'type' => 'foreign',
-            'columns' => ['tag_id'],
-            'references' => ['tags', 'id'],
-            'update' => 'cascade',
-            'delete' => 'cascade',
-            'length' => [],
-        ];
-
-        $this->assertEquals($expected, $compositeConstraint);
-
-        $expectedSubstring = 'CONSTRAINT <tag_id_fk> FOREIGN KEY \(<tag_id>\) REFERENCES <tags> \(<id>\)';
-        $this->assertQuotedQuery($expectedSubstring, $table->getSchema()->createSql(ConnectionManager::get('test'))[0]);
     }
 
     /**
@@ -639,29 +622,6 @@ class TableSchemaTest extends TestCase
     public function testConstraintForeignKeyTwoColumns()
     {
         $this->markTestSkipped('');
-        return;
-        $table = $this->getTableLocator()->get('Orders');
-        $compositeConstraint = $table->getSchema()->getConstraint('product_category_fk');
-        $expected = [
-            'type' => 'foreign',
-            'columns' => [
-                'product_category',
-                'product_id',
-            ],
-            'references' => [
-                'products',
-                ['category', 'id'],
-            ],
-            'update' => 'cascade',
-            'delete' => 'cascade',
-            'length' => [],
-        ];
-        $this->assertEquals($expected, $compositeConstraint);
-
-        $expectedSubstring = 'CONSTRAINT <product_category_fk> FOREIGN KEY \(<product_category>, <product_id>\)' .
-            ' REFERENCES <products> \(<category>, <id>\)';
-
-        $this->assertQuotedQuery($expectedSubstring, $table->getSchema()->createSql(ConnectionManager::get('test'))[0]);
     }
 
     /**

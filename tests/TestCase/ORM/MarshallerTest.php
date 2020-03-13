@@ -21,7 +21,6 @@ use Cake\Test\TestCase\ORM\MarshallerTest as CakeMarshallerTest;
  */
 class MarshallerTest extends CakeMarshallerTest
 {
-
     protected $fixtures = [
         'core.Articles',
 //        'core.ArticlesTags',
@@ -31,5 +30,4 @@ class MarshallerTest extends CakeMarshallerTest
         'core.Tags',
         'core.Users',
     ];
-
 }

@@ -40,7 +40,7 @@ class MethodLogPanel extends DebugPanel
      * This will unfortunately build all the connections, but they
      * won't connect until used.
      *
-     * @return array
+     * @return void
      */
     public function initialize()
     {

@@ -77,6 +77,9 @@ class MethodOracleStatement extends MethodStatementDecorator
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function bindValue($column, $value, $type = 'string'): void
     {
         $column = $this->paramMap[$column] ?? $column;

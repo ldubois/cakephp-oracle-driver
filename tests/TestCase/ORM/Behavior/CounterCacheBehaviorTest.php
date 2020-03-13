@@ -25,7 +25,6 @@ use Cake\Test\TestCase\ORM\Behavior\CounterCacheBehaviorTest as CakeCounterCache
  */
 class CounterCacheBehaviorTest extends CakeCounterCacheBehaviorTest
 {
-
     /**
      * Testing counter cache with lambda returning a subquery
      *

@@ -80,7 +80,6 @@ class OCI8Connection extends PDO
                 $this->dbh = @oci_connect($username, $password, $dsn);
             }
 
-
 //            $this->dbh = @oci_connect($username, $password, $dsn, $charset, $sessionMode);
         }
 

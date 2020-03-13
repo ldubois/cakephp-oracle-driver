@@ -45,25 +45,6 @@ class OracleConnection extends Connection
     protected $_schemaMethodsCollection;
 
     /**
-     * {@inheritDoc}
-     */
-    // public function __construct(array $config)
-    // {
-        // parent::__construct($config);
-        // $this->_config = $config;
-
-        // $driver = '';
-        // if (!empty($config['driver'])) {
-            // $driver = $config['driver'];
-        // }
-        // $this->setDriver($driver, $config);
-
-        // if (!empty($config['log'])) {
-            // $this->enableQueryLogging((bool)$config['log']);
-        // }
-    // }
-
-    /**
      * Builds oracle connection based on generic cakephp connection class.
      *
      * @param \Cake\Database\Connection $connection Connection object.

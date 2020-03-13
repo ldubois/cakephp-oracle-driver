@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace CakeDC\OracleDriver\TestSuite;
 
 use Cake\Datasource\ConnectionManager;
-use Exception;
 use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\Test;
 use PHPUnit\Framework\TestListener;
@@ -22,8 +21,6 @@ class DbMode implements TestListener
 
     /**
      * Constructor. Save internally the reference to the passed fixture manager
-     *
-     * @param \CakeDC\OracleDriver\TestSuite\Fixture\OracleFixtureManager $manager The fixture manager
      */
     public function __construct()
     {
@@ -121,7 +118,7 @@ class DbMode implements TestListener
      * @param \PHPUnit\Framework\Test $test The test case
      * @return void
      */
-    public function startTest(Test $test):void
+    public function startTest(Test $test): void
     {
         ConnectionManager::get('test')->getDriver()->enableAutoQuoting(true);
     }

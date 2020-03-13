@@ -17,7 +17,6 @@ use Cake\Database\Expression\IdentifierExpression;
 use Cake\Database\Expression\QueryExpression;
 use Cake\I18n\Time;
 use Cake\ORM\Query;
-use Cake\ORM\TableRegistry;
 use Cake\Test\TestCase\ORM\QueryRegressionTest as CakeQueryRegressionTest;
 
 /**
@@ -44,7 +43,6 @@ class QueryRegressionTest extends CakeQueryRegressionTest
         'core.Translates',
         'core.Users',
     ];
-
 
     /**
      * Test expression based ordering with unions.
@@ -87,7 +85,6 @@ class QueryRegressionTest extends CakeQueryRegressionTest
         $article->title = new \Cake\Database\Expression\QueryExpression("SELECT 'jose' from DUAL");
         $this->assertSame($article, $articles->save($article));
     }
-
 
     /**
      * such syntax is not supported and leads to ORA-00937

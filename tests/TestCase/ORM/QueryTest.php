@@ -17,7 +17,6 @@ use Cake\Database\Driver\Sqlite;
 use Cake\Database\Expression\IdentifierExpression;
 use Cake\Database\Expression\QueryExpression;
 use Cake\ORM\Query;
-use Cake\ORM\TableRegistry;
 use Cake\Test\TestCase\ORM\QueryTest as CakeQueryTest;
 
 /**
@@ -49,7 +48,7 @@ class QueryTest extends CakeQueryTest
      */
     public function testAutoFields()
     {
-        $table =  $this->getTableLocator()->get('Articles');
+        $table = $this->getTableLocator()->get('Articles');
         $result = $table->find('all')
             ->select(['myField' => '(SELECT 20 FROM DUAL)'])
             ->enableAutoFields(true)
@@ -68,7 +67,7 @@ class QueryTest extends CakeQueryTest
      */
     public function testAutoFieldsWithAssociations()
     {
-        $table =  $this->getTableLocator()->get('Articles');
+        $table = $this->getTableLocator()->get('Articles');
         $table->belongsTo('Authors');
 
         $result = $table->find()
@@ -92,7 +91,7 @@ class QueryTest extends CakeQueryTest
      */
     public function testAutoFieldsWithContainQueryBuilder()
     {
-        $table =  $this->getTableLocator()->get('Articles');
+        $table = $this->getTableLocator()->get('Articles');
         $table->belongsTo('Authors');
 
         $result = $table->find()
@@ -122,7 +121,7 @@ class QueryTest extends CakeQueryTest
      */
     public function testCountWithGroup()
     {
-        $table =  $this->getTableLocator()->get('articles');
+        $table = $this->getTableLocator()->get('articles');
         $query = $table->find('all');
         $query
             ->select(['author_id',
@@ -141,7 +140,7 @@ class QueryTest extends CakeQueryTest
      */
     public function testNotMatchingNested()
     {
-        $table =  $this->getTableLocator()->get('authors');
+        $table = $this->getTableLocator()->get('authors');
         $articles = $table->hasMany('articles');
         $articles->belongsToMany('tags');
 
@@ -151,6 +150,7 @@ class QueryTest extends CakeQueryTest
                  return $q->notMatching('tags', function ($q) {
                     return $q->where(function ($exp) {
                         $e = new QueryExpression();
+
                         return $exp->add($e->eq(new IdentifierExpression('tags.name'), 'tag3'));
                     });
                  });
@@ -182,7 +182,7 @@ class QueryTest extends CakeQueryTest
      */
     public function testLeftJoinWith()
     {
-        $table =  $this->getTableLocator()->get('authors');
+        $table = $this->getTableLocator()->get('authors');
         $table->hasMany('articles');
         $table->articles->deleteAll(['author_id' => 4]);
         $orderFn = function ($q) {
@@ -234,7 +234,7 @@ class QueryTest extends CakeQueryTest
      */
     public function testCustomBindings()
     {
-        $table =  $this->getTableLocator()->get('Articles');
+        $table = $this->getTableLocator()->get('Articles');
         $query = $table->find()->where(['id >' => 1]);
         $query->where(function ($exp) {
             $e = new QueryExpression();

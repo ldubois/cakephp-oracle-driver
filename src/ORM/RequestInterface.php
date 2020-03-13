@@ -24,11 +24,11 @@ interface RequestInterface extends ArrayAccess, JsonSerializable
     /**
      * Sets one or multiple properties to the specified value
      *
-     * @param string|array $property the name of property to set or a list of
+     * @param string|array $property the name of property to set or a list of
      * properties with their respective values
-     * @param mixed $value The value to set to the property or an array if the
+     * @param mixed $value The value to set to the property or an array if the
      * first argument is also an array, in which case will be treated as $options
-     * @param array $options options to be used for setting the property. Allowed option
+     * @param array $options options to be used for setting the property. Allowed option
      * keys are `setter` and `guard`
      * @return \Cake\Datasource\EntityInterface
      */
@@ -60,7 +60,7 @@ interface RequestInterface extends ArrayAccess, JsonSerializable
      * that it already is.
      *
      * @param bool|null $new Indicate whether or not this instance has been persisted.
-     * @return bool If it is known whether the entity was already persisted
+     * @return bool If it is known whether the entity was already persisted
      * null otherwise
      */
     public function isNew($new = null);

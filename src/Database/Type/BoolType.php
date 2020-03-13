@@ -16,7 +16,6 @@ declare(strict_types=1);
  */
 namespace CakeDC\OracleDriver\Database\Type;
 
-use Cake\Database\Driver;
 use Cake\Database\DriverInterface;
 //use Cake\Database\Type;
 use Cake\Database\Type\BaseType;

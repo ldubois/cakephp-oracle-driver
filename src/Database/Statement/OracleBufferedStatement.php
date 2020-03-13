@@ -21,7 +21,6 @@ use CakeDC\OracleDriver\Database\Driver\OracleOCI;
  */
 class OracleBufferedStatement extends BufferedStatement
 {
-
     /**
      * @inheritDoc
      *
