@@ -103,7 +103,7 @@ $cache = [
 
 Cake\Cache\Cache::setConfig($cache);
 Cake\Core\Configure::write('Session', [
-    'defaults' => 'php'
+    'defaults' => 'php',
 ]);
 
 // Cake\Core\Plugin::load('CakeDC\\OracleDriver', [
@@ -121,7 +121,7 @@ if (!getenv('db_dsn')) {
 
 Cake\Datasource\ConnectionManager::setConfig('test', [
     'url' => getenv('db_dsn'),
-    'timezone' => 'UTC'
+    'timezone' => 'UTC',
 ]);
 
 // Cake\Core\Configure::write('App.paths.plugins', [

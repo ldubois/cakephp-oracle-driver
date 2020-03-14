@@ -23,7 +23,6 @@ use PDOException;
  */
 class MethodsCollection
 {
-
     /**
      * Connection object
      *
@@ -57,13 +56,14 @@ class MethodsCollection
     public function listMethods()
     {
         // @todo fix this method to return only high level data
-        list($sql, $params) = $this->_dialect->listMethodsSql($this->_connection->config());
+        [$sql, $params] = $this->_dialect->listMethodsSql($this->_connection->config());
         $result = [];
         $statement = $this->_connection->execute($sql, $params);
         while ($row = $statement->fetch()) {
             $result[] = $row[0];
         }
         $statement->closeCursor();
+
         return $result;
     }
 
@@ -77,13 +77,14 @@ class MethodsCollection
     {
         $config = $this->_connection->config();
         $config['objectName'] = $name;
-        list($sql, $params) = $this->_dialect->listMethodsSql($config);
+        [$sql, $params] = $this->_dialect->listMethodsSql($config);
         $result = [];
         $statement = $this->_connection->execute($sql, $params);
         while ($row = $statement->fetch()) {
             $result[] = $row[0];
         }
         $statement->closeCursor();
+
         return $result;
     }
 
@@ -113,6 +114,7 @@ class MethodsCollection
         $method = new Method($name);
 
         $this->_reflect($method, $name, $config);
+
         return $method;
     }
 
@@ -127,7 +129,7 @@ class MethodsCollection
      */
     protected function _reflect($method, $name, $config)
     {
-        list($sql, $params) = $this->_dialect->describeParametersSql($name, $config);
+        [$sql, $params] = $this->_dialect->describeParametersSql($name, $config);
         if (empty($sql)) {
             return;
         }

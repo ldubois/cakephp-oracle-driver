@@ -131,8 +131,10 @@ class MethodTestFixture
             );
             Log::error($msg);
             trigger_error($msg, E_USER_WARNING);
+
             return false;
         }
+
         return true;
     }
 
@@ -154,6 +156,7 @@ class MethodTestFixture
         } catch (Exception $e) {
             return false;
         }
+
         return true;
     }
 
@@ -181,7 +184,7 @@ class MethodTestFixture
         return true;
     }
 
-	/**
+    /**
      * {@inheritDoc}
      */
     public function truncate(ConnectionInterface $db)

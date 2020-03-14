@@ -41,6 +41,7 @@ trait LocatorAwareTrait
         if (!$this->_methodLocator) {
             $this->_methodLocator = MethodRegistry::locator();
         }
+
         return $this->_methodLocator;
     }
 }

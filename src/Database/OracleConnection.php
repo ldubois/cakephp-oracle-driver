@@ -11,17 +11,16 @@
 
 namespace CakeDC\OracleDriver\Database;
 
+use Cake\Core\Exception\Exception;
+use Cake\Database\Connection;
+use Cake\Database\StatementInterface;
 use CakeDC\OracleDriver\Database\Log\MethodLogger;
 use CakeDC\OracleDriver\Database\Log\MethodLoggingStatement;
 use CakeDC\OracleDriver\Database\Schema\CachedMethodsCollection;
 use CakeDC\OracleDriver\Database\Schema\MethodsCollection;
-use Cake\Core\Exception\Exception;
-use Cake\Database\Connection;
-use Cake\Database\StatementInterface;
 
 class OracleConnection extends Connection
 {
-
     /**
      * Driver object, responsible for creating the real connection
      * and provide specific SQL dialect.
@@ -33,7 +32,7 @@ class OracleConnection extends Connection
     /**
      * Logger object instance.
      *
-     * @var MethodLogger
+     * @var \CakeDC\OracleDriver\Database\Log\MethodLogger
      */
     protected $_methodLogger = null;
 
@@ -48,12 +47,13 @@ class OracleConnection extends Connection
      * Builds oracle connection based on generic cakephp connection class.
      *
      * @param \Cake\Database\Connection $connection Connection object.
-     * @return OracleConnection
+     * @return \CakeDC\OracleDriver\Database\OracleConnection
      */
     public static function build(Connection $connection)
     {
         $config = $connection->config();
         $config['driver'] = $connection->getDriver();
+
         return new OracleConnection($config);
     }
 
@@ -63,7 +63,7 @@ class OracleConnection extends Connection
      * @param \CakeDC\OracleDriver\Database\Schema\MethodsCollection|null $collection The schema collection object
      * @return \CakeDC\OracleDriver\Database\Schema\MethodsCollection
      */
-    public function methodSchemaCollection(MethodsCollection $collection = null)
+    public function methodSchemaCollection(?MethodsCollection $collection = null)
     {
         if ($collection !== null) {
             return $this->_schemaMethodsCollection = $collection;
@@ -85,7 +85,7 @@ class OracleConnection extends Connection
      *
      * @param string $sql The PL/SQL to convert into a prepared statement.
      * @param array $options Method options used on method constructing.
-     * @return StatementInterface
+     * @return \Cake\Database\StatementInterface
      */
     public function prepareMethod($sql, $options = [])
     {
@@ -113,6 +113,7 @@ class OracleConnection extends Connection
     {
         $log = new MethodLoggingStatement($statement, $this->getDriver());
         $log->logger($this->methodLogger());
+
         return $log;
     }
 
@@ -120,15 +121,16 @@ class OracleConnection extends Connection
      * Sets the method logger object instance. When called with
      * no arguments it returns the currently setup logger instance.
      *
-     * @param MethodLogger $instance logger object instance
+     * @param \CakeDC\OracleDriver\Database\Log\MethodLogger $instance logger object instance
      * @return object logger instance
      */
-    public function methodLogger(MethodLogger $instance = null)
+    public function methodLogger(?MethodLogger $instance = null)
     {
         if ($instance === null) {
             if ($this->_methodLogger === null) {
-                $this->_methodLogger = new MethodLogger;
+                $this->_methodLogger = new MethodLogger();
             }
+
             return $this->_methodLogger;
         }
         $this->_methodLogger = $instance;
@@ -142,5 +144,4 @@ class OracleConnection extends Connection
         $this->_schemaMethodsCollection = null;
         parent::cacheMetadata($cache);
     }
-
 }

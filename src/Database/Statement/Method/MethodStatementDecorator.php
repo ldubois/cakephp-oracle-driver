@@ -32,7 +32,7 @@ class MethodStatementDecorator extends StatementDecorator implements StatementIn
      * Assign a value to a positional or named variable in prepared query. If using
      * positional variables you need to start with index one, if using named params then
      * just use the name in any order.
-     * 
+     *
      * Parameters values are always passed by reference.
      *
      * You can pass OCI compatible constants for binding values with a type or optionally
@@ -61,5 +61,4 @@ class MethodStatementDecorator extends StatementDecorator implements StatementIn
     {
         $this->_statement->bindParam($column, $value, $type);
     }
-
 }

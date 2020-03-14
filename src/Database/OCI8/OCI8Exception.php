@@ -19,7 +19,7 @@ class OCI8Exception extends Exception
      * OCI Error builder.
      *
      * @param array $error Error information that includes error message and code.
-     * @return OCI8Exception
+     * @return \CakeDC\OracleDriver\Database\OCI8\OCI8Exception
      */
     public static function fromErrorInfo($error)
     {

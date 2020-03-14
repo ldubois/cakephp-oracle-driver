@@ -25,7 +25,6 @@ use SplFixedArray;
  */
 class ResultSet implements ResultSetInterface
 {
-
     use CollectionTrait;
 
     /**
@@ -123,7 +122,7 @@ class ResultSet implements ResultSetInterface
             'entityClass' => 'Cake\ORM\Entity',
             'hydrate' => true,
             'useBuffering' => false,
-            'schema' => []
+            'schema' => [],
         ];
         $this->_statement = $statement;
         $this->_driver = $repository->connection()->getDriver();
@@ -210,6 +209,7 @@ class ResultSet implements ResultSetInterface
             $valid = $this->_index < $this->_count;
             if ($valid && $this->_results[$this->_index] !== null) {
                 $this->_current = $this->_results[$this->_index];
+
                 return true;
             }
             if (!$valid) {
@@ -230,7 +230,6 @@ class ResultSet implements ResultSetInterface
         return $valid;
     }
 
-
     /**
      * Helper function to fetch the next result from the statement or
      * seeded results.
@@ -247,9 +246,9 @@ class ResultSet implements ResultSetInterface
         if ($row === false) {
             return $row;
         }
+
         return $this->_groupResult($row);
     }
-
 
     /**
      * Correctly nests results keys including those coming from associations
@@ -281,6 +280,7 @@ class ResultSet implements ResultSetInterface
             if ($this->_statement && !$this->_useBuffering) {
                 $this->_statement->closeCursor();
             }
+
             return $result;
         }
     }
@@ -297,6 +297,7 @@ class ResultSet implements ResultSetInterface
         while ($this->valid()) {
             $this->next();
         }
+
         return serialize($this->_results);
     }
 
@@ -330,9 +331,9 @@ class ResultSet implements ResultSetInterface
         if ($this->_statement) {
             return $this->_count = $this->_statement->rowCount();
         }
+
         return $this->_count = count($this->_results);
     }
-
 
     /**
      * Casts all values from a row brought from a table to the correct

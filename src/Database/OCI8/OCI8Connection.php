@@ -36,7 +36,7 @@ class OCI8Connection extends PDO
     protected $dbh;
 
     /**
-     * @var integer
+     * @var int
      */
     protected $executeMode = OCI_COMMIT_ON_SUCCESS;
 
@@ -50,7 +50,7 @@ class OCI8Connection extends PDO
      * @param string $password Oracle user's password.
      * @param array $options Additional connection settings.
      *
-     * @throws OCI8Exception
+     * @throws \CakeDC\OracleDriver\Database\OCI8\OCI8Exception
      */
     public function __construct($dsn, $username, $password, $options)
     {
@@ -145,7 +145,7 @@ class OCI8Connection extends PDO
     /**
      * Returns the current execution mode.
      *
-     * @return integer
+     * @return int
      */
     public function getExecuteMode()
     {

@@ -11,14 +11,13 @@
 
 namespace CakeDC\OracleDriver\Database\Dialect;
 
-use Cake\Database\ExpressionInterface;
-use CakeDC\OracleDriver\Database\Expression\SimpleExpression;
-use CakeDC\OracleDriver\Database\OracleCompiler;
-use CakeDC\OracleDriver\Database\Oracle12Compiler;
-use CakeDC\OracleDriver\Database\Schema\OracleSchema;
 use Cake\Database\Expression\FunctionExpression;
+use Cake\Database\ExpressionInterface;
 use Cake\Database\Query;
 use Cake\Database\SqlDialectTrait;
+use CakeDC\OracleDriver\Database\Expression\SimpleExpression;
+use CakeDC\OracleDriver\Database\OracleCompiler;
+use CakeDC\OracleDriver\Database\Schema\OracleSchema;
 
 /**
  * Contains functions that encapsulates the SQL dialect used by Oracle,
@@ -26,7 +25,6 @@ use Cake\Database\SqlDialectTrait;
  */
 trait OracleDialectTrait
 {
-
     use SqlDialectTrait;
 
     /**
@@ -109,7 +107,7 @@ trait OracleDialectTrait
         $outer
             ->select([
                 'cake_paging.*',
-                '_cake_page_rownum_' => new SimpleExpression('ROWNUM')
+                '_cake_page_rownum_' => new SimpleExpression('ROWNUM'),
             ])
             ->from(['cake_paging' => $query]);
 
@@ -131,8 +129,10 @@ trait OracleDialectTrait
             } elseif (isset($row['_cake_page_rownum_'])) {
                 unset($row['_cake_page_rownum_']);
             }
+
             return $row;
         });
+
         return $outer2;
     }
 
@@ -171,8 +171,9 @@ trait OracleDialectTrait
     protected function _expressionTranslators()
     {
         $namespace = 'Cake\Database\Expression';
+
         return [
-            $namespace . '\FunctionExpression' => '_transformFunctionExpression'
+            $namespace . '\FunctionExpression' => '_transformFunctionExpression',
         ];
     }
 
@@ -229,6 +230,7 @@ trait OracleDialectTrait
                             $value = str_replace("'", '', $value);
                             $p = sprintf("'%s' %s", $value, $unit);
                         }
+
                         return $p;
                     });
                 break;
@@ -253,6 +255,7 @@ trait OracleDialectTrait
         if (!$this->_schemaDialect) {
             $this->_schemaDialect = new OracleSchema($this);
         }
+
         return $this->_schemaDialect;
     }
 
@@ -292,6 +295,7 @@ trait OracleDialectTrait
             $fromWhere = "from user_constraints
                 where constraint_type = 'R'";
         }
+
         return "declare
             cursor c is select owner, table_name, constraint_name
                 {$fromWhere};
@@ -313,7 +317,7 @@ trait OracleDialectTrait
      */
     public function newCompiler()
     {
-        return new OracleCompiler;
+        return new OracleCompiler();
     }
 
     /**
@@ -368,5 +372,4 @@ trait OracleDialectTrait
 
         return $query;
     }
-
 }

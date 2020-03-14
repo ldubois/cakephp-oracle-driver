@@ -13,7 +13,6 @@ namespace CakeDC\OracleDriver\Test\TestCase\ORM\Behavior;
 
 use Cake\Test\TestCase\ORM\Behavior\TreeBehaviorTest as CakeTreeBehaviorTest;
 
-
 /**
  * Tests TreeBehavior class
  *

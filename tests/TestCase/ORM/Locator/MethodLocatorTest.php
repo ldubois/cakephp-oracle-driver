@@ -10,11 +10,11 @@
  */
 
 namespace CakeDC\OracleDriver\Test\TestCase\ORM\Locator;
+
 ///
 /// @TODO fix plugins tests
 ///
 ///
-
 
 
 use Cake\Core\Configure;
@@ -38,7 +38,6 @@ class MyUsersMethod extends Method
     protected $_method = 'users';
 }
 
-
 /**
  * Test case for MethodLocator
  */
@@ -52,7 +51,6 @@ class MethodLocatorTest extends TestCase
      */
     protected $_locator;
 
-
     /**
      * setup
      *
@@ -63,7 +61,7 @@ class MethodLocatorTest extends TestCase
         parent::setUp();
         Configure::write('App.namespace', 'TestApp');
 
-        $this->_locator = new MethodLocator;
+        $this->_locator = new MethodLocator();
     }
 
     /**
@@ -94,7 +92,7 @@ class MethodLocatorTest extends TestCase
      */
     public function testConfigPlugin()
     {
-        Plugin::load('TestPlugin');
+        Plugin::getCollection()->add(new \TestPlugin\Plugin());
 
         $data = [
             'connection' => 'testing',
@@ -263,12 +261,12 @@ class MethodLocatorTest extends TestCase
         $this->assertEquals($result, $result2);
     }
 
-    /**
-     * Tests that methods can be instantiated based on conventions
-     * and using plugin notation
-     *
-     * @return void
-     */
+/**
+ * Tests that methods can be instantiated based on conventions
+ * and using plugin notation
+ *
+ * @return void
+ */
 //    public function testGetWithConventions()
 //    {
 //        $method = $this->_locator->get('articles');
@@ -282,11 +280,11 @@ class MethodLocatorTest extends TestCase
 //        $this->assertInstanceOf('TestApp\Model\Method\AuthorsMethod', $method);
 //    }
 
-    /**
-     * Test get() with plugin syntax aliases
-     *
-     * @return void
-     */
+/**
+ * Test get() with plugin syntax aliases
+ *
+ * @return void
+ */
 //    public function testGetPlugin()
 //    {
 //        Plugin::load('TestPlugin');
@@ -306,13 +304,13 @@ class MethodLocatorTest extends TestCase
 //        $this->assertSame($method, $second, 'Can fetch long form');
 //    }
 
-    /**
-     * Test get() with same-alias models in different plugins
-     *
-     * There should be no internal cache-confusion
-     *
-     * @return void
-     */
+/**
+ * Test get() with same-alias models in different plugins
+ *
+ * There should be no internal cache-confusion
+ *
+ * @return void
+ */
 //    public function testGetMultiplePlugins()
 //    {
 //        Plugin::load('TestPlugin');
@@ -335,11 +333,11 @@ class MethodLocatorTest extends TestCase
 //        $this->assertInstanceOf('TestPluginTwo\Model\Method\CommentsMethod', $plugin2, 'Should still be a plugin 2 method instance');
 //    }
 
-    /**
-     * Test get() with plugin aliases + className option.
-     *
-     * @return void
-     */
+/**
+ * Test get() with plugin aliases + className option.
+ *
+ * @return void
+ */
 //    public function testGetPluginWithClassNameOption()
 //    {
 //        Plugin::load('TestPlugin');
@@ -356,11 +354,11 @@ class MethodLocatorTest extends TestCase
 //        $this->assertSame($method, $second);
 //    }
 
-    /**
-     * Test get() with full namespaced classname
-     *
-     * @return void
-     */
+/**
+ * Test get() with full namespaced classname
+ *
+ * @return void
+ */
 //    public function testGetPluginWithFullNamespaceName()
 //    {
 //        Plugin::load('TestPlugin');
@@ -429,11 +427,11 @@ class MethodLocatorTest extends TestCase
         $this->assertSame($mock, $this->_locator->get('Articles'));
     }
 
-    /**
-     * Test setting an instance with plugin syntax aliases
-     *
-     * @return void
-     */
+/**
+ * Test setting an instance with plugin syntax aliases
+ *
+ * @return void
+ */
 //    public function testSetPlugin()
 //    {
 //        Plugin::load('TestPlugin');
@@ -477,16 +475,16 @@ class MethodLocatorTest extends TestCase
         $this->assertTrue($this->_locator->exists('Comments'));
     }
 
-    /**
-     * testRemovePlugin
-     *
-     * Removing a plugin-prefixed model should not affect any other
-     * plugin-prefixed model, or app model.
-     * Removing an app model should not affect any other
-     * plugin-prefixed model.
-     *
-     * @return void
-     */
+/**
+ * testRemovePlugin
+ *
+ * Removing a plugin-prefixed model should not affect any other
+ * plugin-prefixed model, or app model.
+ * Removing an app model should not affect any other
+ * plugin-prefixed model.
+ *
+ * @return void
+ */
 //    public function testRemovePlugin()
 //    {
 //        Plugin::load('TestPlugin');

@@ -13,7 +13,6 @@ namespace CakeDC\OracleDriver\Test\TestCase\ORM;
 
 use Cake\Test\TestCase\ORM\BehaviorRegistryTest as CakeBehaviorRegistryTest;
 
-
 /**
  * Tests BehaviorRegistry class
  *

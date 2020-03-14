@@ -13,7 +13,6 @@ namespace CakeDC\OracleDriver\Test\TestCase\ORM;
 
 use Cake\Test\TestCase\ORM\EagerLoaderTest as CakeEagerLoaderTest;
 
-
 /**
  * Tests EagerLoader class
  *

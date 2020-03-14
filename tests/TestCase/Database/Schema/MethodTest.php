@@ -18,7 +18,6 @@ use Cake\Database\Type;
 use Cake\Datasource\ConnectionManager;
 use CakeDC\OracleDriver\ORM\MethodRegistry;
 
-
 /**
  * Test case for Method
  */
@@ -26,7 +25,7 @@ class MethodTest extends TestCase
 {
 
     public $codeFixtures = [
-        'plugin.CakeDC/OracleDriver.Calc'
+        'plugin.CakeDC/OracleDriver.Calc',
     ];
 
     public function setUp()
@@ -55,7 +54,7 @@ class MethodTest extends TestCase
             'b' => [
                 'type' => 'float',
                 'in' => true,
-            ]
+            ],
         ];
         $method = new Method('CALC.SUM', $parameters);
         $this->assertEquals(['a', 'b'], $method->parameters());

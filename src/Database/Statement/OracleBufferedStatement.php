@@ -9,7 +9,6 @@
  * @license MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
 
-
 namespace CakeDC\OracleDriver\Database\Statement;
 
 use Cake\Database\Statement\BufferedStatement;
@@ -20,6 +19,27 @@ use Cake\Database\Statement\BufferedStatement;
  */
 class OracleBufferedStatement extends BufferedStatement
 {
+
+    /**
+     * @inheritDoc
+     *
+     * Emulate fetchAll using loop over fetch for Oracle PDO to fix issue with fetching wrong CLOB
+     */
+    public function fetchAll($type = self::FETCH_TYPE_NUM)
+    {
+        if ($this->_driver instanceof OracleOCI) {
+            return parent::fetchAll($type);
+        }
+
+        if ($this->_allFetched) {
+            return $this->buffer;
+        }
+        while (!$this->_allFetched) {
+            $this->fetch($type);
+        }
+
+        return $this->buffer;
+    }
 
     /**
      * {@inheritDoc}
@@ -59,5 +79,4 @@ class OracleBufferedStatement extends BufferedStatement
 
         return $record;
     }
-
 }

@@ -66,6 +66,7 @@ class OracleBufferedStatement extends MethodStatementDecorator
     public function execute($params = null)
     {
         $this->_reset();
+
         return parent::execute($params);
     }
 
@@ -80,6 +81,7 @@ class OracleBufferedStatement extends MethodStatementDecorator
         if ($this->_allFetched) {
             $row = ($this->_counter < $this->_count) ? $this->_records[$this->_counter++] : false;
             $row = ($row && $type === 'num') ? array_values($row) : $row;
+
             return $row;
         }
 
@@ -90,6 +92,7 @@ class OracleBufferedStatement extends MethodStatementDecorator
             $this->_allFetched = true;
             $this->_counter = $this->_count + 1;
             $this->_statement->closeCursor();
+
             return false;
         }
 
@@ -102,6 +105,7 @@ class OracleBufferedStatement extends MethodStatementDecorator
         }
 
         $this->_count++;
+
         return $this->_records[] = $record;
     }
 
@@ -121,6 +125,7 @@ class OracleBufferedStatement extends MethodStatementDecorator
         $this->_count = count($this->_records);
         $this->_allFetched = true;
         $this->_statement->closeCursor();
+
         return $this->_records;
     }
 
@@ -160,5 +165,4 @@ class OracleBufferedStatement extends MethodStatementDecorator
         $this->_records = [];
         $this->_allFetched = false;
     }
-
 }

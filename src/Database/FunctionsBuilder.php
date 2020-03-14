@@ -1,8 +1,8 @@
 <?php
 namespace CakeDC\OracleDriver\Database;
 
-use CakeDC\OracleDriver\Core\Singleton;
 use Cake\Database\Expression\FunctionExpression;
+use CakeDC\OracleDriver\Core\Singleton;
 
 /**
  * Contains methods related to generating FunctionExpression objects
@@ -22,7 +22,7 @@ class FunctionsBuilder
      * @param string $name the name of the SQL function to constructed
      * @param array $params list of params to be passed to the function
      * @param array $types list of types for each function param
-     * @return FunctionExpression
+     * @return \Cake\Database\Expression\FunctionExpression
      */
     protected function _build($name, $params = [], $types = [])
     {
@@ -43,6 +43,7 @@ class FunctionsBuilder
         } elseif (!is_array($expression)) {
             $expression = [$expression];
         }
+
         return $expression;
     }
 
@@ -51,13 +52,14 @@ class FunctionsBuilder
      *
      * @param mixed $expression the function argument
      * @param array $types list of types to bind to the arguments
-     * @return FunctionExpression
+     * @return \Cake\Database\Expression\FunctionExpression
      */
     public static function toChar($expression, $types = [])
     {
         $builder = self::getInstance();
         $args = [];
         $args += $builder->_literalArgument($expression);
+
         return $builder->_build('TO_CHAR', $args, $types);
     }
 
@@ -67,7 +69,7 @@ class FunctionsBuilder
      * @param mixed $expression the function argument
      * @param mixed $format the function argument
      * @param array $types list of types to bind to the arguments
-     * @return FunctionExpression
+     * @return \Cake\Database\Expression\FunctionExpression
      */
     public static function toCharWithFormat($expression, $format = null, $types = [])
     {
@@ -78,6 +80,7 @@ class FunctionsBuilder
         }
         $args += $builder->_literalArgument($expression);
         $args[] = $format;
+
         return $builder->_build('TO_CHAR', $args, $types);
     }
 
@@ -87,7 +90,7 @@ class FunctionsBuilder
      * @param mixed $expression the function argument
      * @param mixed $format the function argument
      * @param array $types list of types to bind to the arguments
-     * @return FunctionExpression
+     * @return \Cake\Database\Expression\FunctionExpression
      */
     public static function toDate($expression, $format = null, $types = [])
     {
@@ -98,6 +101,7 @@ class FunctionsBuilder
         }
         $args += $builder->_literalArgument($expression);
         $args[] = $format;
+
         return $builder->_build('TO_DATE', $args, $types);
     }
 

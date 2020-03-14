@@ -21,7 +21,6 @@ use Cake\Utility\Hash;
  */
 trait ConfigTrait
 {
-
     /**
      * Whether the config property has already been configured with defaults
      *
@@ -83,6 +82,7 @@ trait ConfigTrait
 
         if (is_array($key) || func_num_args() >= 2) {
             $this->_configWrite($key, $value, $merge);
+
             return $this;
         }
 
@@ -103,6 +103,7 @@ trait ConfigTrait
     {
         if (is_string($key) && $value === null) {
             $this->_configDelete($key);
+
             return;
         }
 
@@ -113,6 +114,7 @@ trait ConfigTrait
             } else {
                 $this->_config = Hash::merge($this->_config, Hash::expand($update));
             }
+
             return;
         }
 
@@ -120,11 +122,13 @@ trait ConfigTrait
             foreach ($key as $k => $val) {
                 $this->_configWrite($k, $val);
             }
+
             return;
         }
 
         if (strpos($key, '.') === false) {
             $this->_config[$key] = $value;
+
             return;
         }
 
@@ -157,6 +161,7 @@ trait ConfigTrait
     {
         if (strpos($key, '.') === false) {
             unset($this->_config[$key]);
+
             return;
         }
 
@@ -195,7 +200,7 @@ trait ConfigTrait
         }
 
         if (strpos($key, '.') === false) {
-            return isset($this->_config[$key]) ? $this->_config[$key] : null;
+            return $this->_config[$key] ?? null;
         }
 
         $return = $this->_config;
@@ -246,6 +251,7 @@ trait ConfigTrait
         }
 
         $this->_configWrite($key, $value, 'shallow');
+
         return $this;
     }
 }

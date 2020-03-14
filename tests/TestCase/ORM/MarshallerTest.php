@@ -13,12 +13,19 @@ namespace CakeDC\OracleDriver\Test\TestCase\ORM;
 
 use Cake\Test\TestCase\ORM\MarshallerTest as CakeMarshallerTest;
 
-
 /**
  * Tests Marshaller class
  *
  */
 class MarshallerTest extends CakeMarshallerTest
 {
-
+    public $fixtures = [
+        'core.Articles',
+//        'core.ArticlesTags',
+        'plugin.CakeDC/OracleDriver.ArticlesTags',
+        'core.Comments',
+        'core.SpecialTags',
+        'core.Tags',
+        'core.Users',
+    ];
 }

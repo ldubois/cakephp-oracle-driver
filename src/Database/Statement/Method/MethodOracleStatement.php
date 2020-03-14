@@ -19,7 +19,6 @@ use Cake\Database\Statement\BufferResultsTrait;
  */
 class MethodOracleStatement extends MethodStatementDecorator
 {
-
     use BufferResultsTrait;
 
     public $queryString;
@@ -99,6 +98,7 @@ class MethodOracleStatement extends MethodStatementDecorator
                 }
             }
         }
+
         return $result;
     }
 

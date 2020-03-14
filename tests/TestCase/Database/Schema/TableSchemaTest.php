@@ -64,8 +64,8 @@ class TableSchemaTest extends TestCase
             ],
             'title' => [
                 'type' => 'string',
-                'length' => 255
-            ]
+                'length' => 255,
+            ],
         ];
         $table = new TableSchema('articles', $columns);
         $this->assertEquals(['id', 'title'], $table->columns());
@@ -82,7 +82,7 @@ class TableSchemaTest extends TestCase
         $result = $table->addColumn('title', [
             'type' => 'string',
             'length' => 25,
-            'null' => false
+            'null' => false,
         ]);
         $this->assertSame($table, $result);
         $this->assertEquals(['title'], $table->columns());
@@ -100,7 +100,7 @@ class TableSchemaTest extends TestCase
     public function testHasColumn()
     {
         $schema = new TableSchema('articles', [
-            'title' => 'string'
+            'title' => 'string',
         ]);
 
         $this->assertTrue($schema->hasColumn('title'));
@@ -118,7 +118,7 @@ class TableSchemaTest extends TestCase
         $result = $table->addColumn('title', [
             'type' => 'string',
             'length' => 25,
-            'null' => false
+            'null' => false,
         ])->removeColumn('title')
         ->removeColumn('unknown');
 
@@ -139,11 +139,11 @@ class TableSchemaTest extends TestCase
         $table->addColumn('title', [
             'type' => 'string',
             'length' => 25,
-            'null' => false
+            'null' => false,
         ])->addColumn('tagline', [
             'type' => 'string',
             'length' => 25,
-            'null' => true
+            'null' => true,
         ]);
         $this->assertFalse($table->isNullable('title'));
         $this->assertTrue($table->isNullable('tagline'));
@@ -161,7 +161,7 @@ class TableSchemaTest extends TestCase
         $table->addColumn('title', [
             'type' => 'string',
             'length' => 25,
-            'null' => false
+            'null' => false,
         ]);
         $this->assertEquals('string', $table->getColumnType('title'));
         $this->assertNull($table->getColumnType('not there'));
@@ -178,7 +178,7 @@ class TableSchemaTest extends TestCase
         $table->addColumn('title', [
             'type' => 'string',
             'length' => 25,
-            'null' => false
+            'null' => false,
         ]);
         $this->assertEquals('string', $table->getColumnType('title'));
         $table->setColumnType('title', 'json');
@@ -197,7 +197,7 @@ class TableSchemaTest extends TestCase
             'type' => 'json',
             'baseType' => 'text',
             'length' => 25,
-            'null' => false
+            'null' => false,
         ]);
         $this->assertEquals('json', $table->getColumnType('title'));
         $this->assertEquals('text', $table->baseColumnType('title'));
@@ -214,7 +214,7 @@ class TableSchemaTest extends TestCase
         $table = new TableSchema('articles');
         $table->addColumn('thing', [
             'type' => 'foo',
-            'null' => false
+            'null' => false,
         ]);
         $this->assertEquals('foo', $table->getColumnType('thing'));
         $this->assertEquals('integer', $table->baseColumnType('thing'));
@@ -229,7 +229,7 @@ class TableSchemaTest extends TestCase
     {
         $table = new TableSchema('articles');
         $table->addColumn('title', [
-            'type' => 'string'
+            'type' => 'string',
         ]);
         $result = $table->getColumn('title');
         $expected = [
@@ -245,7 +245,7 @@ class TableSchemaTest extends TestCase
         $this->assertEquals($expected, $result);
 
         $table->addColumn('author_id', [
-            'type' => 'integer'
+            'type' => 'integer',
         ]);
         $result = $table->getColumn('author_id');
         $expected = [
@@ -261,7 +261,7 @@ class TableSchemaTest extends TestCase
         $this->assertEquals($expected, $result);
 
         $table->addColumn('amount', [
-            'type' => 'decimal'
+            'type' => 'decimal',
         ]);
         $result = $table->getColumn('amount');
         $expected = [
@@ -286,10 +286,10 @@ class TableSchemaTest extends TestCase
         $table = new TableSchema('articles');
         $table->addColumn('id', [
             'type' => 'integer',
-            'default' => 0
+            'default' => 0,
         ])->addColumn('title', [
             'type' => 'string',
-            'default' => 'A title'
+            'default' => 'A title',
         ])->addColumn('name', [
             'type' => 'string',
             'null' => false,
@@ -303,7 +303,7 @@ class TableSchemaTest extends TestCase
         $expected = [
             'id' => 0,
             'title' => 'A title',
-            'body' => null
+            'body' => null,
         ];
         $this->assertEquals($expected, $result);
     }
@@ -317,11 +317,11 @@ class TableSchemaTest extends TestCase
     {
         $table = new TableSchema('articles');
         $table->addColumn('id', [
-            'type' => 'integer'
+            'type' => 'integer',
         ]);
         $result = $table->addConstraint('primary', [
             'type' => 'primary',
-            'columns' => ['id']
+            'columns' => ['id'],
         ]);
         $this->assertSame($result, $table);
         $this->assertEquals(['primary'], $table->constraints());
@@ -343,7 +343,7 @@ class TableSchemaTest extends TestCase
         ])->addColumn('id', [
             'type' => 'integer',
             'autoIncrement' => true,
-            'limit' => 11
+            'limit' => 11,
         ])->addColumn('user_id', [
             'type' => 'integer',
             'default' => null,
@@ -351,11 +351,11 @@ class TableSchemaTest extends TestCase
             'null' => false,
         ])->addConstraint('users_idx', [
             'type' => 'unique',
-            'columns' => ['project_id', 'user_id']
+            'columns' => ['project_id', 'user_id'],
         ])->addConstraint('users_idx', [
             'type' => 'foreign',
             'references' => ['users', 'project_id', 'id'],
-            'columns' => ['project_id', 'user_id']
+            'columns' => ['project_id', 'user_id'],
         ]);
         $this->assertEquals(['users_idx'], $table->constraints());
     }
@@ -404,11 +404,11 @@ class TableSchemaTest extends TestCase
     {
         $table = new TableSchema('articles');
         $table->addColumn('title', [
-            'type' => 'string'
+            'type' => 'string',
         ]);
         $result = $table->addIndex('faster', [
             'type' => 'index',
-            'columns' => ['title']
+            'columns' => ['title'],
         ]);
         $this->assertSame($result, $table);
         $this->assertEquals(['faster'], $table->indexes());
@@ -463,10 +463,10 @@ class TableSchemaTest extends TestCase
 
         $table->addIndex('author_idx', [
                 'columns' => ['author_id'],
-                'type' => 'index'
+                'type' => 'index',
             ])->addIndex('texty', [
                 'type' => 'fulltext',
-                'columns' => ['title']
+                'columns' => ['title'],
             ]);
 
         $this->assertEquals(
@@ -488,10 +488,10 @@ class TableSchemaTest extends TestCase
             ->addColumn('author_id', 'integer')
             ->addConstraint('author_idx', [
                 'columns' => ['author_id'],
-                'type' => 'unique'
+                'type' => 'unique',
             ])->addConstraint('primary', [
                 'type' => 'primary',
-                'columns' => ['id']
+                'columns' => ['id'],
             ]);
         $this->assertEquals(['id'], $table->primaryKey());
 
@@ -511,7 +511,7 @@ class TableSchemaTest extends TestCase
     {
         $table = new TableSchema('articles');
         $options = [
-            'engine' => 'InnoDB'
+            'engine' => 'InnoDB',
         ];
         $return = $table->setOptions($options);
         $this->assertInstanceOf('Cake\Database\Schema\TableSchema', $return);
@@ -528,7 +528,7 @@ class TableSchemaTest extends TestCase
     {
         $table = new TableSchema('articles');
         $options = [
-            'engine' => 'InnoDB'
+            'engine' => 'InnoDB',
         ];
         $this->deprecated(function () use ($table, $options) {
             $return = $table->options($options);
@@ -561,23 +561,9 @@ class TableSchemaTest extends TestCase
      *
      * @return void
      */
-    protected function testConstraintForeignKey()
+    public function testConstraintForeignKey()
     {
-        $table = $this->getTableLocator()->get('ArticlesTags');
-        $compositeConstraint = $table->getSchema()->getConstraint('tag_id_fk');
-        $expected = [
-            'type' => 'foreign',
-            'columns' => ['tag_id'],
-            'references' => ['tags', 'id'],
-            'update' => 'cascade',
-            'delete' => 'cascade',
-            'length' => []
-        ];
-
-        $this->assertEquals($expected, $compositeConstraint);
-
-        $expectedSubstring = 'CONSTRAINT <tag_id_fk> FOREIGN KEY \(<tag_id>\) REFERENCES <tags> \(<id>\)';
-        $this->assertQuotedQuery($expectedSubstring, $table->getSchema()->createSql(ConnectionManager::get('test'))[0]);
+        $this->markTestSkipped('');
     }
 
     /**
@@ -585,30 +571,9 @@ class TableSchemaTest extends TestCase
      *
      * @return void
      */
-    protected function testConstraintForeignKeyTwoColumns()
+    public function testConstraintForeignKeyTwoColumns()
     {
-        $table = $this->getTableLocator()->get('Orders');
-        $compositeConstraint = $table->getSchema()->getConstraint('product_category_fk');
-        $expected = [
-            'type' => 'foreign',
-            'columns' => [
-                'product_category',
-                'product_id'
-            ],
-            'references' => [
-                'products',
-                ['category', 'id']
-            ],
-            'update' => 'cascade',
-            'delete' => 'cascade',
-            'length' => []
-        ];
-        $this->assertEquals($expected, $compositeConstraint);
-
-        $expectedSubstring = 'CONSTRAINT <product_category_fk> FOREIGN KEY \(<product_category>, <product_id>\)' .
-            ' REFERENCES <products> \(<category>, <id>\)';
-
-        $this->assertQuotedQuery($expectedSubstring, $table->getSchema()->createSql(ConnectionManager::get('test'))[0]);
+        $this->markTestSkipped('');
     }
 
     /**

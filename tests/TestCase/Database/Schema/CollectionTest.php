@@ -25,7 +25,7 @@ class CollectionTest extends TestCase
 {
 
     public $codeFixtures = [
-        'plugin.CakeDC/OracleDriver.Calc'
+        'plugin.CakeDC/OracleDriver.Calc',
     ];
 
     /**

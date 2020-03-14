@@ -11,12 +11,10 @@
 
 namespace CakeDC\OracleDriver\Database\Schema;
 
-use CakeDC\OracleDriver\Database\Exception\UnallowedDataTypeException;
-use Cake\Database\Exception;
 use Cake\Database\Schema\BaseSchema;
 use Cake\Database\Schema\TableSchema;
-use Cake\Database\Type;
 use Cake\Utility\Hash;
+use CakeDC\OracleDriver\Database\Exception\UnallowedDataTypeException;
 
 /**
  * Schema management/reflection features for Oracle.
@@ -53,9 +51,9 @@ class OracleSchema extends BaseSchema
             $items = explode('.', $objectName);
             $itemsCount = count($items);
             if ($itemsCount === 3) {
-                list($schema, $package, $object) = explode('.', $objectName);
+                [$schema, $package, $object] = explode('.', $objectName);
             } elseif ($itemsCount === 2) {
-                list($package, $object) = explode('.', $objectName);
+                [$package, $object] = explode('.', $objectName);
             } else {
                 $schema = $package = null;
                 $object = $objectName;
@@ -76,7 +74,7 @@ class OracleSchema extends BaseSchema
                     $params = [
                         ':objectParam' => $object,
                         ':packageParam' => $package,
-                        ':ownerParam' => $schema
+                        ':ownerParam' => $schema,
                     ];
                     $objectCondition = " AND $procedureName = :objectParam ";
                 } elseif (!empty($package)) {
@@ -92,9 +90,10 @@ class OracleSchema extends BaseSchema
         $procedureName = $this->_transformFieldCase("PROCEDURE_NAME");
         $sql = "SELECT $objectNameField as object, $procedureName as name, OBJECT_TYPE FROM $table
 WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY object, name";
+
         return [
             $sql,
-            $params
+            $params,
         ];
     }
 
@@ -114,9 +113,10 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
         }
         $tableName = $this->_transformFieldCase("TABLE_NAME");
         $sql = "SELECT $tableName as name FROM $table " . ($useOwner ? 'WHERE owner = :ownerParam' : '') . " ORDER BY name";
+
         return [
             $sql,
-            $params
+            $params,
         ];
     }
 
@@ -125,7 +125,7 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
      */
     public function describeColumnSql($tableName, $config)
     {
-        list($schema, $table) = $this->tableSplit($tableName, $config);
+        [$schema, $table] = $this->tableSplit($tableName, $config);
         if (empty($schema)) {
             $columnsTable = 'user_tab_columns';
             $commentsTable = 'user_col_comments';
@@ -137,7 +137,7 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
             $useOwner = true;
             $params = [
                 ':tableParam' => $table,
-                ':ownerParam' => $schema
+                ':ownerParam' => $schema,
             ];
         }
         $sql = "SELECT
@@ -163,7 +163,7 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
 
         return [
             $sql,
-            $params
+            $params,
         ];
     }
 
@@ -177,7 +177,7 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
             case 'DATE':
                 $field = [
                     'type' => TableSchema::TYPE_DATETIME,
-                    'length' => null
+                    'length' => null,
                 ];
                 break;
             case 'TIMESTAMP':
@@ -185,7 +185,7 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
             case 'TIMESTAMP(9)':
                 $field = [
                     'type' => TableSchema::TYPE_TIMESTAMP,
-                    'length' => null
+                    'length' => null,
                 ];
                 break;
             case 'NUMBER':
@@ -195,18 +195,18 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
                 if ($row['data_precision'] == 1) {
                     $field = [
                         'type' => TableSchema::TYPE_BOOLEAN,
-                        'length' => null
+                        'length' => null,
                     ];
                 } elseif ($row['data_scale'] > 0) {
                     $field = [
                         'type' => TableSchema::TYPE_DECIMAL,
                         'length' => $row['data_precision'],
-                        'precision' => $row['data_scale']
+                        'precision' => $row['data_scale'],
                     ];
                 } else {
                     $field = [
                         'type' => TableSchema::TYPE_INTEGER,
-                        'length' => $row['data_precision']
+                        'length' => $row['data_precision'],
                     ];
                 }
                 break;
@@ -215,7 +215,7 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
             case 'BINARY_DOUBLE':
                 $field = [
                     'type' => TableSchema::TYPE_FLOAT,
-                    'length' => $row['data_precision']
+                    'length' => $row['data_precision'],
                 ];
                 break;
             case 'NCHAR':
@@ -229,12 +229,12 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
                 if ($length == 36) {
                     $field = [
                         'type' => TableSchema::TYPE_UUID,
-                        'length' => null
+                        'length' => null,
                     ];
                 } else {
                     $field = [
                         'type' => TableSchema::TYPE_STRING,
-                        'length' => $length
+                        'length' => $length,
                     ];
                 }
                 break;
@@ -242,7 +242,7 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
             case 'CLOB':
                 $field = [
                     'type' => TableSchema::TYPE_TEXT,
-                    'length' => $row['char_length']
+                    'length' => $row['char_length'],
                 ];
                 break;
             case 'RAW':
@@ -250,7 +250,7 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
             case 'BLOB':
                 $field = [
                     'type' => TableSchema::TYPE_BINARY,
-                    'length' => $row['char_length']
+                    'length' => $row['char_length'],
                 ];
                 break;
             default:
@@ -258,7 +258,7 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
         $field += [
             'null' => $row['null'] === 'Y' ? true : false,
             'default' => $row['default'],
-            'comment' => $row['comment']
+            'comment' => $row['comment'],
         ];
         $table->addColumn($this->_transformValueCase($row['name']), $field);
     }
@@ -275,9 +275,9 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
         $items = explode('.', $objectName);
         $itemsCount = count($items);
         if ($itemsCount === 3) {
-            list($schema, $package, $object) = explode('.', $objectName);
+            [$schema, $package, $object] = explode('.', $objectName);
         } elseif ($itemsCount === 2) {
-            list($package, $object) = explode('.', $objectName);
+            [$package, $object] = explode('.', $objectName);
         } else {
             $schema = $package = null;
             $object = $objectName;
@@ -297,7 +297,7 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
                 $params = [
                     ':objectParam' => $object,
                     ':packageParam' => $package,
-                    ':ownerParam' => $schema
+                    ':ownerParam' => $schema,
                 ];
             } elseif (!empty($package)) {
                 $ownerCondition = 'AND (args.OWNER = :packageParam OR args.PACKAGE_NAME = :packageParam) ';
@@ -325,7 +325,7 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
 
         return [
             $sql,
-            $params
+            $params,
         ];
     }
 
@@ -343,7 +343,7 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
             case 'DATE':
                 $field = [
                     'type' => TableSchema::TYPE_DATETIME,
-                    'length' => null
+                    'length' => null,
                 ];
                 break;
             case 'TIMESTAMP':
@@ -351,7 +351,7 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
             case 'TIMESTAMP(9)':
                 $field = [
                     'type' => TableSchema::TYPE_TIMESTAMP,
-                    'length' => null
+                    'length' => null,
                 ];
                 break;
             case 'NUMBER':
@@ -361,18 +361,18 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
                 if ($row['data_precision'] == 1) {
                     $field = [
                         'type' => TableSchema::TYPE_BOOLEAN,
-                        'length' => null
+                        'length' => null,
                     ];
                 } elseif ($row['data_scale'] > 0) {
                     $field = [
                         'type' => TableSchema::TYPE_DECIMAL,
                         'length' => $row['data_precision'],
-                        'precision' => $row['data_scale']
+                        'precision' => $row['data_scale'],
                     ];
                 } else {
                     $field = [
                         'type' => TableSchema::TYPE_INTEGER,
-                        'length' => $row['data_precision']
+                        'length' => $row['data_precision'],
                     ];
                 }
                 break;
@@ -381,7 +381,7 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
             case 'BINARY_DOUBLE':
                 $field = [
                     'type' => TableSchema::TYPE_FLOAT,
-                    'length' => $row['data_precision']
+                    'length' => $row['data_precision'],
                 ];
                 break;
             case 'NCHAR':
@@ -395,12 +395,12 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
                 if ($length == 36) {
                     $field = [
                         'type' => TableSchema::TYPE_UUID,
-                        'length' => null
+                        'length' => null,
                     ];
                 } else {
                     $field = [
                         'type' => TableSchema::TYPE_STRING,
-                        'length' => $length
+                        'length' => $length,
                     ];
                 }
                 break;
@@ -408,7 +408,7 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
             case 'CLOB':
                 $field = [
                     'type' => TableSchema::TYPE_TEXT,
-                    'length' => $row['data_length']
+                    'length' => $row['data_length'],
                 ];
                 break;
             case 'RAW':
@@ -416,7 +416,7 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
             case 'BLOB':
                 $field = [
                     'type' => TableSchema::TYPE_BINARY,
-                    'length' => $row['data_length']
+                    'length' => $row['data_length'],
                 ];
                 break;
             case 'REF CURSOR':
@@ -446,7 +446,7 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
     public function describeIndexSql($tableName, $config)
     {
         $this->_constraints[$tableName] = [];
-        list($schema, $table) = $this->tableSplit($tableName, $config);
+        [$schema, $table] = $this->tableSplit($tableName, $config);
         if (empty($schema)) {
             $constraintsTable = 'user_constraints';
             $indexesTable = 'user_indexes';
@@ -492,6 +492,7 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
         if ($useOwner) {
             $params[':ownerParam'] = $schema;
         }
+
         return [$sql, $params];
     }
 
@@ -551,6 +552,7 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
         foreach ($columns as &$column) {
             $column = trim($column, '"');
         }
+
         return $columns;
     }
 
@@ -559,7 +561,7 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
      */
     public function describeForeignKeySql($tableName, $config)
     {
-        list($schema, $table) = $this->tableSplit($tableName, $config);
+        [$schema, $table] = $this->tableSplit($tableName, $config);
 
         if (empty($schema)) {
             $sql = "SELECT
@@ -575,9 +577,10 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
                     WHERE c.constraint_type = 'R'
                     AND upper(cc.table_name) = :tableParam
                     ";
+
             return [
                 $sql,
-                [':tableParam' => $table]
+                [':tableParam' => $table],
             ];
         }
         $sql = "
@@ -599,8 +602,8 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
             $sql,
             [
                 ':tableParam' => $table,
-                ':ownerParam' => $schema
-            ]
+                ':ownerParam' => $schema,
+            ],
         ];
     }
 
@@ -615,7 +618,7 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
             'columns' => strtoupper($row['column_name']),
             'references' => [
                 $row['referenced_owner'] . '.' . $row['referenced_table_name'],
-                strtoupper($row['referenced_column_name'])
+                strtoupper($row['referenced_column_name']),
             ],
             'update' => TableSchema::ACTION_SET_NULL,
             'delete' => $this->_convertOnClause($row['delete_rule']),
@@ -637,6 +640,7 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
         if ($clause === 'CASCADE') {
             return TableSchema::ACTION_CASCADE;
         }
+
         return TableSchema::ACTION_SET_NULL;
     }
 
@@ -650,6 +654,8 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
         $typeMap = [
             TableSchema::TYPE_INTEGER => ' NUMBER',
             TableSchema::TYPE_BIGINTEGER => ' NUMBER',
+            TableSchema::TYPE_SMALLINTEGER => ' NUMBER',
+            TableSchema::TYPE_TINYINTEGER => ' NUMBER',
             TableSchema::TYPE_BOOLEAN => ' NUMBER(1)',
             TableSchema::TYPE_BINARY => ' BLOB',
             TableSchema::TYPE_FLOAT => ' FLOAT',
@@ -705,6 +711,7 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
         if (isset($data['null']) && $data['null'] === false) {
             $out .= ' NOT NULL';
         }
+
         return $out;
     }
 
@@ -755,10 +762,15 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
         $data = $table->getIndex($name);
         $columns = array_map([
             $this->_driver,
-            'quoteIfAutoQuote'
+            'quoteIfAutoQuote',
         ], $data['columns']);
-        return sprintf('CREATE INDEX %s ON %s (%s)', $this->_driver->quoteIfAutoQuote($name),
-            $this->_driver->quoteIfAutoQuote($table->name()), implode(', ', $columns));
+
+        return sprintf(
+            'CREATE INDEX %s ON %s (%s)',
+            $this->_driver->quoteIfAutoQuote($name),
+            $this->_driver->quoteIfAutoQuote($table->name()),
+            implode(', ', $columns)
+        );
     }
 
     /**
@@ -774,6 +786,7 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
         if ($data['type'] === TableSchema::CONSTRAINT_UNIQUE) {
             $out .= ' UNIQUE';
         }
+
         return $this->_keySql($out, $data);
     }
 
@@ -788,14 +801,19 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
     {
         $columns = array_map([
             $this->_driver,
-            'quoteIfAutoQuote'
+            'quoteIfAutoQuote',
         ], $data['columns']);
         if ($data['type'] === TableSchema::CONSTRAINT_FOREIGN) {
-            return $prefix . sprintf(' FOREIGN KEY (%s) REFERENCES %s (%s) ON DELETE %s DEFERRABLE INITIALLY IMMEDIATE',
-                implode(', ', $columns), $this->_driver->quoteIfAutoQuote($data['references'][0]),
-                $this->_convertConstraintColumns($data['references'][1]), $this->_foreignOnClause($data['update']),
-                $this->_foreignOnClause($data['delete']));
+            return $prefix . sprintf(
+                ' FOREIGN KEY (%s) REFERENCES %s (%s) ON DELETE %s DEFERRABLE INITIALLY IMMEDIATE',
+                implode(', ', $columns),
+                $this->_driver->quoteIfAutoQuote($data['references'][0]),
+                $this->_convertConstraintColumns($data['references'][1]),
+                $this->_foreignOnClause($data['update']),
+                $this->_foreignOnClause($data['delete'])
+            );
         }
+
         return $prefix . ' (' . implode(', ', $columns) . ')';
     }
 
@@ -816,8 +834,12 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
         foreach ($table->columns() as $column) {
             $columnData = $table->getColumn($column);
             if (isset($columnData['comment'])) {
-                $out[] = sprintf('COMMENT ON COLUMN %s.%s IS %s', $tableName, $this->_driver->quoteIfAutoQuote($column),
-                    $this->_driver->schemaValue($columnData['comment']));
+                $out[] = sprintf(
+                    'COMMENT ON COLUMN %s.%s IS %s',
+                    $tableName,
+                    $this->_driver->quoteIfAutoQuote($column),
+                    $this->_driver->schemaValue($columnData['comment'])
+                );
             }
         }
 
@@ -837,6 +859,7 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
     {
         $name = $this->_driver->quoteIfAutoQuote($table->name());
         $sequenceName = $this->_getSequenceName($table->name());
+
         return [
             sprintf('TRUNCATE TABLE %s', $name),
             $this->dropSequenceIfExists($sequenceName),
@@ -853,6 +876,7 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
     public function dropTableSql(TableSchema $table)
     {
         $sql = sprintf('DROP TABLE %s CASCADE CONSTRAINTS', $this->_driver->quoteIfAutoQuote($table->name()));
+
         return [$sql];
     }
 
@@ -869,20 +893,21 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
         $schema = null;
         $table = $name;
         if (strpos($name, '.') !== false) {
-            list($schema, $table) = explode('.', $table);
+            [$schema, $table] = explode('.', $table);
         } elseif (!empty($config['schema'])) {
             $schema = strtoupper($config['schema']);
         }
+
         return [
             $schema,
-            $table
+            $table,
         ];
     }
 
     /**
      * Returns table primary key.
      *
-     * @param TableSchema $table Table schema object.
+     * @param \Cake\Database\Schema\TableSchema $table Table schema object.
      * @return array|null
      */
     protected function _getPrimaryKey(TableSchema $table)
@@ -894,13 +919,14 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
                 return $constraint;
             }
         }
+
         return null;
     }
 
     /**
      * Checks if table primary key has single column.
      *
-     * @param TableSchema $table Table schema object.
+     * @param \Cake\Database\Schema\TableSchema $table Table schema object.
      * @param array $constraints Constraints list.
      * @return bool
      */
@@ -915,7 +941,9 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
             return false;
         }
         $column = $table->getColumn($columns[0]);
-        return ($column['type'] === 'integer' && $constraint['type'] === TableSchema::CONSTRAINT_PRIMARY);
+
+        return $this->__isInteger($column['type']) && $constraint['type'] ===
+            TableSchema::CONSTRAINT_PRIMARY;
     }
 
     /**
@@ -963,6 +991,7 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
             end if;
         end;
 SQL;
+
         return $wrapper;
     }
 
@@ -989,6 +1018,7 @@ SQL;
             end if;
         end;
 SQL;
+
         return $wrapper;
     }
 
@@ -1047,6 +1077,7 @@ END;';
     protected function _getSequenceName($name)
     {
         $name = 'seq_' . $name;
+
         return strtoupper($name);
     }
 
@@ -1062,6 +1093,7 @@ END;';
         if ($case == 'lower') {
             return strtolower($value);
         }
+
         return $value;
     }
 
@@ -1077,6 +1109,26 @@ END;';
         if ($case == 'lower') {
             return "lower($field)";
         }
+
         return $field;
+    }
+
+    /**
+     * Check for integer type.
+     *
+     * @param string $type Field type.
+     *
+     * @return bool
+     */
+    private function __isInteger(string $type)
+    {
+        $integerTypes = [
+            TableSchema::TYPE_INTEGER => true,
+            TableSchema::TYPE_SMALLINTEGER => true,
+            TableSchema::TYPE_TINYINTEGER => true,
+            TableSchema::TYPE_BIGINTEGER => true,
+        ];
+
+        return array_key_exists($type, $integerTypes);
     }
 }

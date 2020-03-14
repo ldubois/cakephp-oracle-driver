@@ -14,12 +14,10 @@ namespace CakeDC\OracleDriver\Database\Driver;
 use CakeDC\OracleDriver\Database\OCI8\OCI8Connection;
 use CakeDC\OracleDriver\Database\Statement\Method\MethodOracleStatement;
 use CakeDC\OracleDriver\Database\Statement\Method\MethodPDOStatement;
-use Cake\Database\Driver;
 use PDO;
 
 class OracleOCI extends OracleBase
 {
-
     /**
      * @inheritDoc
      */
@@ -27,8 +25,8 @@ class OracleOCI extends OracleBase
     {
         $connection = new OCI8Connection($dsn, $config['username'], $config['password'], $config['flags']);
         $this->connection($connection);
-        return true;
 
+        return true;
     }
 
     /**
@@ -54,6 +52,7 @@ class OracleOCI extends OracleBase
             }
         }
         $this->connected = !empty($connected);
+
         return $this->connected;
     }
 
@@ -66,6 +65,7 @@ class OracleOCI extends OracleBase
         $this->connect();
         $statement = $this->_connection->query("SELECT {$sequenceName}.CURRVAL FROM DUAL");
         $result = $statement->fetch(PDO::FETCH_NUM);
+
         return $result[0];
     }
 
@@ -94,8 +94,8 @@ class OracleOCI extends OracleBase
      *
      * @return bool
      */
-    public function isOci() {
+    public function isOci()
+    {
         return true;
     }
-
 }

@@ -14,7 +14,6 @@ namespace CakeDC\OracleDriver\Test\TestCase\ORM;
 use Cake\ORM\TableRegistry;
 use Cake\Test\TestCase\ORM\AssociationProxyTest as CakeAssociationProxyTest;
 
-
 /**
  * Tests AssociationProxy class
  *
@@ -39,5 +38,4 @@ class AssociationProxyTest extends CakeAssociationProxyTest
             ->count();
         $this->assertEquals(3, $changed);
     }
-
 }

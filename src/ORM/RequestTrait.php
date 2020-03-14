@@ -120,8 +120,10 @@ trait RequestTrait
 
         if ($this->_methodExists($method)) {
             $result = $this->{$method}($value);
+
             return $result;
         }
+
         return $value;
     }
 
@@ -136,6 +138,7 @@ trait RequestTrait
         if (empty(static::$_accessors[$this->_className])) {
             static::$_accessors[$this->_className] = array_flip(get_class_methods($this));
         }
+
         return isset(static::$_accessors[$this->_className][$method]);
     }
 
@@ -247,6 +250,7 @@ trait RequestTrait
                 return false;
             }
         }
+
         return true;
     }
 
@@ -317,6 +321,7 @@ trait RequestTrait
                 $result[$property] = $value;
             }
         }
+
         return $result;
     }
 
@@ -332,6 +337,7 @@ trait RequestTrait
     public function visibleProperties()
     {
         $properties = array_keys($this->_properties);
+
         return $properties;
     }
 
@@ -445,6 +451,7 @@ trait RequestTrait
         $statement = $this->_repository->connection()->prepareMethod($property);
         $statement->queryString = __('fetch {0} cursor', $name);
         $statement->execute();
+
         return new ResultSet($this->_repository, $statement, $options);
     }
 
@@ -466,6 +473,7 @@ trait RequestTrait
         }
 
         $new = (bool)$new;
+
         return $this->_new = $new;
     }
 
@@ -500,6 +508,7 @@ trait RequestTrait
         if ($this->isNew() || !$this->_repository->schema()->isFunction()) {
             return null;
         }
+
         return $this->_properties[':result'];
     }
 

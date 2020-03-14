@@ -17,7 +17,6 @@ use Cake\Test\TestCase\Database\QueryTest as CakeQueryTest;
 use CakeDC\OracleDriver\Database\Driver\OracleBase;
 use CakeDC\OracleDriver\Database\FunctionsBuilder;
 
-
 /**
  * Tests Query class
  *
@@ -30,6 +29,7 @@ class QueryTest extends CakeQueryTest
      */
     public function testSelectAliasedTables()
     {
+        $this->loadFixtures('Authors', 'Articles');
         $query = new Query($this->connection);
         $result = $query->select(['text' => FunctionsBuilder::toChar(new IdentifierExpression('a.body')), 'a.author_id'])
             ->from(['a' => 'articles'])->execute();
@@ -55,6 +55,7 @@ class QueryTest extends CakeQueryTest
      */
     public function testSelectOrderBy()
     {
+        $this->loadFixtures('Authors', 'Articles');
         $query = new Query($this->connection);
         $result = $query
             ->select(['id'])
@@ -112,6 +113,7 @@ class QueryTest extends CakeQueryTest
      */
     public function testSelectGroup()
     {
+        $this->loadFixtures('Authors', 'Articles');
         $query = new Query($this->connection);
         $result = $query->select(['total' => 'count(author_id)', 'author_id'])
             ->from('articles')
@@ -120,11 +122,10 @@ class QueryTest extends CakeQueryTest
                 'alias' => 'a',
                 'conditions' => $query
                     ->newExpr()
-                    ->eq(new IdentifierExpression('author_id'), new IdentifierExpression('a.id'))
+                    ->eq(new IdentifierExpression('author_id'), new IdentifierExpression('a.id')),
             ])
             ->group('author_id')
             ->execute();
-
 
         $expected = [['total' => 2, 'author_id' => 1], ['total' => '1', 'author_id' => 3]];
         $this->assertEquals($expected, $result->fetchAll('assoc'));
@@ -152,6 +153,7 @@ class QueryTest extends CakeQueryTest
      */
     public function testSelectWhereUsingExpressionInField()
     {
+        $this->loadFixtures('Authors', 'Articles', 'Comments');
         $query = new Query($this->connection);
         $subquery = clone $query;
         $result = $query
@@ -164,9 +166,10 @@ class QueryTest extends CakeQueryTest
                         ->select([
                             $subquery
                                 ->func()
-                                ->min(new IdentifierExpression('id'))
+                                ->min(new IdentifierExpression('id')),
                         ])
                         ->from('comments'));
+
                 return $exp->eq($field, 100, 'integer');
             })
             ->execute();
@@ -181,6 +184,7 @@ class QueryTest extends CakeQueryTest
      */
     public function testSQLFunctions()
     {
+        $this->loadFixtures('Comments');
         $query = new Query($this->connection);
         $result = $query->select(
             function ($q) {
@@ -194,7 +198,7 @@ class QueryTest extends CakeQueryTest
 
         $query = new Query($this->connection);
         $result = $query->select([
-                'c' => $query->func()->concat([$query->func()->to_char([new IdentifierExpression('comment')]), ' is appended'])
+                'c' => $query->func()->concat([$query->func()->to_char([new IdentifierExpression('comment')]), ' is appended']),
             ])
             ->from('comments')
             ->order(['c' => 'ASC'])
@@ -259,11 +263,11 @@ class QueryTest extends CakeQueryTest
                 'wd' => $query->func()->weekday($created),
                 'dow' => $query->func()->dayOfWeek($created),
                 'addDays' => $query->func()->dateAdd($created, 2, 'day'),
-                'substractYears' => $query->func()->dateAdd($created, -2, 'year')
+                'substractYears' => $query->func()->dateAdd($created, -2, 'year'),
             ])
             ->from('comments')
             ->where([
-                'created' => FunctionsBuilder::toDate(['2007-03-18 10:45:23'])
+                'created' => FunctionsBuilder::toDate(['2007-03-18 10:45:23']),
             ])
             ->execute()
             ->fetchAll('assoc');
@@ -281,7 +285,7 @@ class QueryTest extends CakeQueryTest
             'wd' => '1', // Sunday
             'dow' => '1',
             'addDays' => '2007-03-20',
-            'substractYears' => '2005-03-18'
+            'substractYears' => '2005-03-18',
         ];
         $this->assertEquals($expected, $result[0]);
     }
@@ -294,6 +298,7 @@ class QueryTest extends CakeQueryTest
      */
     public function testSelectOrderByString()
     {
+        $this->loadFixtures('Articles');
         $query = new Query($this->connection);
         $query->select(['id'])
             ->from('articles')
@@ -311,6 +316,7 @@ class QueryTest extends CakeQueryTest
      */
     public function testSelectHaving()
     {
+        $this->loadFixtures('Authors', 'Articles');
         $query = new Query($this->connection);
         $result = $query
             ->select(['total' => 'count(author_id)', 'author_id'])
@@ -327,7 +333,6 @@ class QueryTest extends CakeQueryTest
         $expected = [['total' => 2, 'author_id' => 1]];
         $this->assertEquals($expected, $result->fetchAll('assoc'));
     }
-
 
     /**
      * Tests that Query::orHaving() can be used to concatenate conditions with OR
@@ -392,6 +397,7 @@ class QueryTest extends CakeQueryTest
      */
     public function testSelectAndHaving()
     {
+        $this->loadFixtures('Authors', 'Articles');
         $query = new Query($this->connection);
         $result = $query
             ->select(['total' => 'count(author_id)', 'author_id'])
@@ -423,6 +429,7 @@ class QueryTest extends CakeQueryTest
      */
     public function testBind()
     {
+        $this->loadFixtures('Authors', 'Articles', 'Comments');
         $query = new Query($this->connection);
         $driver = $query->getConnection()->getDriver();
         $createdField = $driver->quoteIfAutoQuote('created');
@@ -452,6 +459,7 @@ class QueryTest extends CakeQueryTest
      */
     public function testInsertExpressionValues()
     {
+        $this->loadFixtures('Authors', 'Articles', 'Comments');
         $query = new Query($this->connection);
         $query->insert(['title', 'author_id'])
             ->into('articles')
@@ -518,7 +526,7 @@ class QueryTest extends CakeQueryTest
      */
     public function testSelectDistinctON()
     {
-        // DISABLED as DISTINCT ON NOT SUPPORTED IN ORACLE
+        $this->markTestSkipped('Distinct on not supported in Oracle');
     }
 
     /**
@@ -528,6 +536,7 @@ class QueryTest extends CakeQueryTest
      */
     public function testUnion()
     {
+        $this->loadFixtures('Authors', 'Articles', 'Comments');
         $union = (new Query($this->connection))->select(['id', 'title'])->from(['a' => 'articles']);
         $query = new Query($this->connection);
         $result = $query->select(['id', FunctionsBuilder::toChar(new IdentifierExpression('comment'))])
@@ -559,7 +568,6 @@ class QueryTest extends CakeQueryTest
         $this->assertEquals($rows, $rows3);
     }
 
-
     /**
      * Tests that it is possible to run unions with order statements
      *
@@ -581,6 +589,7 @@ class QueryTest extends CakeQueryTest
      */
     public function testUnionAll()
     {
+        $this->loadFixtures('Authors', 'Articles', 'Comments');
         $union = (new Query($this->connection))->select(['id', 'title'])->from(['a' => 'articles']);
         $query = new Query($this->connection);
         $result = $query->select(['id', FunctionsBuilder::toChar(new IdentifierExpression('comment'))])
@@ -602,7 +611,6 @@ class QueryTest extends CakeQueryTest
         $this->assertCount(1 + self::COMMENT_COUNT + self::ARTICLE_COUNT, $rows2);
         $this->assertNotEquals($rows, $rows2);
     }
-
 
     /**
      * Tests that joins can be aliased using array keys
@@ -665,7 +673,7 @@ class QueryTest extends CakeQueryTest
         $result = $query
             ->select([
                 'id',
-                'ids_added' => $query->newExpr()->add($addExpression)
+                'ids_added' => $query->newExpr()->add($addExpression),
             ])
             ->from('comments')
             ->order(['ids_added' => 'asc'])
@@ -676,7 +684,7 @@ class QueryTest extends CakeQueryTest
         $this->assertEquals(
             [
                 ['id' => '6', 'ids_added' => '4'],
-                ['id' => '2', 'ids_added' => '5']
+                ['id' => '2', 'ids_added' => '5'],
             ],
             $result->fetchAll('assoc')
         );
@@ -737,5 +745,4 @@ class QueryTest extends CakeQueryTest
         $this->assertCount(13, $result);
         $result->closeCursor();
     }
-
 }

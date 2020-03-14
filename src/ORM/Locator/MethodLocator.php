@@ -86,6 +86,7 @@ class MethodLocator implements LocatorInterface
                 $alias
             ));
         }
+
         return $this->_config[$alias] = $options;
     }
 
@@ -131,6 +132,7 @@ class MethodLocator implements LocatorInterface
                     $alias
                 ));
             }
+
             return $this->_instances[$alias];
         }
 
@@ -188,6 +190,7 @@ class MethodLocator implements LocatorInterface
         if (empty($options['className'])) {
             $options['className'] = Inflector::camelize($alias);
         }
+
         return App::className($options['className'], 'Model/Method', 'Method');
     }
 

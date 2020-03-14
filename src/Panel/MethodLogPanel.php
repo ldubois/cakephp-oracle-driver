@@ -24,7 +24,6 @@ use DebugKit\DebugPanel;
 class MethodLogPanel extends DebugPanel
 {
 
-
     public $plugin = 'OracleDriver';
 
     /**
@@ -99,6 +98,7 @@ class MethodLogPanel extends DebugPanel
         if (!$count) {
             return '0';
         }
+
         return "$count / $time ms";
     }
 }

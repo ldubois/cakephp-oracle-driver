@@ -20,7 +20,6 @@ namespace CakeDC\OracleDriver\Database\Log;
  */
 class DebugMethodLog extends MethodLogger
 {
-
     /**
      * Logs from the current request.
      *
@@ -128,7 +127,7 @@ class DebugMethodLog extends MethodLogger
         $this->_queries[] = [
             'method' => $method->method,
             'took' => $method->took,
-            'rows' => $method->numRows
+            'rows' => $method->numRows,
         ];
     }
 }

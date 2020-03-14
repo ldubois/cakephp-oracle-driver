@@ -13,7 +13,6 @@ namespace CakeDC\OracleDriver\Test\TestCase\ORM;
 
 use Cake\Test\TestCase\ORM\ResultSetTest as CakeResultSetTest;
 
-
 /**
  * Tests ResultSet class
  *

@@ -20,7 +20,6 @@ use Cake\Datasource\ConnectionInterface;
  */
 class CachedMethodsCollection extends MethodsCollection
 {
-
     /**
      * The name of the cache config key to use for caching method metadata,
      * of false if disabled.
@@ -94,6 +93,7 @@ class CachedMethodsCollection extends MethodsCollection
         if ($enable === true) {
             $enable = '_cake_method_';
         }
+
         return $this->_cache = $enable;
     }
 }

@@ -20,7 +20,6 @@ use Cake\Database\Statement\StatementDecorator;
  */
 class OracleStatement extends StatementDecorator
 {
-
     use BufferResultsTrait;
 
     public $queryString;
@@ -103,6 +102,7 @@ class OracleStatement extends StatementDecorator
                 }
             }
         }
+
         return $result;
     }
 
@@ -113,5 +113,4 @@ class OracleStatement extends StatementDecorator
     {
         return $this->_statement->fetchAll($type);
     }
-
 }

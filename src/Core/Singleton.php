@@ -1,5 +1,4 @@
 <?php
-
 namespace CakeDC\OracleDriver\Core;
 
 /**
@@ -7,7 +6,6 @@ namespace CakeDC\OracleDriver\Core;
  */
 trait Singleton
 {
-
     /**
      * Object instance.
      *
@@ -22,7 +20,7 @@ trait Singleton
      */
     final public static function getInstance()
     {
-        return isset(static::$_instance) ? static::$_instance : static::$_instance = new static;
+        return static::$_instance ?? static::$_instance = new static();
     }
 
     /**

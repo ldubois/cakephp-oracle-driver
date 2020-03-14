@@ -27,7 +27,7 @@ class OracleCompiler extends QueryCompiler
         'having',
         'order',
         'union',
-        'epilog'
+        'epilog',
     ];
 
     /**
@@ -47,5 +47,4 @@ class OracleCompiler extends QueryCompiler
 
         return sprintf('INSERT%s INTO %s (%s)', $modifiers, $table, implode(', ', $columns));
     }
-
 }

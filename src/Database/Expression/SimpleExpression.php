@@ -24,8 +24,6 @@ use Cake\Database\ValueBinder;
  */
 class SimpleExpression implements ExpressionInterface
 {
-
-
     /**
      * The name of the function to be constructed when generating the SQL string
      *
@@ -64,6 +62,7 @@ class SimpleExpression implements ExpressionInterface
             return $this->_name;
         }
         $this->_name = $name;
+
         return $this;
     }
 
@@ -88,6 +87,7 @@ class SimpleExpression implements ExpressionInterface
      * @param callable $callable The callable to traverse with.
      * @return void
      */
-    public function traverse(callable $callable) {
+    public function traverse(callable $callable)
+    {
     }
 }

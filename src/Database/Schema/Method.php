@@ -11,9 +11,6 @@
 
 namespace CakeDC\OracleDriver\Database\Schema;
 
-use Cake\Database\Exception;
-use Cake\Database\Type;
-
 /**
  * Represents a single method in a database schema.
  *
@@ -26,7 +23,6 @@ use Cake\Database\Type;
  */
 class Method
 {
-
     /**
      * The name of the method
      *
@@ -131,6 +127,7 @@ class Method
         $attrs = array_intersect_key($attrs, $valid);
         $this->_parameters[$name] = $attrs + $valid;
         $this->_typeMap[$name] = $this->_parameters[$name]['type'];
+
         return $this;
     }
 
@@ -156,6 +153,7 @@ class Method
             return null;
         }
         $parameter = $this->_parameters[$name];
+
         return $parameter;
     }
 
@@ -176,6 +174,7 @@ class Method
             $this->_parameters[$name]['type'] = $type;
             $this->_typeMap[$name] = $type;
         }
+
         return $this->_parameters[$name]['type'];
     }
 
@@ -214,6 +213,7 @@ class Method
             }
             $result .= 'OUT';
         }
+
         return $result;
     }
 
@@ -228,7 +228,6 @@ class Method
         return $this->_typeMap;
     }
 
-
     /**
      * Get the method type.
      *
@@ -238,5 +237,4 @@ class Method
     {
         return $this->_isFunction;
     }
-
 }

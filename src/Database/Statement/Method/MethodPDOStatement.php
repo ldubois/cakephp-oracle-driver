@@ -37,7 +37,7 @@ class MethodPDOStatement extends MethodStatementDecorator
      * Assign a value to a positional or named variable in prepared query. If using
      * positional variables you need to start with index one, if using named params then
      * just use the name in any order.
-     * 
+     *
      * Parameters values are always passed by reference.
      *
      * You can pass OCI compatible constants for binding values with a type or optionally
@@ -98,6 +98,7 @@ class MethodPDOStatement extends MethodStatementDecorator
         if ($type === 'assoc') {
             return $this->_statement->fetch(PDO::FETCH_ASSOC);
         }
+
         return $this->_statement->fetch($type);
     }
 
@@ -112,6 +113,7 @@ class MethodPDOStatement extends MethodStatementDecorator
         if ($type === 'assoc') {
             return $this->_statement->fetchAll(PDO::FETCH_ASSOC);
         }
+
         return $this->_statement->fetchAll($type);
     }
 }

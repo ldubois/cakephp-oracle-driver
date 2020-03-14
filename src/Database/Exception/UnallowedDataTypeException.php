@@ -15,7 +15,6 @@ use Cake\Core\Exception\Exception;
 
 class UnallowedDataTypeException extends Exception
 {
-
     /**
      * {@inheritDoc}
      */

@@ -24,6 +24,7 @@ class Oci8Statement extends Statement
         if (empty($this->_sth)) {
             return true;
         }
+
         return true;
     }
 
@@ -36,5 +37,4 @@ class Oci8Statement extends Statement
             oci_free_statement($this->_sth);
         }
     }
-
 }

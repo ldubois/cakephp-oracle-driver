@@ -19,11 +19,10 @@ use Exception;
  */
 class MethodLoggingStatement extends MethodStatementDecorator
 {
-
     /**
      * Logger instance responsible for actually doing the logging task
      *
-     * @var MethodLogger
+     * @var \CakeDC\OracleDriver\Database\Log\MethodLogger
      */
     protected $_logger;
 
@@ -58,6 +57,7 @@ class MethodLoggingStatement extends MethodStatementDecorator
 
         $method->numRows = $this->rowCount();
         $this->_log($method, $params, $t);
+
         return $result;
     }
 
@@ -111,6 +111,7 @@ class MethodLoggingStatement extends MethodStatementDecorator
         if ($instance === null) {
             return $this->_logger;
         }
+
         return $this->_logger = $instance;
     }
 
@@ -134,5 +135,4 @@ class MethodLoggingStatement extends MethodStatementDecorator
         }
         $this->_compiledParams[$column] = $value;
     }
-
 }

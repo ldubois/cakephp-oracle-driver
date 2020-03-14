@@ -24,6 +24,7 @@ class Oci8Statement extends Statement
         if (empty($this->_sth)) {
             return true;
         }
+
         return true;
     }
 

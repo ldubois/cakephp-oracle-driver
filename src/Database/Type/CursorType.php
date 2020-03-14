@@ -45,9 +45,8 @@ class CursorType extends Type
      */
     public function marshal($value)
     {
-		return null;
+        return null;
     }
-
 
     /**
      * @inheritDoc
@@ -56,5 +55,4 @@ class CursorType extends Type
     {
         return PDO::PARAM_STMT;
     }
-
 }

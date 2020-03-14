@@ -193,7 +193,7 @@ class OracleFixtureManager
                 $baseNamespace,
                 'Test\CodeFixture',
                 $additionalPath,
-                $name . 'CodeFixture'
+                $name . 'CodeFixture',
             ];
             $className = implode('\\', array_filter($nameSegments));
 
@@ -272,11 +272,8 @@ class OracleFixtureManager
                         $this->_setupMethod($fixture, $db, $methods, $test->dropTables);
                     }
                 }
-
             };
             $this->_runOperation($fixtures, $createMethods);
-
-
         } catch (PDOException $e) {
             $msg = sprintf('Unable to insert fixtures for "%s" test case. %s', get_class($test), $e->getMessage());
             throw new Exception($msg);
@@ -325,6 +322,7 @@ class OracleFixtureManager
                 $dbs[$fixture->connection()][$f] = $fixture;
             }
         }
+
         return $dbs;
     }
 
@@ -343,7 +341,7 @@ class OracleFixtureManager
      *
      * @param string $name of the fixture
      * @param \Cake\Datasource\ConnectionInterface $db Connection instance or leave null to get a Connection from the fixture
-     * @param bool $dropTables Whether or not tables should be dropped and re-created.
+     * @param bool $drop Whether or not tables should be dropped and re-created.
      * @return void
      * @throws \UnexpectedValueException if $name is not a previously loaded class
      */

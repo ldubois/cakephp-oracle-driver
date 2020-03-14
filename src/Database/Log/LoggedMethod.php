@@ -17,7 +17,6 @@ namespace CakeDC\OracleDriver\Database\Log;
  */
 class LoggedMethod
 {
-
     /**
      * Method query string that was executed
      *

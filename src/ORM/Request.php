@@ -13,7 +13,6 @@ namespace CakeDC\OracleDriver\ORM;
 
 class Request implements RequestInterface
 {
-
     use RequestTrait;
 
     /**
@@ -28,7 +27,7 @@ class Request implements RequestInterface
         $options += [
             'useSetters' => true,
             'markNew' => null,
-            'repository' => null
+            'repository' => null,
         ];
         $this->_className = get_class($this);
 

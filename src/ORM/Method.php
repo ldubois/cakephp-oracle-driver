@@ -87,6 +87,7 @@ class Method
             $method = substr(end($method), 0, -6);
             $this->_method = Inflector::underscore($method);
         }
+
         return $this->_method;
     }
 
@@ -124,12 +125,12 @@ class Method
                                                                ->methodSchemaCollection()
                                                                ->describe($this->method()));
             }
+
             return $this->_schema;
         }
 
         if (is_array($schema)) {
             $schema = new Schema($this->method(), $schema);
-
         }
 
         return $this->_schema = $schema;
@@ -233,6 +234,7 @@ class Method
         if (is_array($data)) {
             $request->set($data);
         }
+
         return $request;
     }
 
@@ -265,7 +267,8 @@ class Method
     protected function _generateSql()
     {
         $query = '';
-        if ($this->schema()
+        if (
+            $this->schema()
                  ->isFunction()
         ) {
             $query = ':result := ';
@@ -283,6 +286,7 @@ class Method
         $query .= implode(',', $names);
         $query .= ');';
         $query = 'begin ' . $query . ' end;';
+
         return $query;
     }
 
@@ -295,10 +299,11 @@ class Method
     public function __debugInfo()
     {
         $conn = $this->connection();
+
         return [
             'method' => $this->method(),
             'defaultConnection' => $this->defaultConnectionName(),
-            'connectionName' => $conn ? $conn->configName() : null
+            'connectionName' => $conn ? $conn->configName() : null,
         ];
     }
 

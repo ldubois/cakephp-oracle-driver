@@ -69,7 +69,7 @@ class BoolType extends Type implements TypeInterface, BatchCastingInterface
         }
 
         if (in_array($value, [1, 0, '1', '0'], true)) {
-            return (bool)$value;
+            return (int)$value;
         }
 
         throw new InvalidArgumentException(sprintf(
@@ -145,7 +145,7 @@ class BoolType extends Type implements TypeInterface, BatchCastingInterface
             return PDO::PARAM_NULL;
         }
 
-        return PDO::PARAM_BOOL;
+        return PDO::PARAM_INT;
     }
 
     /**

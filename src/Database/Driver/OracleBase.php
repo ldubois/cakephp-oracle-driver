@@ -11,19 +11,18 @@
 
 namespace CakeDC\OracleDriver\Database\Driver;
 
-use CakeDC\OracleDriver\Config\ConfigTrait;
-use CakeDC\OracleDriver\Database\Dialect\OracleDialectTrait;
-use CakeDC\OracleDriver\Database\Oracle12Compiler;
-use CakeDC\OracleDriver\Database\OracleCompiler;
-use CakeDC\OracleDriver\Database\Statement\OracleStatement;
 use Cake\Database\Driver;
 use Cake\Database\Driver\PDODriverTrait;
 use Cake\Database\Query;
 use Cake\Database\Statement\PDOStatement;
 use Cake\Database\ValueBinder;
-use Cake\Database\Type;
 use Cake\Log\Log;
 use Cake\Network\Exception\NotImplementedException;
+use CakeDC\OracleDriver\Config\ConfigTrait;
+use CakeDC\OracleDriver\Database\Dialect\OracleDialectTrait;
+use CakeDC\OracleDriver\Database\Oracle12Compiler;
+use CakeDC\OracleDriver\Database\OracleCompiler;
+use CakeDC\OracleDriver\Database\Statement\OracleStatement;
 use PDO;
 
 abstract class OracleBase extends Driver
@@ -84,6 +83,7 @@ abstract class OracleBase extends Driver
                      ->exec($command);
             }
         }
+
         return true;
     }
 
@@ -119,10 +119,9 @@ abstract class OracleBase extends Driver
             }
 
             return '(DESCRIPTION=' . '(ADDRESS=(PROTOCOL=TCP)(HOST=' . $config['host'] . ')(PORT=' . $config['port'] . '))' . '(CONNECT_DATA=(' . $service . ')' . $instance . $pooled . '))';
-
         }
 
-        return isset($config['database']) ? $config['database'] : '';
+        return $config['database'] ?? '';
     }
 
     /**
@@ -147,7 +146,7 @@ abstract class OracleBase extends Driver
         Log::write('debug', $queryStringRaw);
         // debug($queryStringRaw);
         $queryString = $this->_fromDualIfy($queryStringRaw);
-        list($queryString, $paramMap) = self::convertPositionalToNamedPlaceholders($queryString);
+        [$queryString, $paramMap] = self::convertPositionalToNamedPlaceholders($queryString);
         $innerStatement = $this->_connection->prepare($queryString);
 
         $statement = $this->_wrapStatement($innerStatement);
@@ -160,11 +159,14 @@ abstract class OracleBase extends Driver
             $disableBuffer = true;
         }
 
-        if ($isObject
+        if (
+            $isObject
             && $query->isBufferedResultsEnabled() === false
-            || $disableBuffer) {
+            || $disableBuffer
+        ) {
                 $statement->bufferResults(false);
         }
+
         return $statement;
     }
 
@@ -187,6 +189,7 @@ abstract class OracleBase extends Driver
 
         return [$query, $processor->compile($query, $generator)];
     }
+
     /**
      * Add "FROM DUAL" to SQL statements that are SELECT statements
      * with no FROM clause specified
@@ -200,6 +203,7 @@ abstract class OracleBase extends Driver
         if (strpos($statement, 'select') !== 0 || preg_match('/ from /', $statement)) {
             return $queryString;
         }
+
         return "{$queryString} FROM DUAL";
     }
 
@@ -251,6 +255,7 @@ abstract class OracleBase extends Driver
         $statement = $this->_connection->query("SELECT {$sequenceName}.CURRVAL FROM DUAL");
         $statement->execute();
         $result = $statement->fetch();
+
         return $result[0];
     }
 
@@ -269,6 +274,7 @@ abstract class OracleBase extends Driver
             }
         }
         $this->connected = !empty($connected);
+
         return $this->connected;
     }
 
@@ -283,14 +289,15 @@ abstract class OracleBase extends Driver
         if ($this->isAutoQuotingEnabled()) {
             return $this->quoteIdentifier($identifier);
         }
+
         return $identifier;
     }
 
     /**
      * Wrap statement into cakephp statements to provide additional functionality.
      *
-     * @param Statement $statement Original statement to wrap.
-     * @return OracleStatement
+     * @param \CakeDC\OracleDriver\Database\Driver\Statement $statement Original statement to wrap.
+     * @return \CakeDC\OracleDriver\Database\Statement\OracleStatement
      */
     protected function _wrapStatement($statement)
     {
@@ -318,5 +325,4 @@ abstract class OracleBase extends Driver
     {
         throw new NotImplementedException(__('method not implemented for this driver'));
     }
-
 }

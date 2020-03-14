@@ -60,8 +60,12 @@ class IntegerType extends Type implements TypeInterface, BatchCastingInterface
      */
     protected function checkNumeric($value)
     {
-        if($value === false) $value=0;
-        if($value === true) $value=1;
+        if ($value === false) {
+            $value = 0;
+        }
+        if ($value === true) {
+            $value = 1;
+        }
         if (!is_numeric($value)) {
             throw new InvalidArgumentException(sprintf(
                 'Cannot convert value of type `%s` to integer',
