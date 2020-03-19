@@ -1,11 +1,13 @@
 <?php
+declare(strict_types=1);
+
 /**
- * Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
+ * Copyright 2015 - 2020, Cake Development Corporation (http://cakedc.com)
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
+ * @copyright Copyright 2015 - 2020, Cake Development Corporation (http://cakedc.com)
  * @license MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
 
@@ -25,9 +27,8 @@
 namespace Cake\Test\TestCase;
 
 use Cake\Datasource\ConnectionManager;
-use Cake\TestSuite\TestPermutationDecorator;
 use Cake\TestSuite\TestSuite;
-use \PHPUnit_Framework_TestResult;
+use PHPUnit\Framework\TestResult;
 
 /**
  * All tests related to database
@@ -35,7 +36,6 @@ use \PHPUnit_Framework_TestResult;
  */
 class DatabaseSuite extends TestSuite
 {
-
     /**
      * Returns a suite containing all tests requiring a database connection,
      * tests are decorated so that they are run once with automatic
@@ -48,42 +48,37 @@ class DatabaseSuite extends TestSuite
         // $suite->addTestFile(__DIR__ . DS . 'Database' . DS . 'ConnectionTest.php');
         $suite->addTestDirectoryRecursive(__DIR__ . DS . 'Database');
         $suite->addTestDirectoryRecursive(__DIR__ . DS . 'ORM');
+
         return $suite;
     }
 
-    // public function count()
-    // {
-    // return parent::count() * 2;
-    // }
+//     public function count(bool $preferCache = false): int
+//     {
+//        return parent::count() * 2;
+//     }
 
     /**
      * Runs the tests and collects their result in a TestResult.
      *
-     * @param \PHPUnit_Framework_TestResult $result
-     * @return \PHPUnit_Framework_TestResult
+     * @param \PHPUnit\Framework\TestResult $result
+     * @return \PHPUnit\Framework\TestResult
      */
-    public function run(
-        PHPUnit_Framework_TestResult $result = null,
-        $filter = false,
-        array $groups = [],
-        array $excludeGroups = [],
-        $processIsolation = false
-    ) {
+    public function run(?TestResult $result = null): TestResult
+    {
         $permutations = [
             'Identifier Quoting' => function () {
-                ConnectionManager::get('test')
-                                 ->driver()
-                                 ->autoQuoting(true);
-//             },
+                ConnectionManager::get('test')->getDriver()->enableAutoQuoting(true);
+            },
 //             'No identifier quoting' => function () {
-//                 ConnectionManager::get('test')->driver()->autoQuoting(false);
-            }
+//                 ConnectionManager::get('test')->getDriver()->enableAutoQuoting(false);
+//             }
         ];
 
         foreach ($permutations as $permutation) {
             $permutation();
-            $result = parent::run($result, $filter, $groups, $excludeGroups, $processIsolation);
+            $result = parent::run($result);
         }
+
         return $result;
     }
 }

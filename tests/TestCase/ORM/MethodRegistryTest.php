@@ -1,26 +1,29 @@
 <?php
+declare(strict_types=1);
+
 /**
- * Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
+ * Copyright 2015 - 2020, Cake Development Corporation (http://cakedc.com)
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
+ * @copyright Copyright 2015 - 2020, Cake Development Corporation (http://cakedc.com)
  * @license MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
 
 namespace CakeDC\OracleDriver\Test\TestCase\ORM;
 
-use CakeDC\OracleDriver\ORM\Locator\LocatorInterface;
-use CakeDC\OracleDriver\ORM\MethodRegistry;
 use Cake\TestSuite\TestCase;
+use CakeDC\OracleDriver\ORM\Locator\LocatorInterface;
+use CakeDC\OracleDriver\ORM\Locator\MethodLocator;
+use CakeDC\OracleDriver\ORM\Method;
+use CakeDC\OracleDriver\ORM\MethodRegistry;
 
 /**
  * Test case for MethodRegistry
  */
 class MethodRegistryTest extends TestCase
 {
-
     /**
      * Original MethodLocator.
      *
@@ -34,7 +37,7 @@ class MethodRegistryTest extends TestCase
      *
      * @return void
      */
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->_originalLocator = MethodRegistry::locator();
@@ -45,7 +48,7 @@ class MethodRegistryTest extends TestCase
      *
      * @return void
      */
-    public function tearDown()
+    public function tearDown(): void
     {
         parent::tearDown();
         MethodRegistry::locator($this->_originalLocator);
@@ -58,7 +61,7 @@ class MethodRegistryTest extends TestCase
      */
     protected function _setMockLocator()
     {
-        $locator = $this->getMock('CakeDC\OracleDriver\ORM\Locator\LocatorInterface');
+        $locator = $this->getMockBuilder(LocatorInterface::class)->getMock();
         MethodRegistry::locator($locator);
 
         return $locator;
@@ -71,7 +74,7 @@ class MethodRegistryTest extends TestCase
      */
     public function testLocator()
     {
-        $this->assertInstanceOf('CakeDC\OracleDriver\ORM\Locator\LocatorInterface', MethodRegistry::locator());
+        $this->assertInstanceOf(LocatorInterface::class, MethodRegistry::locator());
 
         $locator = $this->_setMockLocator();
 
@@ -86,7 +89,7 @@ class MethodRegistryTest extends TestCase
     public function testLocatorDefault()
     {
         $locator = MethodRegistry::locator();
-        $this->assertInstanceOf('CakeDC\OracleDriver\ORM\Locator\MethodLocator', $locator);
+        $this->assertInstanceOf(MethodLocator::class, $locator);
     }
 
     /**
@@ -122,7 +125,7 @@ class MethodRegistryTest extends TestCase
      */
     public function testSet()
     {
-        $method = $this->getMock('CakeDC\OracleDriver\ORM\Method');
+        $method = $this->getMockBuilder(Method::class)->getMock();
 
         $locator = $this->_setMockLocator();
         $locator->expects($this->once())->method('set')->with('Test', $method);

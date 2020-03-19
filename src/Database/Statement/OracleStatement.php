@@ -1,14 +1,15 @@
 <?php
+declare(strict_types=1);
+
 /**
- * Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
+ * Copyright 2015 - 2020, Cake Development Corporation (http://cakedc.com)
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
+ * @copyright Copyright 2015 - 2020, Cake Development Corporation (http://cakedc.com)
  * @license MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
-
 namespace CakeDC\OracleDriver\Database\Statement;
 
 use Cake\Database\Statement\BufferedStatement;
@@ -20,7 +21,6 @@ use Cake\Database\Statement\StatementDecorator;
  */
 class OracleStatement extends StatementDecorator
 {
-
     use BufferResultsTrait;
 
     public $queryString;
@@ -30,7 +30,7 @@ class OracleStatement extends StatementDecorator
     /**
      * {@inheritDoc}
      */
-    public function execute($params = null)
+    public function execute(?array $params = null): bool
     {
         if ($this->_statement instanceof BufferedStatement) {
             $this->_statement = $this->_statement->getInnerStatement();
@@ -56,14 +56,13 @@ class OracleStatement extends StatementDecorator
     /**
      * {@inheritDoc}
      */
-    public function bind($params, $types)
+    public function bind(array $params, array $types): void
     {
         if (empty($params)) {
             return;
         }
 
-        $annonymousParams = is_int(key($params)) ? true : false;
-
+        $anonymousParams = is_int(key($params));
         $offset = 0;
 
         foreach ($params as $index => $value) {
@@ -71,7 +70,7 @@ class OracleStatement extends StatementDecorator
             if (isset($types[$index])) {
                 $type = $types[$index];
             }
-            if ($annonymousParams) {
+            if ($anonymousParams) {
                 $index += $offset;
             }
             $this->bindValue($index, $value, $type);
@@ -81,11 +80,11 @@ class OracleStatement extends StatementDecorator
     /**
      * {@inheritDoc}
      */
-    public function bindValue($column, $value, $type = 'string')
+    public function bindValue($column, $value, $type = 'string'): void
     {
-        $column = isset($this->paramMap[$column]) ? $this->paramMap[$column] : $column;
+        $column = $this->paramMap[$column] ?? $column;
 
-        $type = $type == 'boolean' ? 'integer' : $type;
+        // $type = $type == 'boolean' ? 'integer' : $type;
 
         $this->_statement->bindValue($column, $value, $type);
     }
@@ -103,6 +102,7 @@ class OracleStatement extends StatementDecorator
                 }
             }
         }
+
         return $result;
     }
 
@@ -111,7 +111,17 @@ class OracleStatement extends StatementDecorator
      */
     public function fetchAll($type = 'num')
     {
-        return $this->_statement->fetchAll($type);
-    }
+        $result = $this->_statement->fetchAll($type);
+        if (is_array($result)) {
+            foreach ($result as $k => $row) {
+                foreach ($row as $key => $value) {
+                    if (is_resource($value)) {
+                        $result[$k][$key] = stream_get_contents($value);
+                    }
+                }
+            }
+        }
 
+        return $result;
+    }
 }

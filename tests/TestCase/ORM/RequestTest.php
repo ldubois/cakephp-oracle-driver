@@ -1,25 +1,26 @@
 <?php
+declare(strict_types=1);
+
 /**
- * Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
+ * Copyright 2015 - 2020, Cake Development Corporation (http://cakedc.com)
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
+ * @copyright Copyright 2015 - 2020, Cake Development Corporation (http://cakedc.com)
  * @license MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
 
 namespace CakeDC\OracleDriver\Test\TestCase\ORM;
 
-use CakeDC\OracleDriver\ORM\Request;
 use Cake\TestSuite\TestCase;
+use CakeDC\OracleDriver\ORM\Request;
 
 /**
  * Request test case.
  */
 class RequestTest extends TestCase
 {
-
     /**
      * Tests setting a single property in an request without custom setters
      *
@@ -27,7 +28,7 @@ class RequestTest extends TestCase
      */
     public function testSetOneParamNoSetters()
     {
-        $request = new Request;
+        $request = new Request();
         $request->set('foo', 'bar');
         $this->assertEquals('bar', $request->foo);
 
@@ -45,7 +46,7 @@ class RequestTest extends TestCase
      */
     public function testSetMultiplePropertiesNoSetters()
     {
-        $request = new Request;
+        $request = new Request();
 
         $request->set(['foo' => 'bar', 'id' => 1]);
         $this->assertEquals('bar', $request->foo);
@@ -64,11 +65,14 @@ class RequestTest extends TestCase
      */
     public function testSetOneParamWithSetter()
     {
-        $request = $this->getMock('\CakeDC\OracleDriver\\ORM\Request', ['_setName']);
+        $request = $this->getMockBuilder(Request::class)
+            ->setMethods(['_setName'])
+            ->getMock();
         $request->expects($this->once())->method('_setName')
             ->with('Jones')
             ->will($this->returnCallback(function ($name) {
                 $this->assertEquals('Jones', $name);
+
                 return 'Dr. ' . $name;
             }));
         $request->set('name', 'Jones');
@@ -82,17 +86,21 @@ class RequestTest extends TestCase
      */
     public function testMultipleWithSetter()
     {
-        $request = $this->getMock('\CakeDC\OracleDriver\ORM\Request', ['_setName', '_setStuff']);
+        $request = $this->getMockBuilder(Request::class)
+            ->setMethods(['_setName', '_setStuff'])
+            ->getMock();
         $request->expects($this->once())->method('_setName')
             ->with('Jones')
             ->will($this->returnCallback(function ($name) {
                 $this->assertEquals('Jones', $name);
+
                 return 'Dr. ' . $name;
             }));
         $request->expects($this->once())->method('_setStuff')
             ->with(['a', 'b'])
             ->will($this->returnCallback(function ($stuff) {
                 $this->assertEquals(['a', 'b'], $stuff);
+
                 return ['c', 'd'];
             }));
         $request->set(['name' => 'Jones', 'stuff' => ['a', 'b']]);
@@ -107,7 +115,9 @@ class RequestTest extends TestCase
      */
     public function testBypassSetters()
     {
-        $request = $this->getMock('\CakeDC\OracleDriver\ORM\Request', ['_setName', '_setStuff']);
+        $request = $this->getMockBuilder(Request::class)
+            ->setMethods(['_setName', '_setStuff'])
+            ->getMock();
 
         $request->expects($this->never())->method('_setName');
         $request->expects($this->never())->method('_setStuff');
@@ -164,7 +174,9 @@ class RequestTest extends TestCase
      */
     public function testGetCustomGetters()
     {
-        $request = $this->getMock('\CakeDC\OracleDriver\ORM\Request', ['_getName']);
+        $request = $this->getMockBuilder(Request::class)
+            ->setMethods(['_getName'])
+            ->getMock();
         $request->expects($this->any())
             ->method('_getName')
             ->with('Jones')
@@ -183,7 +195,9 @@ class RequestTest extends TestCase
      */
     public function testGetCustomGettersAfterSet()
     {
-        $request = $this->getMock('\CakeDC\OracleDriver\ORM\Request', ['_getName']);
+        $request = $this->getMockBuilder(Request::class)
+            ->setMethods(['_getName'])
+            ->getMock();
         $request->expects($this->any())
             ->method('_getName')
             ->will($this->returnCallback(function ($name) {
@@ -205,7 +219,9 @@ class RequestTest extends TestCase
      */
     public function testGetCacheClearedByUnset()
     {
-        $request = $this->getMock('\CakeDC\OracleDriver\ORM\Request', ['_getName']);
+        $request = $this->getMockBuilder(Request::class)
+            ->setMethods(['_getName'])
+            ->getMock();
         $request->expects($this->any())->method('_getName')
             ->will($this->returnCallback(function ($name) {
                 return 'Dr. ' . $name;
@@ -224,7 +240,7 @@ class RequestTest extends TestCase
      */
     public function testMagicSet()
     {
-        $request = new Request;
+        $request = new Request();
         $request->name = 'Jones';
         $this->assertEquals('Jones', $request->name);
         $request->name = 'George';
@@ -238,11 +254,14 @@ class RequestTest extends TestCase
      */
     public function testMagicSetWithSetter()
     {
-        $request = $this->getMock('\CakeDC\OracleDriver\ORM\Request', ['_setName']);
+        $request = $this->getMockBuilder(Request::class)
+            ->setMethods(['_setName'])
+            ->getMock();
         $request->expects($this->once())->method('_setName')
             ->with('Jones')
             ->will($this->returnCallback(function ($name) {
                 $this->assertEquals('Jones', $name);
+
                 return 'Dr. ' . $name;
             }));
         $request->name = 'Jones';
@@ -256,11 +275,14 @@ class RequestTest extends TestCase
      */
     public function testMagicGetWithGetter()
     {
-        $request = $this->getMock('\CakeDC\OracleDriver\ORM\Request', ['_getName']);
+        $request = $this->getMockBuilder(Request::class)
+            ->setMethods(['_getName'])
+            ->getMock();
         $request->expects($this->once())->method('_getName')
             ->with('Jones')
             ->will($this->returnCallback(function ($name) {
                 $this->assertSame('Jones', $name);
+
                 return 'Dr. ' . $name;
             }));
         $request->set('name', 'Jones');
@@ -274,7 +296,7 @@ class RequestTest extends TestCase
      */
     public function testIndirectModification()
     {
-        $request = new Request;
+        $request = new Request();
         $request->things = ['a', 'b'];
         $request->things[] = 'c';
         $this->assertEquals(['a', 'b', 'c'], $request->things);
@@ -298,7 +320,9 @@ class RequestTest extends TestCase
         $this->assertFalse($request->has(['id', 'foo']));
         $this->assertFalse($request->has(['id', 'nope']));
 
-        $request = $this->getMock('\CakeDC\OracleDriver\ORM\Request', ['_getThings']);
+        $request = $this->getMockBuilder(Request::class)
+            ->setMethods(['_getThings'])
+            ->getMock();
         $request->expects($this->once())->method('_getThings')
             ->will($this->returnValue(0));
         $this->assertTrue($request->has('things'));
@@ -354,7 +378,9 @@ class RequestTest extends TestCase
      */
     public function testMagicUnset()
     {
-        $request = $this->getMock('\CakeDC\OracleDriver\ORM\Request', ['unsetProperty']);
+        $request = $this->getMockBuilder(Request::class)
+            ->setMethods(['unsetProperty'])
+            ->getMock();
         $request->expects($this->at(0))
             ->method('unsetProperty')
             ->with('foo');
@@ -382,7 +408,9 @@ class RequestTest extends TestCase
      */
     public function testGetArrayAccess()
     {
-        $request = $this->getMock('\CakeDC\OracleDriver\ORM\Request', ['get']);
+        $request = $this->getMockBuilder(Request::class)
+            ->setMethods(['get'])
+            ->getMock();
         $request->expects($this->at(0))
             ->method('get')
             ->with('foo')
@@ -404,7 +432,9 @@ class RequestTest extends TestCase
      */
     public function testSetArrayAccess()
     {
-        $request = $this->getMock('\CakeDC\OracleDriver\ORM\Request', ['set']);
+        $request = $this->getMockBuilder(Request::class)
+            ->setMethods(['set'])
+            ->getMock();
 
         $request->expects($this->at(0))
             ->method('set')
@@ -427,7 +457,9 @@ class RequestTest extends TestCase
      */
     public function testUnsetArrayAccess()
     {
-        $request = $this->getMock('\CakeDC\OracleDriver\ORM\Request', ['unsetProperty']);
+        $request = $this->getMockBuilder(Request::class)
+            ->setMethods(['unsetProperty'])
+            ->getMock();
         $request->expects($this->at(0))
             ->method('unsetProperty')
             ->with('foo');
@@ -443,8 +475,12 @@ class RequestTest extends TestCase
      */
     public function testMethodCache()
     {
-        $request = $this->getMock('\CakeDC\OracleDriver\ORM\Request', ['_setFoo', '_getBar']);
-        $request2 = $this->getMock('\CakeDC\OracleDriver\ORM\Request', ['_setBar']);
+        $request = $this->getMockBuilder(Request::class)
+            ->setMethods(['_setFoo', '_getBar'])
+            ->getMock();
+        $request2 = $this->getMockBuilder(Request::class)
+            ->setMethods(['_setBar'])
+            ->getMock();
         $request->expects($this->once())->method('_setFoo');
         $request->expects($this->once())->method('_getBar');
         $request2->expects($this->once())->method('_setBar');
@@ -461,7 +497,9 @@ class RequestTest extends TestCase
      */
     public function testSetGetLongProperyNames()
     {
-        $request = $this->getMock('\CakeDC\OracleDriver\ORM\Request', ['_getVeryLongProperty', '_setVeryLongProperty']);
+        $request = $this->getMockBuilder(Request::class)
+            ->setMethods(['_getVeryLongProperty', '_setVeryLongProperty'])
+            ->getMock();
         $request->expects($this->once())->method('_getVeryLongProperty');
         $request->expects($this->once())->method('_setVeryLongProperty');
         $request->get('very_long_property');
@@ -490,7 +528,7 @@ class RequestTest extends TestCase
         $data = [
             'id' => 1,
             'title' => 'Foo',
-            'author_id' => 3
+            'author_id' => 3,
         ];
         $request = new Request($data);
         $this->assertTrue($request->isNew());
@@ -513,7 +551,7 @@ class RequestTest extends TestCase
     public function testConstructorWithMarkNew()
     {
         $request = $this->getMockBuilder('\CakeDC\OracleDriver\ORM\Request')
-            ->setMethods(['isNew'])
+            ->setMethods(['isNew', 'clean'])
             ->disableOriginalConstructor()
             ->getMock();
         $request->expects($this->never())->method('clean');
@@ -547,7 +585,9 @@ class RequestTest extends TestCase
      */
     public function testToArrayWithAccessor()
     {
-        $request = $this->getMock('\CakeDC\OracleDriver\ORM\Request', ['_getName']);
+        $request = $this->getMockBuilder(Request::class)
+            ->setMethods(['_getName'])
+            ->getMock();
         $request->set(['name' => 'Mark', 'email' => 'mark@example.com']);
         $request->expects($this->any())
             ->method('_getName')
@@ -587,11 +627,11 @@ class RequestTest extends TestCase
         $this->assertSame($expected, $result);
     }
 
-    /**
-     * Tests the source method
-     *
-     * @return void
-     */
+/**
+ * Tests the source method
+ *
+ * @return void
+ */
 //    public function testRepository()
 //    {
 //        $request = new Request;
@@ -607,15 +647,16 @@ class RequestTest extends TestCase
     {
         return [[''], [null], [false]];
     }
+
     /**
      * Tests that trying to get an empty propery name throws exception
      *
      * @dataProvider emptyNamesProvider
-     * @expectedException \InvalidArgumentException
      * @return void
      */
     public function testEmptyProperties($property)
     {
+        $this->expectException(\InvalidArgumentException::class);
         $request = new Request();
         $request->get($property);
     }
@@ -623,14 +664,13 @@ class RequestTest extends TestCase
     /**
      * Tests that setitng an empty property name does nothing
      *
-     * @expectedException \InvalidArgumentException
      * @dataProvider emptyNamesProvider
      * @return void
      */
     public function testSetEmptyPropertyName($property)
     {
+        $this->expectException(\InvalidArgumentException::class);
         $request = new Request();
         $request->set($property, 'bar');
     }
-
 }

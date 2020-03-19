@@ -1,20 +1,22 @@
 <?php
+declare(strict_types=1);
+
 /**
- * Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
+ * Copyright 2015 - 2020, Cake Development Corporation (http://cakedc.com)
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
+ * @copyright Copyright 2015 - 2020, Cake Development Corporation (http://cakedc.com)
  * @license MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
 
 namespace CakeDC\OracleDriver\Panel;
 
+use Cake\Datasource\ConnectionManager;
+use CakeDC\OracleDriver\Database\Log\DebugMethodLog;
 use CakeDC\OracleDriver\Database\OracleConnection;
 use CakeDC\OracleDriver\ORM\MethodRegistry;
-use CakeDC\OracleDriver\Database\Log\DebugMethodLog;
-use Cake\Datasource\ConnectionManager;
 use DebugKit\DebugPanel;
 
 /**
@@ -23,8 +25,6 @@ use DebugKit\DebugPanel;
  */
 class MethodLogPanel extends DebugPanel
 {
-
-
     public $plugin = 'OracleDriver';
 
     /**
@@ -40,7 +40,7 @@ class MethodLogPanel extends DebugPanel
      * This will unfortunately build all the connections, but they
      * won't connect until used.
      *
-     * @return array
+     * @return void
      */
     public function initialize()
     {
@@ -54,7 +54,7 @@ class MethodLogPanel extends DebugPanel
                 continue;
             }
             $logger = null;
-            if ($connection->logQueries()) {
+            if ($connection->isQueryLoggingEnabled()) {
                 $logger = $connection->methodLogger();
             }
 
@@ -63,7 +63,7 @@ class MethodLogPanel extends DebugPanel
             }
             $logger = new DebugMethodLog($logger, $name);
 
-            $connection->logQueries(true);
+            $connection->enableQueryLogging(true);
             $connection->methodLogger($logger);
             $this->_loggers[] = $logger;
         }
@@ -99,6 +99,7 @@ class MethodLogPanel extends DebugPanel
         if (!$count) {
             return '0';
         }
+
         return "$count / $time ms";
     }
 }

@@ -1,14 +1,15 @@
 <?php
+declare(strict_types=1);
+
 /**
- * Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
+ * Copyright 2015 - 2020, Cake Development Corporation (http://cakedc.com)
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
+ * @copyright Copyright 2015 - 2020, Cake Development Corporation (http://cakedc.com)
  * @license MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
-
 namespace CakeDC\OracleDriver\Database\Log;
 
 use CakeDC\OracleDriver\Database\Statement\Method\MethodStatementDecorator;
@@ -19,11 +20,10 @@ use Exception;
  */
 class MethodLoggingStatement extends MethodStatementDecorator
 {
-
     /**
      * Logger instance responsible for actually doing the logging task
      *
-     * @var MethodLogger
+     * @var \CakeDC\OracleDriver\Database\Log\MethodLogger
      */
     protected $_logger;
 
@@ -42,7 +42,7 @@ class MethodLoggingStatement extends MethodStatementDecorator
      * @return bool True on success, false otherwise
      * @throws \Exception Re-throws any exception raised during method execution.
      */
-    public function execute($params = null)
+    public function execute(?array $params = null): bool
     {
         $t = microtime(true);
         $method = new LoggedMethod();
@@ -58,6 +58,7 @@ class MethodLoggingStatement extends MethodStatementDecorator
 
         $method->numRows = $this->rowCount();
         $this->_log($method, $params, $t);
+
         return $result;
     }
 
@@ -87,7 +88,7 @@ class MethodLoggingStatement extends MethodStatementDecorator
      * @param string|int|null $type PDO type or name of configured Type class
      * @return void
      */
-    public function bindValue($column, $value, $type = 'string')
+    public function bindValue($column, $value, $type = 'string'): void
     {
         parent::bindValue($column, $value, $type);
         if ($type === null) {
@@ -111,6 +112,7 @@ class MethodLoggingStatement extends MethodStatementDecorator
         if ($instance === null) {
             return $this->_logger;
         }
+
         return $this->_logger = $instance;
     }
 
@@ -134,5 +136,4 @@ class MethodLoggingStatement extends MethodStatementDecorator
         }
         $this->_compiledParams[$column] = $value;
     }
-
 }

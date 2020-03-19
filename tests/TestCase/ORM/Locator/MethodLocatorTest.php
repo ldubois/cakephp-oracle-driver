@@ -1,35 +1,30 @@
 <?php
+declare(strict_types=1);
+
 /**
- * Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
+ * Copyright 2015 - 2020, Cake Development Corporation (http://cakedc.com)
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
+ * @copyright Copyright 2015 - 2020, Cake Development Corporation (http://cakedc.com)
  * @license MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
 
 namespace CakeDC\OracleDriver\Test\TestCase\ORM\Locator;
-///
-/// @TODO fix plugins tests
-///
-///
-
-
 
 use Cake\Core\Configure;
 use Cake\Core\Plugin;
 use Cake\Datasource\ConnectionManager;
+use Cake\TestSuite\TestCase;
 use CakeDC\OracleDriver\ORM\Locator\MethodLocator;
 use CakeDC\OracleDriver\ORM\Method;
-use Cake\TestSuite\TestCase;
 
 /**
  * Used to test correct class is instantiated when using $this->_locator->get();
  */
 class MyUsersMethod extends Method
 {
-
     /**
      * Overrides default method name
      *
@@ -38,13 +33,11 @@ class MyUsersMethod extends Method
     protected $_method = 'users';
 }
 
-
 /**
  * Test case for MethodLocator
  */
 class MethodLocatorTest extends TestCase
 {
-
     /**
      * MethodLocator instance.
      *
@@ -52,18 +45,17 @@ class MethodLocatorTest extends TestCase
      */
     protected $_locator;
 
-
     /**
      * setup
      *
      * @return void
      */
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         Configure::write('App.namespace', 'TestApp');
 
-        $this->_locator = new MethodLocator;
+        $this->_locator = new MethodLocator();
     }
 
     /**
@@ -94,7 +86,7 @@ class MethodLocatorTest extends TestCase
      */
     public function testConfigPlugin()
     {
-        Plugin::load('TestPlugin');
+        Plugin::getCollection()->add(new \TestPlugin\Plugin());
 
         $data = [
             'connection' => 'testing',
@@ -108,12 +100,12 @@ class MethodLocatorTest extends TestCase
     /**
      * Test calling config() on existing instances throws an error.
      *
-     * @expectedException \RuntimeException
-     * @expectedExceptionMessage You cannot configure "Users", it has already been constructed.
      * @return void
      */
     public function testConfigOnDefinedInstance()
     {
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('You cannot configure "Users", it has already been constructed.');
         $users = $this->_locator->get('Users');
         $this->_locator->config('Users', ['method' => 'my_users']);
     }
@@ -164,11 +156,11 @@ class MethodLocatorTest extends TestCase
             'method' => 'my_articles',
         ]);
         $this->assertInstanceOf('CakeDC\OracleDriver\ORM\Method', $result);
-        $this->assertEquals('my_articles', $result->method());
+        $this->assertEquals('my_articles', $result->getMethod());
 
         $result2 = $this->_locator->get('Articles');
         $this->assertSame($result, $result2);
-        $this->assertEquals('my_articles', $result->method());
+        $this->assertEquals('my_articles', $result->getMethod());
     }
 
     /**
@@ -180,32 +172,32 @@ class MethodLocatorTest extends TestCase
     {
         $result = $this->_locator->get('Droids');
         $this->assertInstanceOf('CakeDC\OracleDriver\ORM\Method', $result);
-        $this->assertEquals('droids', $result->method());
+        $this->assertEquals('droids', $result->getMethod());
 //        $this->assertEquals('Droids', $result->alias());
 
         $result = $this->_locator->get('R2D2', ['className' => 'Droids']);
         $this->assertInstanceOf('CakeDC\OracleDriver\ORM\Method', $result);
-        $this->assertEquals('droids', $result->method(), 'The method should be derived from the className');
+        $this->assertEquals('droids', $result->getMethod(), 'The method should be derived from the className');
 //        $this->assertEquals('R2D2', $result->alias());
 
         $result = $this->_locator->get('C3P0', ['className' => 'Droids', 'method' => 'rebels']);
         $this->assertInstanceOf('CakeDC\OracleDriver\ORM\Method', $result);
-        $this->assertEquals('rebels', $result->method(), 'The method should be taken from options');
+        $this->assertEquals('rebels', $result->getMethod(), 'The method should be taken from options');
 //        $this->assertEquals('C3P0', $result->alias());
 
         $result = $this->_locator->get('Funky.Chipmunks');
         $this->assertInstanceOf('CakeDC\OracleDriver\ORM\Method', $result);
-        $this->assertEquals('chipmunks', $result->method(), 'The method should be derived from the alias');
+        $this->assertEquals('chipmunks', $result->getMethod(), 'The method should be derived from the alias');
 //        $this->assertEquals('Chipmunks', $result->alias());
 
         $result = $this->_locator->get('Awesome', ['className' => 'Funky.Monkies']);
         $this->assertInstanceOf('CakeDC\OracleDriver\ORM\Method', $result);
-        $this->assertEquals('monkies', $result->method(), 'The method should be derived from the classname');
+        $this->assertEquals('monkies', $result->getMethod(), 'The method should be derived from the classname');
 //        $this->assertEquals('Awesome', $result->alias());
 
         $result = $this->_locator->get('Stuff', ['className' => 'CakeDC\OracleDriver\ORM\Method']);
         $this->assertInstanceOf('CakeDC\OracleDriver\ORM\Method', $result);
-        $this->assertEquals('stuff', $result->method(), 'The method should be derived from the alias');
+        $this->assertEquals('stuff', $result->getMethod(), 'The method should be derived from the alias');
 //        $this->assertEquals('Stuff', $result->alias());
     }
 
@@ -220,7 +212,7 @@ class MethodLocatorTest extends TestCase
             'method' => 'my_articles',
         ]);
         $result = $this->_locator->get('Articles');
-        $this->assertEquals('my_articles', $result->method(), 'Should use config() data.');
+        $this->assertEquals('my_articles', $result->getMethod(), 'Should use config() data.');
     }
 
     /**
@@ -240,12 +232,12 @@ class MethodLocatorTest extends TestCase
     /**
      * Test get with config throws an exception if the alias exists already.
      *
-     * @expectedException \RuntimeException
-     * @expectedExceptionMessage You cannot configure "Users", it already exists in the registry.
      * @return void
      */
     public function testGetExistingWithConfigData()
     {
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('You cannot configure "Users", it already exists in the registry.');
         $users = $this->_locator->get('Users');
         $this->_locator->get('Users', ['method' => 'my_users']);
     }
@@ -263,12 +255,12 @@ class MethodLocatorTest extends TestCase
         $this->assertEquals($result, $result2);
     }
 
-    /**
-     * Tests that methods can be instantiated based on conventions
-     * and using plugin notation
-     *
-     * @return void
-     */
+/**
+ * Tests that methods can be instantiated based on conventions
+ * and using plugin notation
+ *
+ * @return void
+ */
 //    public function testGetWithConventions()
 //    {
 //        $method = $this->_locator->get('articles');
@@ -282,11 +274,11 @@ class MethodLocatorTest extends TestCase
 //        $this->assertInstanceOf('TestApp\Model\Method\AuthorsMethod', $method);
 //    }
 
-    /**
-     * Test get() with plugin syntax aliases
-     *
-     * @return void
-     */
+/**
+ * Test get() with plugin syntax aliases
+ *
+ * @return void
+ */
 //    public function testGetPlugin()
 //    {
 //        Plugin::load('TestPlugin');
@@ -306,13 +298,13 @@ class MethodLocatorTest extends TestCase
 //        $this->assertSame($method, $second, 'Can fetch long form');
 //    }
 
-    /**
-     * Test get() with same-alias models in different plugins
-     *
-     * There should be no internal cache-confusion
-     *
-     * @return void
-     */
+/**
+ * Test get() with same-alias models in different plugins
+ *
+ * There should be no internal cache-confusion
+ *
+ * @return void
+ */
 //    public function testGetMultiplePlugins()
 //    {
 //        Plugin::load('TestPlugin');
@@ -335,11 +327,11 @@ class MethodLocatorTest extends TestCase
 //        $this->assertInstanceOf('TestPluginTwo\Model\Method\CommentsMethod', $plugin2, 'Should still be a plugin 2 method instance');
 //    }
 
-    /**
-     * Test get() with plugin aliases + className option.
-     *
-     * @return void
-     */
+/**
+ * Test get() with plugin aliases + className option.
+ *
+ * @return void
+ */
 //    public function testGetPluginWithClassNameOption()
 //    {
 //        Plugin::load('TestPlugin');
@@ -356,11 +348,11 @@ class MethodLocatorTest extends TestCase
 //        $this->assertSame($method, $second);
 //    }
 
-    /**
-     * Test get() with full namespaced classname
-     *
-     * @return void
-     */
+/**
+ * Test get() with full namespaced classname
+ *
+ * @return void
+ */
 //    public function testGetPluginWithFullNamespaceName()
 //    {
 //        Plugin::load('TestPlugin');
@@ -398,7 +390,7 @@ class MethodLocatorTest extends TestCase
 
         $method = $this->_locator->get('users', ['method' => 'users']);
         $this->assertInstanceOf('CakeDC\OracleDriver\ORM\Method', $method);
-        $this->assertEquals('users', $method->method());
+        $this->assertEquals('users', $method->getMethod());
 //        $this->assertSame($connection, $method->connection());
 
 //        $this->assertEquals(array_keys($schema), $method->schema()->columns());
@@ -410,7 +402,7 @@ class MethodLocatorTest extends TestCase
         $this->_locator->config('users', $options);
         $method = $this->_locator->get('users', ['className' => __NAMESPACE__ . '\MyUsersMethod']);
         $this->assertInstanceOf(__NAMESPACE__ . '\MyUsersMethod', $method);
-        $this->assertEquals('users', $method->method());
+        $this->assertEquals('users', $method->getMethod());
 //        $this->assertSame($connection, $method->connection());
 
 //        $this->assertEquals(array_keys($schema), $method->schema()->columns());
@@ -424,16 +416,16 @@ class MethodLocatorTest extends TestCase
      */
     public function testSet()
     {
-        $mock = $this->getMock('CakeDC\OracleDriver\ORM\Method');
+        $mock = $this->getMockBuilder(Method::class)->getMock();
         $this->assertSame($mock, $this->_locator->set('Articles', $mock));
         $this->assertSame($mock, $this->_locator->get('Articles'));
     }
 
-    /**
-     * Test setting an instance with plugin syntax aliases
-     *
-     * @return void
-     */
+/**
+ * Test setting an instance with plugin syntax aliases
+ *
+ * @return void
+ */
 //    public function testSetPlugin()
 //    {
 //        Plugin::load('TestPlugin');
@@ -477,16 +469,16 @@ class MethodLocatorTest extends TestCase
         $this->assertTrue($this->_locator->exists('Comments'));
     }
 
-    /**
-     * testRemovePlugin
-     *
-     * Removing a plugin-prefixed model should not affect any other
-     * plugin-prefixed model, or app model.
-     * Removing an app model should not affect any other
-     * plugin-prefixed model.
-     *
-     * @return void
-     */
+/**
+ * testRemovePlugin
+ *
+ * Removing a plugin-prefixed model should not affect any other
+ * plugin-prefixed model, or app model.
+ * Removing an app model should not affect any other
+ * plugin-prefixed model.
+ *
+ * @return void
+ */
 //    public function testRemovePlugin()
 //    {
 //        Plugin::load('TestPlugin');

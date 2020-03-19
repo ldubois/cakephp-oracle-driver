@@ -1,19 +1,19 @@
 <?php
+declare(strict_types=1);
+
 /**
- * Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
+ * Copyright 2015 - 2020, Cake Development Corporation (http://cakedc.com)
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
+ * @copyright Copyright 2015 - 2020, Cake Development Corporation (http://cakedc.com)
  * @license MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
-
 namespace CakeDC\OracleDriver\ORM;
 
 class Request implements RequestInterface
 {
-
     use RequestTrait;
 
     /**
@@ -28,9 +28,9 @@ class Request implements RequestInterface
         $options += [
             'useSetters' => true,
             'markNew' => null,
-            'repository' => null
+            'repository' => null,
         ];
-        $this->_className = get_class($this);
+        $this->_className = static::class;
 
         if ($options['markNew'] !== null) {
             $this->isNew($options['markNew']);
@@ -44,9 +44,8 @@ class Request implements RequestInterface
 
         if ($options['repository'] !== null) {
             $this->_repository = $options['repository'];
-            $this->_driver = $this->_repository->connection()
-                                               ->driver();
-            $this->applySchema($this->_repository->schema());
+            $this->_driver = $this->_repository->getConnection()->getDriver();
+            $this->applySchema($this->_repository->getSchema());
         }
     }
 }

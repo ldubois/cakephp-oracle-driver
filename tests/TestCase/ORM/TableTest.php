@@ -1,11 +1,13 @@
 <?php
+declare(strict_types=1);
+
 /**
- * Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
+ * Copyright 2015 - 2020, Cake Development Corporation (http://cakedc.com)
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
+ * @copyright Copyright 2015 - 2020, Cake Development Corporation (http://cakedc.com)
  * @license MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
 
@@ -13,9 +15,11 @@ namespace CakeDC\OracleDriver\Test\TestCase\ORM;
 
 use Cake\Database\Expression\FunctionExpression;
 use Cake\Database\Expression\IdentifierExpression;
+use Cake\ORM\Exception\PersistenceFailedException;
 use Cake\ORM\Table;
 use Cake\Test\TestCase\ORM\TableTest as CakeTableTest;
-
+use Cake\Validation\Validator;
+use TestApp\Model\Entity\ProtectedEntity;
 
 /**
  * Tests Table class
@@ -23,20 +27,20 @@ use Cake\Test\TestCase\ORM\TableTest as CakeTableTest;
  */
 class TableTest extends CakeTableTest
 {
-
     public $fixtures = [
-        'core.articles',
-        'core.tags',
-        'core.articles_tags',
-        'core.authors',
-        'core.categories',
-        'core.comments',
-        'core.groups',
-        'core.members',
-        'core.groups_members',
-        'core.polymorphic_tagged',
-        'core.site_articles',
-        'core.users'
+        'core.Articles',
+        'core.Tags',
+        //'core.ArticlesTags',
+        'plugin.CakeDC/OracleDriver.ArticlesTags',
+        'core.Authors',
+        'core.Categories',
+        'core.Comments',
+        'core.Groups',
+        'core.Members',
+        'core.GroupsMembers',
+        'core.PolymorphicTagged',
+        'core.SiteArticles',
+        'core.Users',
     ];
 
     /**
@@ -50,27 +54,27 @@ class TableTest extends CakeTableTest
             'table' => 'users',
             'connection' => $this->connection,
         ]);
-        $table->displayField('username');
+        $table->setDisplayField('username');
         $query = $table
             ->find('list')
-            ->hydrate(false)
+            ->enableHydration(false)
             ->order('id');
         $expected = [
             1 => 'mariano',
             2 => 'nate',
             3 => 'larry',
-            4 => 'garrett'
+            4 => 'garrett',
         ];
         $this->assertSame($expected, $query->toArray());
 
         $query = $table->find('list', ['fields' => ['id', 'username']])
-                       ->hydrate(false)
+                       ->enableHydration(false)
                        ->order('id');
         $expected = [
             1 => 'mariano',
             2 => 'nate',
             3 => 'larry',
-            4 => 'garrett'
+            4 => 'garrett',
         ];
         $this->assertSame($expected, $query->toArray());
 
@@ -78,19 +82,19 @@ class TableTest extends CakeTableTest
            ->select([
                'id',
                'username',
-               'odd' => new FunctionExpression('MOD', [new IdentifierExpression('id'), 2])
+               'odd' => new FunctionExpression('MOD', [new IdentifierExpression('id'), 2]),
            ])
-           ->hydrate(false)
+           ->enableHydration(false)
            ->order('id');
         $expected = [
             1 => [
                 1 => 'mariano',
-                3 => 'larry'
+                3 => 'larry',
             ],
             0 => [
                 2 => 'nate',
-                4 => 'garrett'
-            ]
+                4 => 'garrett',
+            ],
         ];
         $this->assertSame($expected, $query->toArray());
     }
@@ -106,14 +110,14 @@ class TableTest extends CakeTableTest
             'table' => 'users',
             'connection' => $this->connection,
         ]);
-        $table->displayField('username');
+        $table->setDisplayField('username');
         $query = $table->find('list', ['fields' => ['id', 'username']])
                        ->order('id');
         $expected = [
             1 => 'mariano',
             2 => 'nate',
             3 => 'larry',
-            4 => 'garrett'
+            4 => 'garrett',
         ];
         $this->assertSame($expected, $query->toArray());
 
@@ -121,19 +125,19 @@ class TableTest extends CakeTableTest
            ->select([
                'id',
                'username',
-               'odd' => new FunctionExpression('MOD', [new IdentifierExpression('id'), 2])
+               'odd' => new FunctionExpression('MOD', [new IdentifierExpression('id'), 2]),
            ])
-           ->hydrate(true)
+           ->enableHydration(true)
            ->order('id');
         $expected = [
             1 => [
                 1 => 'mariano',
-                3 => 'larry'
+                3 => 'larry',
             ],
             0 => [
                 2 => 'nate',
-                4 => 'garrett'
-            ]
+                4 => 'garrett',
+            ],
         ];
         $this->assertSame($expected, $query->toArray());
     }
@@ -160,13 +164,13 @@ class TableTest extends CakeTableTest
             'comments' => [
                 [
                     'user_id' => 1,
-                    'comment' => 'That is true!'
+                    'comment' => 'That is true!',
                 ],
                 [
                     'user_id' => 2,
-                    'comment' => 'Of course'
-                ]
-            ]
+                    'comment' => 'Of course',
+                ],
+            ],
         ], ['associated' => ['Comments']]);
 
         $article = $articles->save($article, ['associated' => ['Comments']]);
@@ -182,10 +186,10 @@ class TableTest extends CakeTableTest
         unset($article->comments[0]);
         $article->comments[] = $articles->Comments->newEntity([
             'user_id' => 1,
-            'comment' => 'new comment'
+            'comment' => 'new comment',
         ]);
 
-        $article->dirty('comments', true);
+        $article->setDirty('comments', true);
         $article = $articles->save($article, ['associated' => ['Comments']]);
 
         $this->assertEquals($sizeComments, $articles->Comments->find('all')
@@ -194,8 +198,30 @@ class TableTest extends CakeTableTest
         $this->assertFalse($articles->Comments->exists(['id' => $commentId]));
         $this->assertTrue($articles->Comments->exists([
             'to_char(comment)' => 'new comment',
-            'article_id' => $articleId
+            'article_id' => $articleId,
         ]));
     }
 
+    /**
+     * Test that findOrCreate cannot accidentally bypass required validation.
+     *
+     * @return void
+     */
+    public function testFindOrCreatePartialValidation()
+    {
+        $articles = $this->getTableLocator()->get('Articles');
+        $articles->setEntityClass(ProtectedEntity::class);
+        $validator = new Validator();
+        $validator->notBlank('title')->requirePresence('title', 'create');
+        $validator->notBlank('body')->requirePresence('body', 'create');
+        $articles->setValidator('default', $validator);
+
+        $this->expectException(PersistenceFailedException::class);
+        $this->expectExceptionMessage(
+            'Entity findOrCreate failure. ' .
+            'Found the following errors (body._required: "This field is required").'
+        );
+
+        $articles->findOrCreate(['title' => 'test']);
+    }
 }

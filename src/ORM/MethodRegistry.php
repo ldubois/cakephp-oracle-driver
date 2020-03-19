@@ -1,14 +1,15 @@
 <?php
+declare(strict_types=1);
+
 /**
- * Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
+ * Copyright 2015 - 2020, Cake Development Corporation (http://cakedc.com)
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
+ * @copyright Copyright 2015 - 2020, Cake Development Corporation (http://cakedc.com)
  * @license MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
-
 namespace CakeDC\OracleDriver\ORM;
 
 use CakeDC\OracleDriver\ORM\Locator\LocatorInterface;
@@ -42,7 +43,6 @@ use CakeDC\OracleDriver\ORM\Locator\LocatorInterface;
  */
 class MethodRegistry
 {
-
     /**
      * LocatorInterface implementation instance.
      *
@@ -67,8 +67,7 @@ class MethodRegistry
      */
     public static function config($alias = null, $options = null)
     {
-        return static::locator()
-                     ->config($alias, $options);
+        return static::locator()->config($alias, $options);
     }
 
     /**
@@ -77,14 +76,14 @@ class MethodRegistry
      * @param \CakeDC\OracleDriver\ORM\Locator\LocatorInterface $locator Instance of a locator to use.
      * @return \CakeDC\OracleDriver\ORM\Locator\LocatorInterface
      */
-    public static function locator(LocatorInterface $locator = null)
+    public static function locator(?LocatorInterface $locator = null)
     {
-        if ($locator) {
+        if ($locator !== null) {
             static::$_locator = $locator;
         }
 
         if (!static::$_locator) {
-            static::$_locator = new static::$_defaultLocatorClass;
+            static::$_locator = new static::$_defaultLocatorClass();
         }
 
         return static::$_locator;
@@ -99,8 +98,7 @@ class MethodRegistry
      */
     public static function get($alias, array $options = [])
     {
-        return static::locator()
-                     ->get($alias, $options);
+        return static::locator()->get($alias, $options);
     }
 
     /**
@@ -111,8 +109,7 @@ class MethodRegistry
      */
     public static function exists($alias)
     {
-        return static::locator()
-                     ->exists($alias);
+        return static::locator()->exists($alias);
     }
 
     /**
@@ -124,8 +121,7 @@ class MethodRegistry
      */
     public static function set($alias, Method $object)
     {
-        return static::locator()
-                     ->set($alias, $object);
+        return static::locator()->set($alias, $object);
     }
 
     /**
@@ -136,8 +132,7 @@ class MethodRegistry
      */
     public static function remove($alias)
     {
-        static::locator()
-              ->remove($alias);
+        static::locator()->remove($alias);
     }
 
     /**
@@ -147,8 +142,7 @@ class MethodRegistry
      */
     public static function clear()
     {
-        static::locator()
-              ->clear();
+        static::locator()->clear();
     }
 
     /**
