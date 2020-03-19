@@ -2,12 +2,12 @@
 declare(strict_types=1);
 
 /**
- * Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
+ * Copyright 2015 - 2020, Cake Development Corporation (http://cakedc.com)
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
+ * @copyright Copyright 2015 - 2020, Cake Development Corporation (http://cakedc.com)
  * @license MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
 namespace CakeDC\OracleDriver\Database\Driver;
@@ -291,29 +291,15 @@ abstract class OracleBase extends Driver
     public function lastInsertId(?string $table = null, ?string $column = null)
     {
         if ($this->useAutoincrement()) {
-            if ($this->isAutoQuotingEnabled()) {
-                $tableName = $table;
-                $columnName = $column;
-            } else {
-                $tableName = strtoupper($table);
-                $columnName = strtoupper($column);
-            }
-            $query = "select sequence_name from user_tab_identity_cols where table_name='$tableName' and column_name='$columnName'";
-            $this->connect();
-            $seqStatement = $this->_connection->query($query);
-            $result = $seqStatement->fetch(PDO::FETCH_NUM);
-
-            $sequenceName = $result[0];
-
-            $statement = $this->_connection->query("SELECT {$sequenceName}.CURRVAL FROM DUAL");
-            $result = $statement->fetch(PDO::FETCH_NUM);
-
-            return $result[0];
+            return $this->_autoincrementSequenceId($table, $column);
         } else {
             $sequenceName = 'seq_' . strtolower($table);
             $this->connect();
             $statement = $this->_connection->query("SELECT {$sequenceName}.CURRVAL FROM DUAL");
             $result = $statement->fetch(PDO::FETCH_NUM);
+            if (count($result) === 0) {
+                return $this->_autoincrementSequenceId($table, $column);
+            }
 
             return $result[0];
         }
@@ -384,5 +370,34 @@ abstract class OracleBase extends Driver
     public function prepareMethod($queryString, $options = [])
     {
         throw new NotImplementedException(__('method not implemented for this driver'));
+    }
+
+    /**
+     * Returns last insert id by autoincrement sequence.
+     *
+     * @param string $table Table name.
+     * @param string $column Column name
+     * @return int
+     */
+    protected function _autoincrementSequenceId(?string $table, ?string $column)
+    {
+        if ($this->isAutoQuotingEnabled()) {
+            $tableName = $table;
+            $columnName = $column;
+        } else {
+            $tableName = strtoupper($table);
+            $columnName = strtoupper($column);
+        }
+        $query = "select sequence_name from user_tab_identity_cols where table_name='$tableName' and column_name='$columnName'";
+        $this->connect();
+        $seqStatement = $this->_connection->query($query);
+        $result = $seqStatement->fetch(PDO::FETCH_NUM);
+
+        $sequenceName = $result[0];
+
+        $statement = $this->_connection->query("SELECT {$sequenceName}.CURRVAL FROM DUAL");
+        $result = $statement->fetch(PDO::FETCH_NUM);
+
+        return $result[0];
     }
 }

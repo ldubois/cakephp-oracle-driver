@@ -3,6 +3,16 @@
 [![Downloads](https://poser.pugx.org/cakedc/cakephp-oracle-driver/d/total.png)](https://packagist.org/packages/cakedc/cakephp-oracle-driver)
 [![Latest Version](https://poser.pugx.org/cakedc/cakephp-oracle-driver/v/stable.png)](https://packagist.org/packages/cakedc/cakephp-oracle-driver)
 
+Versions and branches
+---------------------
+
+| CakePHP | CakeDC Oracle Driver Plugin | Tag   | Notes |
+| :-------------: | :------------------------: | :--:  | :---- |
+| 4.0             | [5.x](https://github.com/CakeDC/cakephp-oracle-driver/tree/5.x)                  | 5.0.0 | stable
+| ^3.8       <4.0 | [4.x](https://github.com/CakeDC/cakephp-oracle-driver/tree/4.x)                  | 4.0.0 | stable |
+| ^3.7            | [3.x](https://github.com/CakeDC/cakephp-oracle-driver/tree/3.x)                  | 3.0.0 | stable |
+
+
 ## Installation
 
 You can install this plugin into your CakePHP application using
@@ -67,6 +77,12 @@ return [
     ]
 ];
 ```
+
+For oracle 12g should be used config settings server_version with value 12.
+If version is greater or equals to 12 the plugin uses new oracle pagination features.
+
+Additional if autoincrement is set to true, then for primary keys in fixtures used
+new orale autoincreament feature.
 
 As you can see, the `className` and `driver` need switched to Oracle-specific
 classes. The driver will depend on whether you want to use `PDO` or not. The
