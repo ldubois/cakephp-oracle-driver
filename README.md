@@ -24,10 +24,19 @@ The recommended way to install Composer packages is:
 composer require cakedc/cakephp-oracle-driver
 ```
 
-In bootstrap.php load plugin with bootstrap.
 
-```php
-	Plugin::load('CakeDC/OracleDriver', ['bootstrap' => true]);
+Ensure the Oracle Plugin is loaded in your src/Application.php file
+
+```
+    /**
+     * {@inheritdoc}
+     */
+    public function bootstrap()
+    {
+        parent::bootstrap();
+
+        $this->addPlugin(\CakeDC\OracleDriver\Plugin::class, ['bootstrap' => true]);
+    }
 ```
 
 
@@ -122,7 +131,7 @@ This repository follows the [CakeDC Plugin Standard](http://cakedc.com/plugin-st
 License
 -------
 
-Copyright 2016 Cake Development Corporation (CakeDC). All rights reserved.
+Copyright 2016 - 2020 Cake Development Corporation (CakeDC). All rights reserved.
 
 Licensed under the [MIT](http://www.opensource.org/licenses/mit-license.php) License. Redistributions of the source code included in this repository must retain the copyright notice found in each file.
 
