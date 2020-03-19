@@ -48,9 +48,27 @@ abstract class OracleBase extends Driver
         'case' => 'lower',
         'timezone' => null,
         'init' => [],
+        'server_version' => 11,
+        'autoincrement' => false,
     ];
 
     protected $_defaultConfig = [];
+
+
+    protected $_serverVersion = null;
+
+    /**
+     * @var bool
+     */
+    protected $_autoincrement;
+
+    /**
+     * @return bool
+     */
+    public function useAutoincrement()
+    {
+        return $this->_autoincrement;
+    }
 
     /**
      * Establishes a connection to the database server
@@ -255,6 +273,39 @@ abstract class OracleBase extends Driver
         $statement = $this->_connection->query("SELECT {$sequenceName}.CURRVAL FROM DUAL");
         $statement->execute();
         $result = $statement->fetch();
+        if (count($result) === 0) {
+            return $this->_autoincrementSequenceId($table, $column);
+        }
+
+        return $result[0];
+    }
+
+
+    /**
+     * Returns last insert id by autoincrement sequence.
+     *
+     * @param string $table Table name.
+     * @param string $column Column name
+     * @return int
+     */
+    protected function _autoincrementSequenceId($table, $column)
+    {
+        if ($this->isAutoQuotingEnabled()) {
+            $tableName = $table;
+            $columnName = $column;
+        } else {
+            $tableName = strtoupper($table);
+            $columnName = strtoupper($column);
+        }
+        $query = "select sequence_name from user_tab_identity_cols where table_name='$tableName' and column_name='$columnName'";
+        $this->connect();
+        $seqStatement = $this->_connection->query($query);
+        $result = $seqStatement->fetch(PDO::FETCH_NUM);
+
+        $sequenceName = $result[0];
+
+        $statement = $this->_connection->query("SELECT {$sequenceName}.CURRVAL FROM DUAL");
+        $result = $statement->fetch(PDO::FETCH_NUM);
 
         return $result[0];
     }
