@@ -1,20 +1,21 @@
 <?php
+declare(strict_types=1);
+
 /**
- * Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
+ * Copyright 2015 - 2020, Cake Development Corporation (http://cakedc.com)
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
+ * @copyright Copyright 2015 - 2020, Cake Development Corporation (http://cakedc.com)
  * @license MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
 
 namespace CakeDC\OracleDriver\Test\TestCase\ORM;
 
-use CakeDC\OracleDriver\ORM\Method;
+use CakeDC\OracleDriver\Database\Driver\OraclePDO;
 use CakeDC\OracleDriver\ORM\MethodRegistry;
 use CakeDC\OracleDriver\TestSuite\TestCase;
-
 
 /**
  * Tests Method class
@@ -22,7 +23,6 @@ use CakeDC\OracleDriver\TestSuite\TestCase;
  */
 class MethodTest extends TestCase
 {
-
     public $codeFixtures = ['plugin.CakeDC/OracleDriver.Calc'];
 
     /**
@@ -33,6 +33,12 @@ class MethodTest extends TestCase
     public function testMethodCall()
     {
         $method = MethodRegistry::get('CalcSum', ['method' => 'CALC.SUM']);
+
+        $this->skipIf(
+            $method->getConnection()->getDriver() instanceof OraclePDO,
+            'OraclePDO does not support the requirements of this test.'
+        );
+
         $request = $method->newRequest(['A' => 5, 'B' => 10]);
         $this->assertTrue($request->isNew());
         $this->assertTrue($method->execute($request));
@@ -49,13 +55,17 @@ class MethodTest extends TestCase
     public function testOutParameterMethodCall()
     {
         $method = MethodRegistry::get('CalcTwice', ['method' => 'CALC.TWICE']);
+
+        $this->skipIf(
+            $method->getConnection()->getDriver() instanceof OraclePDO,
+            'OraclePDO does not support the requirements of this test.'
+        );
+
         $request = $method->newRequest(['A' => 5]);
         $this->assertTrue($request->isNew());
         $this->assertTrue($method->execute($request));
         $this->assertFalse($request->isNew());
 
         $this->assertEquals($request->get('B'), 10);
-        $this->assertEquals($request[':result'], 'OK');
-        $this->assertEquals($request->result(), 'OK');
     }
 }

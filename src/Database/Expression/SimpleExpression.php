@@ -1,18 +1,20 @@
 <?php
+declare(strict_types=1);
+
 /**
- * Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
+ * Copyright 2015 - 2020, Cake Development Corporation (http://cakedc.com)
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
+ * @copyright Copyright 2015 - 2020, Cake Development Corporation (http://cakedc.com)
  * @license MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
-
 namespace CakeDC\OracleDriver\Database\Expression;
 
 use Cake\Database\ExpressionInterface;
 use Cake\Database\ValueBinder;
+use Closure;
 
 /**
  * This class represents a function call string in a SQL statement. Calls can be
@@ -24,8 +26,10 @@ use Cake\Database\ValueBinder;
  */
 class SimpleExpression implements ExpressionInterface
 {
-
-
+    /**
+     * @var string
+     */
+    public $_returnType;
     /**
      * The name of the function to be constructed when generating the SQL string
      *
@@ -64,6 +68,7 @@ class SimpleExpression implements ExpressionInterface
             return $this->_name;
         }
         $this->_name = $name;
+
         return $this;
     }
 
@@ -76,7 +81,7 @@ class SimpleExpression implements ExpressionInterface
      * @param \Cake\Database\ValueBinder $generator Placeholder generator object
      * @return string
      */
-    public function sql(ValueBinder $generator)
+    public function sql(ValueBinder $generator): string
     {
         return $this->_name;
     }
@@ -85,9 +90,10 @@ class SimpleExpression implements ExpressionInterface
      * This method is a no-op, this is a leaf type of expression,
      * hence there is nothing to traverse
      *
-     * @param callable $callable The callable to traverse with.
+     * @param \Closure $callable The callable to traverse with.
      * @return void
      */
-    public function traverse(callable $callable) {
+    public function traverse(Closure $callable): void
+    {
     }
 }

@@ -1,18 +1,16 @@
 <?php
+declare(strict_types=1);
+
 /**
- * Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
+ * Copyright 2015 - 2020, Cake Development Corporation (http://cakedc.com)
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
+ * @copyright Copyright 2015 - 2020, Cake Development Corporation (http://cakedc.com)
  * @license MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
-
 namespace CakeDC\OracleDriver\Database\Schema;
-
-use Cake\Database\Exception;
-use Cake\Database\Type;
 
 /**
  * Represents a single method in a database schema.
@@ -24,9 +22,8 @@ use Cake\Database\Type;
  * Once created Table instances can be added to
  * Schema\MethodsCollection objects.
  */
-class Method
+class MethodSchema
 {
-
     /**
      * The name of the method
      *
@@ -131,6 +128,7 @@ class Method
         $attrs = array_intersect_key($attrs, $valid);
         $this->_parameters[$name] = $attrs + $valid;
         $this->_typeMap[$name] = $this->_parameters[$name]['type'];
+
         return $this;
     }
 
@@ -155,8 +153,8 @@ class Method
         if (!isset($this->_parameters[$name])) {
             return null;
         }
-        $parameter = $this->_parameters[$name];
-        return $parameter;
+
+        return $this->_parameters[$name];
     }
 
     /**
@@ -176,6 +174,7 @@ class Method
             $this->_parameters[$name]['type'] = $type;
             $this->_typeMap[$name] = $type;
         }
+
         return $this->_parameters[$name]['type'];
     }
 
@@ -193,27 +192,20 @@ class Method
             return null;
         }
         if ($direction !== null) {
-            if (strpos($direction, 'IN') !== false) {
-                $this->_parameters[$name]['in'] = true;
-            } else {
-                $this->_parameters[$name]['in'] = false;
-            }
-            if (strpos($direction, 'OUT') !== false) {
-                $this->_parameters[$name]['out'] = true;
-            } else {
-                $this->_parameters[$name]['out'] = false;
-            }
+            $this->_parameters[$name]['in'] = strpos($direction, 'IN') !== false;
+            $this->_parameters[$name]['out'] = strpos($direction, 'OUT') !== false;
         }
         $result = null;
-        if ($this->_parameters[$name]['in']) {
+        if ($this->_parameters[$name]['in'] !== []) {
             $result = 'IN';
         }
-        if ($this->_parameters[$name]['in']) {
+        if ($this->_parameters[$name]['in'] !== []) {
             if ($result !== null) {
                 $result .= '/';
             }
             $result .= 'OUT';
         }
+
         return $result;
     }
 
@@ -228,7 +220,6 @@ class Method
         return $this->_typeMap;
     }
 
-
     /**
      * Get the method type.
      *
@@ -238,5 +229,4 @@ class Method
     {
         return $this->_isFunction;
     }
-
 }

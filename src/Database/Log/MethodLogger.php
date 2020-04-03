@@ -1,25 +1,25 @@
 <?php
+declare(strict_types=1);
+
 /**
- * Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
+ * Copyright 2015 - 2020, Cake Development Corporation (http://cakedc.com)
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
+ * @copyright Copyright 2015 - 2020, Cake Development Corporation (http://cakedc.com)
  * @license MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
-
 namespace CakeDC\OracleDriver\Database\Log;
 
 use Cake\Log\Log;
 
 class MethodLogger
 {
-
     /**
      * Writes a LoggedMethod into a log
      *
-     * @param LoggedMethod $method to be written in log
+     * @param \CakeDC\OracleDriver\Database\Log\LoggedMethod $method to be written in log
      * @return void
      */
     public function log(LoggedMethod $method)
@@ -34,19 +34,19 @@ class MethodLogger
      * Wrapper function for the logger object, useful for unit testing
      * or for overriding in subclasses.
      *
-     * @param LoggedMethod $method to be written in log
+     * @param \CakeDC\OracleDriver\Database\Log\LoggedMethod $method to be written in log
      * @return void
      */
     protected function _log($method)
     {
-        Log::write('debug', $method, ['queriesLog']);
+        Log::write('debug', print_r($method, true), ['queriesLog']);
     }
 
     /**
      * Helper function used to replace method placeholders by the real
      * params used to execute the method
      *
-     * @param LoggedMethod $method The method to log
+     * @param \CakeDC\OracleDriver\Database\Log\LoggedMethod $method The method to log
      * @return string
      */
     protected function _interpolate($method)
@@ -57,6 +57,7 @@ class MethodLogger
             } elseif (is_bool($p)) {
                 return $p ? '1' : '0';
             }
+
             return is_string($p) ? "'$p'" : $p;
         }, $method->params);
 

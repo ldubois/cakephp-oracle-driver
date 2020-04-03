@@ -1,14 +1,15 @@
 <?php
+declare(strict_types=1);
+
 /**
- * Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
+ * Copyright 2015 - 2020, Cake Development Corporation (http://cakedc.com)
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
+ * @copyright Copyright 2015 - 2020, Cake Development Corporation (http://cakedc.com)
  * @license MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
-
 namespace CakeDC\OracleDriver\TestSuite\Fixture;
 
 use Cake\Core\Configure;
@@ -24,7 +25,6 @@ use UnexpectedValueException;
  */
 class OracleFixtureManager
 {
-
     /**
      * Was this instance already initialized?
      *
@@ -170,7 +170,7 @@ class OracleFixtureManager
                 continue;
             }
 
-            list($type, $pathName) = explode('.', $fixture, 2);
+            [$type, $pathName] = explode('.', $fixture, 2);
             $path = explode('/', $pathName);
             $name = array_pop($path);
             $additionalPath = implode('\\', $path);
@@ -180,7 +180,7 @@ class OracleFixtureManager
             } elseif ($type === 'app') {
                 $baseNamespace = Configure::read('App.namespace');
             } elseif ($type === 'plugin') {
-                list($plugin, $name) = explode('.', $pathName);
+                [$plugin, $name] = explode('.', $pathName);
                 $path = implode('\\', explode('/', $plugin));
                 $baseNamespace = Inflector::camelize(str_replace('\\', '\ ', $path));
                 $additionalPath = null;
@@ -193,7 +193,7 @@ class OracleFixtureManager
                 $baseNamespace,
                 'Test\CodeFixture',
                 $additionalPath,
-                $name . 'CodeFixture'
+                $name . 'CodeFixture',
             ];
             $className = implode('\\', array_filter($nameSegments));
 
@@ -272,14 +272,11 @@ class OracleFixtureManager
                         $this->_setupMethod($fixture, $db, $methods, $test->dropTables);
                     }
                 }
-
             };
             $this->_runOperation($fixtures, $createMethods);
-
-
         } catch (PDOException $e) {
             $msg = sprintf('Unable to insert fixtures for "%s" test case. %s', get_class($test), $e->getMessage());
-            throw new Exception($msg);
+            throw new Exception($msg, $e->getCode(), $e);
         }
     }
 
@@ -295,9 +292,9 @@ class OracleFixtureManager
         $dbs = $this->_fixtureConnections($fixtures);
         foreach ($dbs as $connection => $fixtures) {
             $db = ConnectionManager::get($connection, false);
-            $logQueries = $db->logQueries();
+            $logQueries = $db->isQueryLoggingEnabled();
             if ($logQueries && !$this->_debug) {
-                $db->logQueries(false);
+                $db->enableQueryLogging(false);
             }
             $db->transactional(function ($db) use ($fixtures, $operation) {
                 $db->disableConstraints(function ($db) use ($fixtures, $operation) {
@@ -305,7 +302,7 @@ class OracleFixtureManager
                 });
             });
             if ($logQueries) {
-                $db->logQueries(true);
+                $db->enableQueryLogging(true);
             }
         }
     }
@@ -325,6 +322,7 @@ class OracleFixtureManager
                 $dbs[$fixture->connection()][$f] = $fixture;
             }
         }
+
         return $dbs;
     }
 
@@ -343,7 +341,7 @@ class OracleFixtureManager
      *
      * @param string $name of the fixture
      * @param \Cake\Datasource\ConnectionInterface $db Connection instance or leave null to get a Connection from the fixture
-     * @param bool $dropTables Whether or not tables should be dropped and re-created.
+     * @param bool $drop Whether or not tables should be dropped and re-created.
      * @return void
      * @throws \UnexpectedValueException if $name is not a previously loaded class
      */
@@ -351,7 +349,7 @@ class OracleFixtureManager
     {
         if (isset($this->_fixtureMap[$name])) {
             $fixture = $this->_fixtureMap[$name];
-            if (!$db) {
+            if ($db === null) {
                 $db = ConnectionManager::get($fixture->connection());
             }
 

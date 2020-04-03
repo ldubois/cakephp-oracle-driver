@@ -1,14 +1,15 @@
 <?php
+declare(strict_types=1);
+
 /**
- * Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
+ * Copyright 2015 - 2020, Cake Development Corporation (http://cakedc.com)
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
+ * @copyright Copyright 2015 - 2020, Cake Development Corporation (http://cakedc.com)
  * @license MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
-
 namespace CakeDC\OracleDriver\ORM\Locator;
 
 use CakeDC\OracleDriver\ORM\MethodRegistry;
@@ -18,7 +19,6 @@ use CakeDC\OracleDriver\ORM\MethodRegistry;
  */
 trait LocatorAwareTrait
 {
-
     /**
      * Method locator instance
      *
@@ -33,7 +33,7 @@ trait LocatorAwareTrait
      * @param \CakeDC\OracleDriver\ORM\Locator\LocatorInterface|null $methodLocator LocatorInterface instance.
      * @return \CakeDC\OracleDriver\ORM\Locator\LocatorInterface
      */
-    public function methodLocator(LocatorInterface $methodLocator = null)
+    public function methodLocator(?LocatorInterface $methodLocator = null)
     {
         if ($methodLocator !== null) {
             $this->_methodLocator = $methodLocator;
@@ -41,6 +41,7 @@ trait LocatorAwareTrait
         if (!$this->_methodLocator) {
             $this->_methodLocator = MethodRegistry::locator();
         }
+
         return $this->_methodLocator;
     }
 }

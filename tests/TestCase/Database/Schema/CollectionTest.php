@@ -1,31 +1,31 @@
 <?php
+declare(strict_types=1);
+
 /**
- * Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
+ * Copyright 2015 - 2020, Cake Development Corporation (http://cakedc.com)
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
+ * @copyright Copyright 2015 - 2020, Cake Development Corporation (http://cakedc.com)
  * @license MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
 
 namespace CakeDC\OracleDriver\Test\TestCase\Database\Schema;
 
-use CakeDC\OracleDriver\Database\OracleConnection;
+use Cake\Cache\Cache;
+use Cake\Database\Exception;
+use Cake\Datasource\ConnectionManager;
 use CakeDC\OracleDriver\Database\Schema\MethodsCollection;
 use CakeDC\OracleDriver\TestSuite\TestCase;
-use Cake\Cache\Cache;
-use Cake\Core\Configure;
-use Cake\Datasource\ConnectionManager;
 
 /**
  * Test case for Collection
  */
 class CollectionTest extends TestCase
 {
-
     public $codeFixtures = [
-        'plugin.CakeDC/OracleDriver.Calc'
+        'plugin.CakeDC/OracleDriver.Calc',
     ];
 
     /**
@@ -40,11 +40,11 @@ class CollectionTest extends TestCase
      *
      * @return void
      */
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->connection = ConnectionManager::get('test');
-        Cache::clear(false, '_cake_method_');
+        Cache::clear('_cake_method_');
         Cache::enable();
     }
 
@@ -53,7 +53,7 @@ class CollectionTest extends TestCase
      *
      * @return void
      */
-    public function tearDown()
+    public function tearDown(): void
     {
         parent::tearDown();
         unset($this->connection);
@@ -65,11 +65,11 @@ class CollectionTest extends TestCase
      * Tests for positive describe() calls are in each platformSchema
      * test case.
      *
-     * @expectedException \Cake\Database\Exception
      * @return void
      */
     public function testDescribeIncorrectMethod()
     {
+        $this->expectException(Exception::class);
         $schema = new MethodsCollection($this->connection);
         $this->assertNull($schema->describe('CALC.SUM333'));
     }
@@ -91,7 +91,7 @@ class CollectionTest extends TestCase
         $result = $schema->describe('CALC.SUM');
         $this->assertEquals($method, $result);
 
-        $result = Cache::read('test_CALC_SUM', '_cake_method_');
+        $result = Cache::read('test_CALC.SUM', '_cake_method_');
         $this->assertEquals($method, $result);
     }
 }

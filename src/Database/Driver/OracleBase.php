@@ -1,33 +1,40 @@
 <?php
+declare(strict_types=1);
+
 /**
- * Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
+ * Copyright 2015 - 2020, Cake Development Corporation (http://cakedc.com)
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
+ * @copyright Copyright 2015 - 2020, Cake Development Corporation (http://cakedc.com)
  * @license MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
-
 namespace CakeDC\OracleDriver\Database\Driver;
 
-use Cake\Datasource\EntityInterface;
+use Cake\Database\Driver;
+use Cake\Database\Query;
+use Cake\Database\Statement\PDOStatement;
+use Cake\Database\StatementInterface;
+use Cake\Database\ValueBinder;
+use Cake\Http\Exception\NotImplementedException;
+use Cake\Log\Log;
 use CakeDC\OracleDriver\Config\ConfigTrait;
 use CakeDC\OracleDriver\Database\Dialect\OracleDialectTrait;
+use CakeDC\OracleDriver\Database\Oracle12Compiler;
+use CakeDC\OracleDriver\Database\OracleCompiler;
 use CakeDC\OracleDriver\Database\Statement\OracleStatement;
-use Cake\Database\Driver;
-use Cake\Database\Driver\PDODriverTrait;
-use Cake\Database\Statement\PDOStatement;
-use Cake\Database\Type;
-use Cake\Log\Log;
-use Cake\Network\Exception\NotImplementedException;
 use PDO;
 
 abstract class OracleBase extends Driver
 {
     use ConfigTrait;
     use OracleDialectTrait;
-    use PDODriverTrait;
+
+    /**
+     * @var bool|mixed
+     */
+    public $connected;
 
     /**
      * Base configuration settings for MySQL driver
@@ -46,16 +53,47 @@ abstract class OracleBase extends Driver
         'case' => 'lower',
         'timezone' => null,
         'init' => [],
+        'server_version' => 11,
+        'autoincrement' => false,
     ];
 
     protected $_defaultConfig = [];
+
+    protected $_serverVersion = null;
+
+    /**
+     * @var bool
+     */
+    protected $_autoincrement;
+
+    /**
+     * @return bool
+     */
+    public function useAutoincrement(): bool
+    {
+        return $this->_autoincrement;
+    }
+
+    /**
+     * OracleBase constructor.
+     *
+     * @param array $config Configuration settings.
+     */
+    public function __construct(array $config = [])
+    {
+        parent::__construct($config);
+        if (array_key_exists('server_version', $config)) {
+            $this->_serverVersion = $config['server_version'];
+        }
+        $this->_autoincrement = !empty($config['autoincrement']);
+    }
 
     /**
      * Establishes a connection to the database server
      *
      * @return bool true on success
      */
-    public function connect()
+    public function connect(): bool
     {
         if ($this->_connection) {
             return true;
@@ -63,7 +101,6 @@ abstract class OracleBase extends Driver
         $config = $this->_config;
 
         $config['init'][] = "ALTER SESSION SET NLS_DATE_FORMAT='YYYY-MM-DD HH24:MI:SS' NLS_TIMESTAMP_FORMAT='YYYY-MM-DD HH24:MI:SS' NLS_TIMESTAMP_TZ_FORMAT='YYYY-MM-DD HH24:MI:SS'";
-        $config['init'][] = "alter session set nls_numeric_characters='. '";
 
         $config['flags'] += [
             // PDO::ATTR_CASE => PDO::CASE_LOWER, // @todo move to config setting
@@ -78,10 +115,11 @@ abstract class OracleBase extends Driver
 
         if (!empty($config['init'])) {
             foreach ((array)$config['init'] as $command) {
-                $this->connection()
+                $this->getConnection()
                      ->exec($command);
             }
         }
+
         return true;
     }
 
@@ -116,18 +154,18 @@ abstract class OracleBase extends Driver
                 $pooled = '(SERVER=POOLED)';
             }
 
-            return '(DESCRIPTION=' . '(ADDRESS=(PROTOCOL=TCP)(HOST=' . $config['host'] . ')(PORT=' . $config['port'] . '))' . '(CONNECT_DATA=(' . $service . ')' . $instance . $pooled . '))';
-
+            return '(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=' . $config['host'] . ')(PORT=' . $config['port'] . '))' . '(CONNECT_DATA=(' . $service . ')' . $instance . $pooled . '))';
         }
 
-        return isset($config['database']) ? $config['database'] : '';
+        return $config['database'] ?? '';
     }
 
     /**
      * @inheritDoc
      */
-    public function supportsDynamicConstraints()
+    public function supportsDynamicConstraints(): bool
     {
+        return true;
         // TODO: Implement supportsDynamicConstraints() method.
     }
 
@@ -137,62 +175,15 @@ abstract class OracleBase extends Driver
      * @param string|\Cake\Database\Query $query The query to convert into a statement.
      * @return \Cake\Database\StatementInterface
      */
-    public function prepare($query)
+    public function prepare($query): StatementInterface
     {
         $this->connect();
         $isObject = ($query instanceof \Cake\ORM\Query) || ($query instanceof \Cake\Database\Query);
-        if ($isObject) {
-//            print_r([get_class($query)]);
-        } else {
-//            print_r([$query]);
-        }
-        if ($query instanceof \Cake\ORM\Query) {
-            $query->formatResults(function ($items) use ($query) {
-                print_r(['items' => $items]);
-                return $items->map(function ($item) use ($query) {
-                    $alias = $query->repository()->alias();
-                    if (isset($item['CSID1'])) {
-                        print_r([
-                            'item' => $item,
-                            'idnt' => $this->autoShortenedIdentifiers,
-                            'alias' => $alias
-                        ]);
-                    }
-                    if (is_array($item)) {
-                        $translatedRow = [];
-                        foreach ($item as $key => $val) {
-                            if (array_key_exists($key, $this->autoShortenedIdentifiers)) {
-                                $translatedRow[$this->autoShortenedIdentifiers[$key]] = $val;
-                            } else {
-                                $translatedRow[$key] = $val;
-                            }
-                        }
-
-                        return $translatedRow;
-                    }
-
-                    if ($item instanceof EntityInterface) {
-                        foreach ($item as $key => $val) {
-                            if (array_key_exists($key, $this->autoShortenedIdentifiers)) {
-                                $item[$this->autoShortenedIdentifiers[$key]] = $val;
-                                unset($item[$key]);
-                            }
-
-                            if (array_key_exists($alias . '__' . $key, $this->autoShortenedIdentifiers)) {
-                                $item[$this->autoShortenedIdentifiers[$alias . '__' . $key]] = $val;
-                                unset($item[$key]);
-                            }
-                        }
-                    }
-                    return $item;
-                });
-            }, \Cake\ORM\Query::PREPEND);
-        }
         $queryStringRaw = $isObject ? $query->sql() : $query;
         Log::write('debug', $queryStringRaw);
         // debug($queryStringRaw);
         $queryString = $this->_fromDualIfy($queryStringRaw);
-        list($queryString, $paramMap) = self::convertPositionalToNamedPlaceholders($queryString);
+        [$queryString, $paramMap] = self::convertPositionalToNamedPlaceholders($queryString);
         $innerStatement = $this->_connection->prepare($queryString);
 
         $statement = $this->_wrapStatement($innerStatement);
@@ -200,16 +191,43 @@ abstract class OracleBase extends Driver
         $statement->paramMap = $paramMap;
 
         $disableBuffer = false;
-        $normalizedQuery = substr(strtolower(trim($queryString)), 0, 6);
+        $normalizedQuery = substr(strtolower(trim($queryString, " \t\n\r\0\x0B(")), 0, 6);
         if ($normalizedQuery !== 'select') {
             $disableBuffer = true;
         }
-
-        
-        if ($isObject && $query->isBufferedResultsEnabled() === false || $disableBuffer) {
-            $statement->enableBufferedResults(false);
+        if ($normalizedQuery == 'alter ') {
+            $alt = true;
         }
+        if ($normalizedQuery == 'create') {
+            $cr = true;
+        }
+
+        if (
+            $isObject
+            && !$query->isBufferedResultsEnabled()
+            || $disableBuffer
+        ) {
+                $statement->bufferResults(false);
+        }
+
         return $statement;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function compileQuery(Query $query, ValueBinder $generator): array
+    {
+        if ($this->_serverVersion !== null && $this->_serverVersion >= 12) {
+            $processor = new Oracle12Compiler();
+        } else {
+            $processor = new OracleCompiler();
+        }
+
+        $translator = $this->queryTranslator($query->type());
+        $query = $translator($query);
+
+        return [$query, $processor->compile($query, $generator)];
     }
 
     /**
@@ -222,9 +240,10 @@ abstract class OracleBase extends Driver
     protected function _fromDualIfy($queryString)
     {
         $statement = strtolower(trim($queryString));
-        if (strpos($statement, 'select') !== 0 || preg_match('/ from /', $statement)) {
+        if (strpos($statement, 'select') !== 0 || preg_match('/\sfrom\s/', $statement)) {
             return $queryString;
         }
+
         return "{$queryString} FROM DUAL";
     }
 
@@ -251,14 +270,14 @@ abstract class OracleBase extends Driver
         $stmtLen = strlen($query);
         $paramMap = [];
         for ($i = 0; $i < $stmtLen; $i++) {
-            if ($query[$i] == '?' && !$inLiteral) {
+            if ($query[$i] === '?' && !$inLiteral) {
                 $paramMap[$count] = ":param$count";
                 $len = strlen($paramMap[$count]);
                 $query = substr_replace($query, ":param$count", $i, 1);
                 $i += $len - 1;
                 $stmtLen = strlen($query);
                 ++$count;
-            } elseif ($query[$i] == "'" || $query[$i] == '"') {
+            } elseif ($query[$i] === "'" || $query[$i] === '"') {
                 $inLiteral = !$inLiteral;
             }
         }
@@ -269,20 +288,27 @@ abstract class OracleBase extends Driver
     /**
      * @inheritDoc
      */
-    public function lastInsertId($table = null, $column = null)
+    public function lastInsertId(?string $table = null, ?string $column = null)
     {
-        $sequenceName = 'seq_' . strtolower($table);
-        $this->connect();
-        $statement = $this->_connection->query("SELECT {$sequenceName}.CURRVAL FROM DUAL");
-        $statement->execute();
-        $result = $statement->fetch();
-        return $result[0];
+        if ($this->useAutoincrement()) {
+            return $this->_autoincrementSequenceId($table, $column);
+        } else {
+            $sequenceName = 'seq_' . strtolower($table);
+            $this->connect();
+            $statement = $this->_connection->query("SELECT {$sequenceName}.CURRVAL FROM DUAL");
+            $result = $statement->fetch(PDO::FETCH_NUM);
+            if (count($result) === 0) {
+                return $this->_autoincrementSequenceId($table, $column);
+            }
+
+            return $result[0];
+        }
     }
 
     /**
      * @inheritDoc
      */
-    public function isConnected()
+    public function isConnected(): bool
     {
         if ($this->_connection === null) {
             $connected = false;
@@ -294,6 +320,7 @@ abstract class OracleBase extends Driver
             }
         }
         $this->connected = !empty($connected);
+
         return $this->connected;
     }
 
@@ -305,17 +332,18 @@ abstract class OracleBase extends Driver
      */
     public function quoteIfAutoQuote($identifier)
     {
-        if ($this->autoQuoting()) {
+        if ($this->isAutoQuotingEnabled()) {
             return $this->quoteIdentifier($identifier);
         }
+
         return $identifier;
     }
 
     /**
      * Wrap statement into cakephp statements to provide additional functionality.
      *
-     * @param Statement $statement Original statement to wrap.
-     * @return OracleStatement
+     * @param \CakeDC\OracleDriver\Database\Driver\Statement $statement Original statement to wrap.
+     * @return \CakeDC\OracleDriver\Database\Statement\OracleStatement
      */
     protected function _wrapStatement($statement)
     {
@@ -344,4 +372,32 @@ abstract class OracleBase extends Driver
         throw new NotImplementedException(__('method not implemented for this driver'));
     }
 
+    /**
+     * Returns last insert id by autoincrement sequence.
+     *
+     * @param string $table Table name.
+     * @param string $column Column name
+     * @return int
+     */
+    protected function _autoincrementSequenceId(?string $table, ?string $column)
+    {
+        if ($this->isAutoQuotingEnabled()) {
+            $tableName = $table;
+            $columnName = $column;
+        } else {
+            $tableName = strtoupper($table);
+            $columnName = strtoupper($column);
+        }
+        $query = "select sequence_name from user_tab_identity_cols where table_name='$tableName' and column_name='$columnName'";
+        $this->connect();
+        $seqStatement = $this->_connection->query($query);
+        $result = $seqStatement->fetch(PDO::FETCH_NUM);
+
+        $sequenceName = $result[0];
+
+        $statement = $this->_connection->query("SELECT {$sequenceName}.CURRVAL FROM DUAL");
+        $result = $statement->fetch(PDO::FETCH_NUM);
+
+        return $result[0];
+    }
 }

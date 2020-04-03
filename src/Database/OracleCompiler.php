@@ -1,17 +1,20 @@
 <?php
+declare(strict_types=1);
+
 /**
- * Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
+ * Copyright 2015 - 2020, Cake Development Corporation (http://cakedc.com)
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
+ * @copyright Copyright 2015 - 2020, Cake Development Corporation (http://cakedc.com)
  * @license MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
-
 namespace CakeDC\OracleDriver\Database;
 
+use Cake\Database\Query;
 use Cake\Database\QueryCompiler;
+use Cake\Database\ValueBinder;
 
 class OracleCompiler extends QueryCompiler
 {
@@ -27,7 +30,7 @@ class OracleCompiler extends QueryCompiler
         'having',
         'order',
         'union',
-        'epilog'
+        'epilog',
     ];
 
     /**
@@ -38,12 +41,13 @@ class OracleCompiler extends QueryCompiler
      * @param \Cake\Database\ValueBinder $generator the placeholder generator to be used in expressions
      * @return string SQL fragment.
      */
-    protected function _buildInsertPart($parts, $query, $generator)
+    protected function _buildInsertPart(array $parts, Query $query, ValueBinder $generator): string
     {
-        $driver = $query->connection()->driver();
+        $driver = $query->getConnection()->getDriver();
         $table = $driver->quoteIfAutoQuote($parts[0]);
         $columns = $this->_stringifyExpressions($parts[1], $generator);
-        return sprintf('INSERT INTO %s (%s)', $table, implode(', ', $columns));
-    }
+        $modifiers = $this->_buildModifierPart($query->clause('modifier'), $query, $generator);
 
+        return sprintf('INSERT%s INTO %s (%s)', $modifiers, $table, implode(', ', $columns));
+    }
 }

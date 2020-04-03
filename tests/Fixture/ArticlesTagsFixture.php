@@ -1,11 +1,11 @@
 <?php
 /**
- * Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
+ * Copyright 2015 - 2020, Cake Development Corporation (http://cakedc.com)
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
+ * @copyright Copyright 2015 - 2020, Cake Development Corporation (http://cakedc.com)
  * @license MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
 
@@ -29,13 +29,13 @@ class ArticlesTagsFixture extends TestFixture
         'tag_id' => ['type' => 'integer', 'null' => false],
         '_constraints' => [
             'unique_tag' => ['type' => 'primary', 'columns' => ['article_id', 'tag_id']],
-            'tag_idx' => [
-                'type' => 'foreign',
-                'columns' => ['tag_id'],
-                'references' => ['tags', 'id'],
-//                'update' => 'cascade',
-                'delete' => 'cascade',
-            ],
+            // 'tag_idx' => [
+                // 'type' => 'foreign',
+                // 'columns' => ['tag_id'],
+                // 'references' => ['tags', 'id'],
+               // 'update' => 'cascade',
+                // 'delete' => 'cascade',
+            // ],
         ],
     ];
 
