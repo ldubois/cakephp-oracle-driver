@@ -182,6 +182,12 @@ abstract class OracleBase extends Driver
         $queryStringRaw = $isObject ? $query->sql() : $query;
         Log::write('debug', $queryStringRaw);
         // debug($queryStringRaw);
+        if($isObject){
+            //add quote
+            $pattern = '/AS (\w+)__(\w+)/';
+            $replacement = 'AS "${1}__${2}"';
+            $queryStringRaw = preg_replace($pattern, $replacement, $queryStringRaw);
+        }
         $queryString = $this->_fromDualIfy($queryStringRaw);
         [$queryString, $paramMap] = self::convertPositionalToNamedPlaceholders($queryString);
         $innerStatement = $this->_connection->prepare($queryString);
