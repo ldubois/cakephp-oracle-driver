@@ -187,6 +187,7 @@ abstract class OracleBase extends Driver
             $pattern = '/AS (\w+)__(\w+)/';
             $replacement = 'AS "${1}__${2}"';
             $queryStringRaw = preg_replace($pattern, $replacement, $queryStringRaw);
+            $queryStringRaw= str_replace('AS count','AS "count"', $queryStringRaw);
         }
         $queryString = $this->_fromDualIfy($queryStringRaw);
         [$queryString, $paramMap] = self::convertPositionalToNamedPlaceholders($queryString);

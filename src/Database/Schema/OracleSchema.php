@@ -462,31 +462,27 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
         }
 
         $sql = "SELECT
-            ic.index_name AS name,
+        ic.index_name AS name,
+        i.index_type AS type,
+        decode(
             (
-                SELECT i.index_type
-                FROM   $indexesTable i
-                WHERE  i.index_name = ic.index_name" . ($useOwner ? ' AND ic.table_owner = i.table_owner' : '') . "
-            ) AS type,
-            decode(
-                (
-                     SELECT i.uniqueness
-                     FROM   $indexesTable i
-                     WHERE  i.index_name = ic.index_name" . ($useOwner ? ' AND ic.table_owner = i.table_owner' : '') . "
-                ),
-                'NONUNIQUE', 0,
-                'UNIQUE', 1
-            ) AS is_unique,
-            ic.column_name AS column_name,
-            ic.column_position AS column_pos,
-            (
-                SELECT c.constraint_type
-                FROM   $constraintsTable c
-                WHERE  c.constraint_name = ic.index_name" . ($useOwner ? ' AND c.owner = ic.index_owner' : '') . "
-             ) AS is_primary
-             FROM $indexColumnsTable ic
-             WHERE upper(ic.table_name) = :tableParam" . ($useOwner ? ' AND ic.table_owner = :ownerParam' : '') . "
-            ORDER BY ic.column_position ASC";
+                  i.uniqueness
+                 
+            ),
+            'NONUNIQUE', 0,
+            'UNIQUE', 1
+        ) AS is_unique,
+        ic.column_name AS column_name,
+        ic.column_position AS column_pos,
+        (
+            c.constraint_type
+           
+         ) AS is_primary
+         FROM $indexColumnsTable ic
+         join $indexesTable i on  i.index_name = ic.index_name" . ($useOwner ? ' AND ic.table_owner = i.table_owner' : '') . "
+         join  $constraintsTable c on c.constraint_name = ic.index_name" . ($useOwner ? ' AND c.owner = ic.index_owner' : '') . "
+         WHERE ic.table_name = :tableParam" . ($useOwner ? ' AND ic.table_owner = :ownerParam' : '') . "
+        ORDER BY ic.column_position ASC";
 
         $params = [
             ':tableParam' => $table,
