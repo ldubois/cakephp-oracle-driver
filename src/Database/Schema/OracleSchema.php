@@ -194,12 +194,7 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
             case 'INTEGER':
             case 'PLS_INTEGER':
             case 'BINARY_INTEGER':
-                if ($row['data_precision'] == 1) {
-                    $field = [
-                        'type' => TableSchema::TYPE_BOOLEAN,
-                        'length' => null,
-                    ];
-                } elseif ($row['data_scale'] > 0) {
+                if ($row['data_scale'] > 0) {
                     $field = [
                         'type' => TableSchema::TYPE_DECIMAL,
                         'length' => $row['data_precision'],
