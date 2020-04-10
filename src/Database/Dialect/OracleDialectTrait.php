@@ -108,7 +108,7 @@ trait OracleDialectTrait
         $outer
             ->select([
                 'cake_paging.*',
-                '_cake_page_rownum_' => new SimpleExpression('ROWNUM'),
+                '"_cake_page_rownum_"' => new SimpleExpression('ROWNUM'),
             ])
             ->from(['cake_paging' => $query]);
 
