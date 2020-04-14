@@ -159,7 +159,7 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
                     AND utc.column_name = ucc.column_name
                 " . ($useOwner ? 'AND utc.OWNER = ucc.OWNER' : '') . "
                 )
-                WHERE UPPER(utc.table_name) = :tableParam
+                WHERE utc.table_name = :tableParam
                 " . ($useOwner ? 'AND utc.OWNER = :ownerParam' : '') . "
                 ORDER BY utc.column_id";
 
@@ -564,7 +564,7 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
                     JOIN user_constraints c ON c.constraint_name = cc.constraint_name
                     JOIN user_cons_columns r ON r.constraint_name = c.r_constraint_name
                     WHERE c.constraint_type = 'R'
-                    AND upper(cc.table_name) = :tableParam
+                    AND cc.table_name = :tableParam
                     ";
 
             return [
@@ -585,7 +585,7 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
             JOIN all_cons_columns r ON (r.constraint_name = c.r_constraint_name AND r.owner = c.r_owner)
             WHERE c.constraint_type = 'R'
             AND cc.owner = :ownerParam
-            AND upper(cc.table_name) = :tableParam";
+            AND cc.table_name = :tableParam";
 
         return [
             $sql,
