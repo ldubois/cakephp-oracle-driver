@@ -48,4 +48,10 @@ class RulesCheckerIntegrationTest extends CakeRulesCheckerIntegrationTest
         $this->skipIf(ConnectionManager::get('test')->getDriver() instanceof OracleBase);
         parent::testIsUniqueAllowMultipleNulls();
     }
+
+    public function testIsUniqueNonUniqueNulls()
+    {
+        $this->skipIf(ConnectionManager::get('test')->getDriver()->getMaxAliasLength() < 31);
+        parent::testIsUniqueNonUniqueNulls();
+    }
 }
