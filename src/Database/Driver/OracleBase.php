@@ -50,7 +50,7 @@ abstract class OracleBase extends Driver
         'port' => '1521',
         'flags' => [],
         'encoding' => 'utf8',
-        'case' => 'lower',
+        'case' => 'upper',
         'timezone' => null,
         'init' => [],
         'server_version' => 11,

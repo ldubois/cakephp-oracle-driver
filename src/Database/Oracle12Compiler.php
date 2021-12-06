@@ -14,6 +14,7 @@ namespace CakeDC\OracleDriver\Database;
 
 use Cake\Database\Query;
 use Cake\Database\QueryCompiler;
+use Cake\Database\Exception\DatabaseException;
 use Cake\Database\ValueBinder;
 
 class Oracle12Compiler extends QueryCompiler
@@ -65,6 +66,12 @@ class Oracle12Compiler extends QueryCompiler
      */
     protected function _buildInsertPart(array $parts, Query $query, ValueBinder $generator): string
     {
+        if (!isset($parts[0])) {
+            throw new DatabaseException(
+                'Could not compile insert query. No table was specified. ' .
+                'Use `into()` to define a table.'
+            );
+        }
         $driver = $query->getConnection()->getDriver();
         $table = $driver->quoteIfAutoQuote($parts[0]);
         $columns = $this->_stringifyExpressions($parts[1], $generator);

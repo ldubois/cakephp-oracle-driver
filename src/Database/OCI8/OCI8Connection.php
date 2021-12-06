@@ -127,7 +127,7 @@ class OCI8Connection extends PDO
     /**
      * {@inheritdoc}
      */
-    public function query($statement, $mode = PDO::ATTR_DEFAULT_FETCH_MODE, $arg3 = null)
+    public function query($statement, $mode = PDO::ATTR_DEFAULT_FETCH_MODE, $arg3 = null, array $ctorargs = [])
     {
         $args = func_get_args();
         $sql = $args[0];

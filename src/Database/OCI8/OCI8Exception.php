@@ -24,6 +24,7 @@ class OCI8Exception extends Exception
      */
     public static function fromErrorInfo($error)
     {
+        stackTrace();
         return new self($error['message'], $error['code']);
     }
 }
