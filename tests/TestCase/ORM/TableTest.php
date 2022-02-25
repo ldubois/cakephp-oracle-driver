@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace CakeDC\OracleDriver\Test\TestCase\ORM;
 
+use Cake\Datasource\ConnectionManager;
 use Cake\Database\Expression\FunctionExpression;
 use Cake\Database\Expression\IdentifierExpression;
 use Cake\ORM\Exception\PersistenceFailedException;
@@ -35,9 +36,9 @@ class TableTest extends CakeTableTest
         'core.Authors',
         'core.Categories',
         'core.Comments',
-        'core.Groups',
+        'core.Sections',
+        'core.SectionsMembers',
         'core.Members',
-        'core.GroupsMembers',
         'core.PolymorphicTagged',
         'core.SiteArticles',
         'core.Users',
@@ -223,5 +224,11 @@ class TableTest extends CakeTableTest
         );
 
         $articles->findOrCreate(['title' => 'test']);
+    }
+
+    public function testPolymorphicBelongsToManySave()
+    {
+        $this->skipIf(ConnectionManager::get('test')->getDriver()->getMaxAliasLength() < 31);
+        parent::testPolymorphicBelongsToManySave();
     }
 }

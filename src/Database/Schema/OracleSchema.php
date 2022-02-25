@@ -24,6 +24,13 @@ class OracleSchema extends BaseSchema
 {
     protected $_constraints = [];
 
+    protected $integerTypes = [
+        TableSchema::TYPE_INTEGER => 11,
+        TableSchema::TYPE_SMALLINTEGER => 5,
+        TableSchema::TYPE_TINYINTEGER => 5,
+        TableSchema::TYPE_BIGINTEGER => 20,
+    ];
+
     /**
      * Generate the SQL to list the methods.
      *
@@ -194,18 +201,8 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
             case 'INTEGER':
             case 'PLS_INTEGER':
             case 'BINARY_INTEGER':
-                if ($row['data_scale'] > 0) {
-                    $field = [
-                        'type' => TableSchema::TYPE_DECIMAL,
-                        'length' => $row['data_precision'],
-                        'precision' => $row['data_scale'],
-                    ];
-                } else {
-                    $field = [
-                        'type' => TableSchema::TYPE_INTEGER,
-                        'length' => $row['data_precision'],
-                    ];
-                }
+             
+                $field = $this->_numberFieldDefinition($row);
                 break;
             case 'FLOAT':
             case 'BINARY_FLOAT':
@@ -355,23 +352,7 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
             case 'INTEGER':
             case 'PLS_INTEGER':
             case 'BINARY_INTEGER':
-                if ($row['data_precision'] == 1) {
-                    $field = [
-                        'type' => TableSchema::TYPE_BOOLEAN,
-                        'length' => null,
-                    ];
-                } elseif ($row['data_scale'] > 0) {
-                    $field = [
-                        'type' => TableSchema::TYPE_DECIMAL,
-                        'length' => $row['data_precision'],
-                        'precision' => $row['data_scale'],
-                    ];
-                } else {
-                    $field = [
-                        'type' => TableSchema::TYPE_INTEGER,
-                        'length' => $row['data_precision'],
-                    ];
-                }
+                $field = $this->_numberFieldDefinition($row);
                 break;
             case 'FLOAT':
             case 'BINARY_FLOAT':
@@ -500,7 +481,7 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
 
         $keyName = $this->_transformValueCase($tableIndex['name']);
         $name = $this->_transformValueCase($tableIndex['column_name']);
-        if (isset($tableIndex['is_primary']) && strtolower($tableIndex['is_primary']) === 'p') {
+        if ( !empty($tableIndex['is_primary']) && strtolower($tableIndex['is_primary']) === 'p') {
             $keyName = $type = TableSchema::CONSTRAINT_PRIMARY;
         } elseif ($tableIndex['is_unique'] !== []) {
             $type = TableSchema::CONSTRAINT_UNIQUE;
@@ -602,17 +583,22 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
     public function convertForeignKeyDescription(TableSchema $schema, array $row): void
     {
         $row = array_change_key_case($row);
+        // Fix: fk data case must be transformed
+        $column_name = $this->_transformValueCase($row['column_name']);
+        $constraint_name = $this->_transformValueCase($row['constraint_name']);
+        $referenced_table_name = $this->_transformValueCase($row['referenced_table_name']);
+        $referenced_column_name = $this->_transformValueCase($row['referenced_column_name']);
         $data = [
             'type' => TableSchema::CONSTRAINT_FOREIGN,
-            'columns' => strtoupper($row['column_name']),
+            'columns' => $column_name,
             'references' => [
-                $row['referenced_owner'] . '.' . $row['referenced_table_name'],
-                strtoupper($row['referenced_column_name']),
+                $row['referenced_owner'] . '.' . $referenced_table_name,
+                $referenced_column_name,
             ],
             'update' => TableSchema::ACTION_SET_NULL,
             'delete' => $this->_convertOnClause($row['delete_rule']),
         ];
-        $schema->addConstraint($row['constraint_name'], $data);
+        $schema->addConstraint($constraint_name, $data);
     }
 
     /**
@@ -678,7 +664,11 @@ WHERE 1=1 " . ($useOwner ? $ownerCondition : '') . $objectCondition . " ORDER BY
             $out .= '(' . (int)$data['length'] . ')';
         }
 
-        if ($data['type'] === TableSchema::TYPE_INTEGER && isset($data['length'])) {
+        if ($this->__isInteger($data['type']) && !isset($data['length'])) {
+            $data['length'] = $this->integerTypes[$data['type']];
+        }
+
+        if ($this->__isInteger($data['type']) && isset($data['length'])) {
             $out .= '(' . (int)$data['length'] . ')';
         }
 
@@ -1148,5 +1138,39 @@ END;';
         ];
 
         return array_key_exists($type, $integerTypes);
+    }
+
+    /**
+     * Build number field definition
+     *
+     * @param array $row
+     * @return array
+     */
+    protected function _numberFieldDefinition(array $row): array
+    {
+        if ($row['data_precision'] == null) {
+            $field = [
+                'type' => 'decimal',
+                'length' => $row['char_length'] ?? null,
+            ];
+        } elseif ($row['data_precision'] == 1) {
+            $field = [
+                'type' => TableSchema::TYPE_BOOLEAN,
+                'length' => null,
+            ];
+        } elseif ($row['data_scale'] > 0) {
+            $field = [
+                'type' => TableSchema::TYPE_DECIMAL,
+                'length' => $row['data_precision'],
+                'precision' => $row['data_scale'],
+            ];
+        } else {
+            $field = [
+                'type' => TableSchema::TYPE_INTEGER,
+                'length' => $row['data_precision'],
+            ];
+        }
+
+        return $field;
     }
 }
