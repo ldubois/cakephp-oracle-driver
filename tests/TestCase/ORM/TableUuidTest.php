@@ -27,7 +27,7 @@ class TableUuidTest extends CakeTableUuidTest
      * @var array
      */
     public $fixtures = [
-        'core.UuidItems',
+        'core.uuiditems',
     ];
 
     /**
@@ -37,6 +37,6 @@ class TableUuidTest extends CakeTableUuidTest
      */
     public function uuidTableProvider()
     {
-        return [['uuid_items']];
+        return [['uuiditems']];
     }
 }

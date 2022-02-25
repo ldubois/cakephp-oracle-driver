@@ -16,7 +16,6 @@ namespace CakeDC\OracleDriver\Test\TestCase\ORM;
 use Cake\Database\Driver\Sqlite;
 use Cake\Database\Expression\IdentifierExpression;
 use Cake\Database\Expression\QueryExpression;
-use CakeDC\OracleDriver\Database\Driver\OracleBase;
 use Cake\ORM\Query;
 use Cake\Test\TestCase\ORM\QueryTest as CakeQueryTest;
 
@@ -33,7 +32,6 @@ class QueryTest extends CakeQueryTest
      */
     public $fixtures = [
         'core.Articles',
-        'core.ArticlesTranslations',
         'core.Tags',
         //'core.ArticlesTags',
         'plugin.CakeDC/OracleDriver.ArticlesTags',
@@ -359,6 +357,8 @@ class QueryTest extends CakeQueryTest
         // Sqlite only supports maximum 16 digits for decimals.
         $this->skipIf($this->connection->getDriver() instanceof Sqlite);
 
+        $this->loadFixtures('Datatypes');
+
         $big = '1234567890123456789.2';
         $table = $this->getTableLocator()->get('Datatypes');
         $entity = $table->newEntity([]);
@@ -399,52 +399,5 @@ class QueryTest extends CakeQueryTest
         $this->assertNotEmpty($out, 'Should get a record');
         // There will be loss of precision if too large/small value is set as float instead of string.
         $this->assertRegExp('/^0?\.123456789012350*$/', $out->fraction);
-    }
-
-    public function testHavingOnAnAggregatedField()
-    {
-        $post = $this->getTableLocator()->get('posts');
-
-        $query = new Query($this->connection, $post);
-
-        $results = $query
-            ->select([
-                'posts.author_id',
-                'post_count' => $query->func()->count(new IdentifierExpression('posts.id')),
-            ])
-            ->group(['posts.author_id'])
-            ->having([$query->newExpr()->gte($query->func()->count(new IdentifierExpression('posts.id')), 2, 'integer')])
-            ->enableHydration(false)
-            ->toArray();
-
-        $expected = [
-            [
-                'author_id' => 1,
-                'post_count' => 2,
-            ],
-        ];
-
-        $this->assertEquals($expected, $results);
-    }
-
-    /**
-     * Tests subquery() in join clause.
-     *
-     * @return void
-     */
-    public function testSubqueryJoinClause()
-    {
-        $subquery = Query::subquery($this->getTableLocator()->get('Articles'))
-            ->select(['author_id']);
-
-        $query = $this->getTableLocator()->get('Authors')->find();
-        $query
-            ->select(['Authors.id', 'total_articles' => $query->func()->count(new IdentifierExpression('articles.author_id'))])
-            ->leftJoin(['articles' => $subquery], ['articles.author_id' => new IdentifierExpression('Authors.id')])
-            ->group(['Authors.id'])
-            ->order(['Authors.id' => 'ASC']);
-        $results = $query->all()->toList();
-        $this->assertEquals(1, $results[0]->id);
-        $this->assertEquals(2, $results[0]->total_articles);
     }
 }

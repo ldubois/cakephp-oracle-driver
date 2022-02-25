@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace CakeDC\OracleDriver\Test\TestCase\ORM;
 
-use Cake\Datasource\ConnectionManager;
 use Cake\Database\Expression\IdentifierExpression;
 use Cake\Database\Expression\QueryExpression;
 use Cake\I18n\Time;
@@ -326,11 +325,5 @@ class QueryRegressionTest extends CakeQueryRegressionTest
 
         $result = $query->first()->get('value');
         $this->assertEquals('MARIANO', $result);
-    }
-
-    public function testAssociationSubQueryNoOffset()
-    {
-        $this->skipIf(ConnectionManager::get('test')->getDriver()->getMaxAliasLength() < 31);
-        parent::testAssociationSubQueryNoOffset();
     }
 }

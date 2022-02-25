@@ -1,5 +1,4 @@
 <?php
-
 declare(strict_types=1);
 
 /**
@@ -11,12 +10,10 @@ declare(strict_types=1);
  * @copyright Copyright 2015 - 2020, Cake Development Corporation (http://cakedc.com)
  * @license MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
-
 namespace CakeDC\OracleDriver\Database\Driver;
 
 use Cake\Database\Driver;
 use Cake\Database\Query;
-use Cake\Database\QueryCompiler;
 use Cake\Database\Statement\PDOStatement;
 use Cake\Database\StatementInterface;
 use Cake\Database\ValueBinder;
@@ -33,18 +30,6 @@ abstract class OracleBase extends Driver
 {
     use ConfigTrait;
     use OracleDialectTrait;
-
-    /**
-     * @var int Maximum alias length for Oracle version < 12.2
-     */
-
-    protected const MAX_ALIAS_LENGTH = 30;
-
-    /**
-     * @var int Maximum alias length for Oracle version >= 12.2
-     */
-    protected const MAX_ALIAS_LENGTH12 = 128;
-
 
     /**
      * @var bool|mixed
@@ -65,12 +50,14 @@ abstract class OracleBase extends Driver
         'port' => '1521',
         'flags' => [],
         'encoding' => 'utf8',
-        'case' => 'upper',
+        'case' => 'lower',
         'timezone' => null,
         'init' => [],
         'server_version' => 11,
         'autoincrement' => false,
     ];
+
+    protected $_defaultConfig = [];
 
     protected $_serverVersion = null;
 
@@ -129,7 +116,7 @@ abstract class OracleBase extends Driver
         if (!empty($config['init'])) {
             foreach ((array)$config['init'] as $command) {
                 $this->getConnection()
-                    ->exec($command);
+                     ->exec($command);
             }
         }
 
@@ -195,13 +182,13 @@ abstract class OracleBase extends Driver
         $queryStringRaw = $isObject ? $query->sql() : $query;
         Log::write('debug', $queryStringRaw);
         // debug($queryStringRaw);
-        if ($isObject) {
+        if($isObject){
             //add quote
             $pattern = '/AS (\w+)__(\w+)/';
             $replacement = 'AS "${1}__${2}"';
             $queryStringRaw = preg_replace($pattern, $replacement, $queryStringRaw);
-            $queryStringRaw = str_replace('AS count', 'AS "count"', $queryStringRaw);
-            $queryStringRaw = str_replace('AS somme', 'AS "somme"', $queryStringRaw);
+            $queryStringRaw= str_replace('AS count','AS "count"', $queryStringRaw);
+            $queryStringRaw= str_replace('AS somme','AS "somme"', $queryStringRaw);
         }
         $queryString = $this->_fromDualIfy($queryStringRaw);
         [$queryString, $paramMap] = self::convertPositionalToNamedPlaceholders($queryString);
@@ -228,7 +215,7 @@ abstract class OracleBase extends Driver
             && !$query->isBufferedResultsEnabled()
             || $disableBuffer
         ) {
-            $statement->bufferResults(false);
+                $statement->bufferResults(false);
         }
 
         return $statement;
@@ -420,31 +407,5 @@ abstract class OracleBase extends Driver
         $result = $statement->fetch(PDO::FETCH_NUM);
 
         return $result[0];
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getMaxAliasLength(): ?int
-    {
-        if ($this->_serverVersion !== null && $this->_serverVersion >= 12.2) {
-            return static::MAX_ALIAS_LENGTH12;
-        } else {
-            return static::MAX_ALIAS_LENGTH;
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @return \Cake\Database\QueryCompiler
-     */
-    public function newCompiler(): QueryCompiler
-    {
-        if ($this->_serverVersion !== null && $this->_serverVersion >= 12) {
-            return new Oracle12Compiler();
-        } else {
-            return new OracleCompiler();
-        }
     }
 }
