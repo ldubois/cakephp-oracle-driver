@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright 2015 - 2016, Cake Development Corporation (http://cakedc.com)
  *
@@ -9,8 +10,8 @@
  * @license MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
 
-use Cake\Routing\Router;
 
-Router::plugin('OracleDriver', function ($routes) {
+/* @var \Cake\Routing\RouteBuilder $routes */
+$routes->plugin('OracleDriver', function ($routes) {
     $routes->fallbacks('DashedRoute');
 });
