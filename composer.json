@@ -1,6 +1,6 @@
 {
     "name": "ldubois/cakephp-oracle-driver",
-    "description": "CakePHP 4 Driver for Oracle Database",
+    "description": "CakePHP 4 Driver for Oracle Database & php 8",
     "type": "cakephp-plugin",
     "keywords": [
         "cakephp",
@@ -25,10 +25,13 @@
         "source": "https://github.com/cakedc/cakephp-oracle-driver"
     },
     "config": {
-        "preferred-install": "src"
+        "preferred-install": "src",
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
     },
     "require": {
-        "php": ">=7.3",
+        "php": ">=8.0",
         "cakephp/chronos": "*",
         "ext-pdo": "*"
     },
