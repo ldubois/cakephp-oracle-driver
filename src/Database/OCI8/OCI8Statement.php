@@ -270,13 +270,13 @@ class OCI8Statement extends \PDOStatement implements \IteratorAggregate
     /**
      * {@inheritdoc}
      */
-    public function fetch($fetchMode = null, $orientation = null, $offset = null)
+    public function fetch(int $mode = PDO::FETCH_DEFAULT, int $cursorOrientation = PDO::FETCH_ORI_NEXT, int $cursorOffset = 0): mixed
     {
         $toLowercase = ($this->getAttribute(PDO::ATTR_CASE) == PDO::CASE_LOWER);
         $nullToString = ($this->getAttribute(PDO::ATTR_ORACLE_NULLS) == PDO::NULL_TO_STRING);
         $nullEmptyString = ($this->getAttribute(PDO::ATTR_ORACLE_NULLS) == PDO::NULL_EMPTY_STRING);
 
-        $fetchMode = $fetchMode ?: $this->_defaultFetchMode;
+        $fetchMode = $mode ?: $this->_defaultFetchMode;
 
         switch ($fetchMode) {
             case PDO::FETCH_BOTH:
@@ -427,7 +427,7 @@ class OCI8Statement extends \PDOStatement implements \IteratorAggregate
     /**
      * {@inheritdoc}
      */
-    public function fetchColumn($columnIndex = 0)
+    public function fetchColumn(int $column = 0): mixed
     {
         $row = oci_fetch_array($this->_sth, OCI_NUM | OCI_RETURN_NULLS | OCI_RETURN_LOBS);
 
@@ -456,9 +456,9 @@ class OCI8Statement extends \PDOStatement implements \IteratorAggregate
      * @param string $attribute Attribute id.
      * @return mixed The attribute value.
      */
-    public function getAttribute($attribute)
+    public function getAttribute(int $name): mixed
     {
-        return $this->_conn->getConfig((string)$attribute);
+        return $this->_conn->getConfig((string)$name);
     }
 
     /**
