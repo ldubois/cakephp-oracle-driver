@@ -28,64 +28,13 @@ trait ConfigTrait
     protected $_configInitialized = false;
 
     /**
-     * ### Usage
+     * Get the configuration data used to create the driver.
      *
-     * Reading the whole config:
-     *
-     * ```
-     * $this->config();
-     * ```
-     *
-     * Reading a specific value:
-     *
-     * ```
-     * $this->config('key');
-     * ```
-     *
-     * Reading a nested value:
-     *
-     * ```
-     * $this->config('some.nested.key');
-     * ```
-     *
-     * Setting a specific value:
-     *
-     * ```
-     * $this->config('key', $value);
-     * ```
-     *
-     * Setting a nested value:
-     *
-     * ```
-     * $this->config('some.nested.key', $value);
-     * ```
-     *
-     * Updating multiple config settings at the same time:
-     *
-     * ```
-     * $this->config(['one' => 'value', 'another' => 'value']);
-     * ```
-     *
-     * @param string|array|null $key The key to get/set, or a complete array of configs.
-     * @param mixed|null $value The value to set.
-     * @param bool $merge Whether to recursively merge or overwrite existing config, defaults to true.
-     * @return mixed Config value being read, or the object itself on write operations.
-     * @throws \Cake\Core\Exception\Exception When trying to set a key that is invalid.
+     * @return array<string, mixed>
      */
-    public function config($key = null, $value = null, $merge = true)
+    public function config():array
     {
-        if (!$this->_configInitialized) {
-            $this->_config = $this->_defaultConfig;
-            $this->_configInitialized = true;
-        }
-
-        if (is_array($key) || func_num_args() >= 2) {
-            $this->_configWrite($key, $value, $merge);
-
-            return $this;
-        }
-
-        return $this->_configRead($key);
+        return $this->_config;
     }
 
     /**
